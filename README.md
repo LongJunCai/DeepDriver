@@ -4,3 +4,4 @@ This is a Deep Learning framework projects, including:
 - DNN, a deep ANN
 - CNN, the convNet, including LetNet, FNN, and so on.
 - RNN/LSTM, used for sequential strings handeling
+- Encoder-Decoder framework and so on.
