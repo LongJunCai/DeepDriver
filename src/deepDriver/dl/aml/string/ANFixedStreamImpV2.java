@@ -1,0 +1,107 @@
+package deepDriver.dl.aml.string;
+
+public class ANFixedStreamImpV2 extends StreamImp {
+	int offSet = 0;
+	int endPos = 0;
+	
+	public ANFixedStreamImpV2(Dictionary dic, int t, int offSet, int endPos) {
+		this(dic, t, offSet);
+		this.endPos = endPos;
+	}
+	public ANFixedStreamImpV2(Dictionary dic, int t, int offSet) {
+		super(dic, t);
+		out = false;
+		this.offSet = offSet;
+		cnt = cnt + offSet;
+	}
+
+	public ANFixedStreamImpV2(Dictionary dic, int t) {
+		super(dic, t);
+		out = false;
+	}
+	
+	public boolean hasNext() {
+//		if (cnt % 2 == 0) {//Q should be 
+//			cnt = cnt + 1;
+//		}
+		if (cnt < 0 || cnt % 2 == 0) {//A should be 
+			cnt = cnt + 1;
+		}
+		if (endPos > 0) {
+			return cnt + groupSize < endPos;
+		}
+		return cnt + groupSize < dic.txt.size();
+	}
+	
+	@Override
+	public void reset() {
+		super.reset();
+		cnt = cnt + offSet;
+	}
+	
+	int groupSize = 2;
+	
+	public void next() {		
+		cnt = cnt + groupSize;
+		int [] is = dic.txt.get(cnt);
+		int [] is2 = is;//dic.txt.get(cnt + 1); 
+		sampleTT = new double[is.length + 1][];
+		targetTT = new double[is.length + 1][];
+		StringBuffer sb = null;
+		StringBuffer sb2 = null;
+		if (out) {
+			sb = new StringBuffer();
+			sb2 = new StringBuffer();
+		}
+		
+		for (int j = 0; j < sampleTT.length; j++) {	
+			int si = 0;
+			int ti = 0;
+			String endFlag = "b";
+			endFlag = dic.EOS;
+			if (j -1 > is.length - 1) {
+//				si = -1;
+				si = dic.strMap.get(dic.EOS);
+				if (out) {
+					sb.append(dic.EOS);
+				}				
+/***/		} else if (j == 0) {
+//				si = -1;
+				si = dic.strMap.get(dic.EOS);
+				if (out) {
+					sb.append(dic.EOS);
+				}			
+			} else {
+				si = is[j -1];
+				if (out) {
+					sb.append(dic.intMap.get(si));
+				}				
+			}	
+			if (j > is2.length - 1) {
+//				ti = -1;
+				ti = dic.strMap.get(dic.EOS);
+				if (out) {
+					sb2.append(dic.EOS);
+				}				
+			} else {
+				ti = is2[j];
+				if (out) {
+					sb2.append(dic.intMap.get(ti));
+				}				
+			}
+			double [] sw = sampleTT[j] = new double[sampleFeatureNum];
+			double [] tw = targetTT[j] = new double[targetFeatureNum];
+			if (si >= 1) {
+				sw[si - 1] = 1;
+			}
+			if (ti >= 1) {
+				tw[ti - 1] = 1;
+			}
+		}
+		if (out) {
+			System.out.println("t:"+sb2.toString());
+			System.out.println("s:"+sb.toString());
+
+		}		
+	}
+}
