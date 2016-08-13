@@ -3,7 +3,7 @@ package deepDriver.dl.aml.cnn;
 import java.io.File;
 import java.util.List;
 
-
+import deepDriver.dl.aml.cnn.test.SingleResult;
 import deepDriver.dl.aml.distribution.Fs;
 import deepDriver.dl.aml.lrate.BoldDriverLearningRateManager;
 
@@ -126,9 +126,9 @@ public class ConvolutionNeuroNetwork {
 			error = error /(double)cnt;
 //			adjustMl(error, loop);
 			double acc = (double)correctCnt/(double)cnt;
-			if (acc > 0.80 && loop%5 == 0) {                        //有修改
+//			if (acc > 0.80 && loop%5 == 0) {                        //有修改
 				saveCfg2File(cfg.getName() + "-"+ loop, this.cfg);   //有修改
-			}
+//			}
 			System.out.println("Complete loop"+loop +" with "+cnt+" samples, accurracy is "+ 
 					acc
 					+" with std error is "+ error);
@@ -213,7 +213,7 @@ public class ConvolutionNeuroNetwork {
 			
 		//
 			dm.setResult(getMaxPos(targets));
-//			System.out.println((int)dm.getResult());
+		//	System.out.println((int)dm.getResult());
 		//
 			
 			if (dm.getTarget() != null && check(targets, dm.getTarget())) {
@@ -228,6 +228,32 @@ public class ConvolutionNeuroNetwork {
             System.out.println("Complete "+allCnt+" testings, accuracy: "+(double)correctCnt/(double)allCnt);
         }		
 		enableTest(false);
+	}
+	
+	
+	
+	
+	public SingleResult predict(IDataStream tis) 
+	{
+	    SingleResult singleResult = new SingleResult();
+	    if (tis == null) 
+	    {
+            System.out.println("IDataStream is null");
+	        return null;
+        }
+	    if (cNNBP == null) 
+	    {
+            cNNBP = createCNNBP();
+        }
+	    tis.reset();
+	    IDataMatrix dm = tis.next();
+	    double [] targets = cNNBP.test(new IDataMatrix[]{dm});
+	    int label = getMaxPos(targets);
+	    double prob = targets[label];
+	    singleResult.setLabel(label);
+	    singleResult.setProb(prob);
+	    return singleResult;
+	    
 	}
 
 }

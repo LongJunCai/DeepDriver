@@ -41,4 +41,12 @@ public class CsvImgLoader {
 		bi.close();
 	}
 
+	public void loadSingle(String content) throws Exception 
+	{
+	    if(content != null)
+	    {
+	        content = content.trim();
+	        imgs.add(content);
+	    }
+	}
 }

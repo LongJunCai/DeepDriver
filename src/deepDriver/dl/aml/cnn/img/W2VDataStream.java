@@ -32,7 +32,11 @@ public class W2VDataStream implements IDataStream {
 			ri = ri - 1;
 		}
 		String s = imgLoader.imgs.get(ri);
-		return constructIDataMatrix(s, imgLoader.header.startsWith(label));
+		boolean hasHeader = false;
+		if (imgLoader.header != null) {
+		    hasHeader = imgLoader.header.startsWith(label);
+        }
+		return constructIDataMatrix(s, hasHeader);
 	}
 	
 	public IDataMatrix next(Object pos) {
