@@ -65,8 +65,12 @@ public class VerifyWordSegment {
 		nna.setNnArch(new int [] {128, 128});
 		nna.setCostFunction(LSTMConfigurator.SOFT_MAX);
 		qcfg.buildArchitecture(qsi, nna);
+		String mfName = "Tws_1470879785314_7.m";
+		if (args.length > 0) {
+			mfName = args[0];
+		}
 		
-		String sqFile = "D:\\workspace\\DeepDriver\\bin\\data\\Tws_1470467499357_9.m";
+		String sqFile = "D:\\workspace\\DeepDriver\\bin\\data\\"+mfName;
 		if (sqFile != null) {
 			System.out.println("Upgrade qCfg from file: "+sqFile);
 			LSTMWwUpdater wWUpdater = new LSTMWwUpdater(false, true);
