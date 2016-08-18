@@ -1,20 +1,21 @@
-package deepDriver.dl.aml.lstm.apps.wordSegmentation.test;
+package deepDriver.dl.aml.lstm.lstm2Ann.test;
 
+import deepDriver.dl.aml.ann.ANN;
+import deepDriver.dl.aml.costFunction.SoftMax4ANN;
 import deepDriver.dl.aml.lrate.StepReductionLR;
 import deepDriver.dl.aml.lstm.LSTM;
 import deepDriver.dl.aml.lstm.LSTMConfigurator;
 import deepDriver.dl.aml.lstm.NeuroNetworkArchitecture;
 import deepDriver.dl.aml.lstm.apps.wordSegmentation.WordSegSet;
-import deepDriver.dl.aml.lstm.apps.wordSegmentation.WordSegmentationStream;
+import deepDriver.dl.aml.lstm.lstm2Ann.Lstm2AnnTeacher;
 
-public class TestWordSegment {
-
-	
-	static int qFile = 1;
-	static int testA = 2;
+public class TestLstm2Ann {
 	
 	public static void main(String[] args) throws Exception {
 		WordSegSet wss = new WordSegSet();
+		wss.setMaxLength(1000);
+		wss.setRequireBlank(true);
+		wss.setRequireEndFlagCheck(false);
 		wss.loadWordSegSet("D:\\6.workspace\\p.NLP\\train.conll");
 		
 		wss.setVoLoadOnly(true); 
@@ -54,32 +55,26 @@ public class TestWordSegment {
 		final LSTM qlstm = new LSTM(qcfg);
 		
 		long l = System.currentTimeMillis();
-		WordSegmentationStream qsi = new WordSegmentationStream(wss);
+		WordSegWindowStream qsi = new WordSegWindowStream(wss);
 		
 		NeuroNetworkArchitecture nna = new NeuroNetworkArchitecture();
 
 		nna.setNnArch(new int [] {128, 128});
-//		nna.setNnArch(new int [] {256, 256});
-		nna.setCostFunction(LSTMConfigurator.SOFT_MAX);
+		
+ 		nna.setCostFunction(LSTMConfigurator.SOFT_MAX);
+ 		qcfg.setRequireLastRNNLayer(false);
 		qcfg.buildArchitecture(qsi, nna);
+		qcfg.setName("seqLstm");
 		
-//		if (sqFile != null) {
-//			System.out.println("Upgrade qCfg from file: "+sqFile);
-//			LSTMWwUpdater wWUpdater = new LSTMWwUpdater(false, true);
-//			LSTMWwUpdater deltaWwUpdater = new LSTMWwUpdater(false, false);
-//			LSTMWwUpdater checker = new LSTMWwUpdater(true, true);
-//			LSTMConfigurator cfg = (LSTMConfigurator) Fs.readObjFromFile(sqFile);
-//			checker.updatewWs(cfg, qcfg);
-//			wWUpdater.updatewWs(cfg, qcfg); 
-//			deltaWwUpdater.updatewWs(cfg, qcfg); 
-//			System.out.println("Complete the merging..");
-//			checker.updatewWs(cfg, qcfg);
-//		}
+		int kLength = 4;
+		ANN ann = new ANN();
+		ann.setName("seqAnn");
+		ann.setCf(new SoftMax4ANN());
+		ann.buildUp(new int[]{128, kLength});
+		
+		Lstm2AnnTeacher teacher = new Lstm2AnnTeacher(qcfg, ann);
+		teacher.trainModel(qsi, false);
 
-		qlstm.trainModel(qsi);
-		
 	}
-
-
 
 }

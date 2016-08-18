@@ -63,6 +63,7 @@ public class WordSegSet {
 			
 			
 			WordSegment ws = new WordSegment();
+			String seg = null;
 			if (useParser) {
 				aa = parse(content);
 				string = new int[aa.length];
@@ -84,16 +85,18 @@ public class WordSegSet {
 					content = bi.readLine();
 					continue;
 				}
-
 				
 				if (content.length() > 40) {
 					System.out.println("l > 40: " + content);
 				}
 				//parse the format
 				String [] segsFormat = content.split("\t");
-				String seg = segsFormat[1];
+				seg = segsFormat[1].trim();
 				wordNum = wordNum + seg.length();
-				//
+				//		
+//				if (checkCendFlag(seg)) {
+//					previous = null;
+//				}	
 				
 				string = new int[seg.length()];
 				aa = new String[seg.length()];
@@ -126,20 +129,81 @@ public class WordSegSet {
 					previous.setNext(ws);
 				}
 				previous = ws;
-			}		
+			}
+			
+			if (requireEndFlagCheck && checkCendFlag(seg)) {
+				previous = null;
+			}	
 
 			content = bi.readLine();
 		}
 		bi.close();
 		System.out.println("There are " + cnt + " words");
 
+		if (requireBlank) {			
+			mapString2Int(BLANK);
+		}
+	}
+	public static final String BLANK = "<B>";	
+	
+	public int getMaxLength() {
+		return maxLength;
+	}
+	
+	boolean requireEndFlagCheck = true;	
+
+	public boolean isRequireEndFlagCheck() {
+		return requireEndFlagCheck;
+	}
+
+	public void setRequireEndFlagCheck(boolean requireEndFlagCheck) {
+		this.requireEndFlagCheck = requireEndFlagCheck;
+	}
+
+	public void setMaxLength(int maxLength) {
+		this.maxLength = maxLength;
+	}
+	boolean requireBlank = false;
+	
+	public boolean isRequireBlank() {
+		return requireBlank;
+	}
+
+	public void setRequireBlank(boolean requireBlank) {
+		this.requireBlank = requireBlank;
+	}
+	String [] cendFlag = {" ", ",", "，", ".", "。", "!", "?", 
+			"、", "”","“","《", "》","（", "）", "；"};
+	
+	public boolean checkCendFlag(String str) {
+		for (int i = 0; i < cendFlag.length; i++) {
+			if (cendFlag[i].equals(str)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private String[] parse(String content) {
 		return null;
 	}
 	
+	public List<WordSegment> getScentences() {
+		return scentences;
+	}
+
+	public void setScentences(List<WordSegment> scentences) {
+		this.scentences = scentences;
+	}
 	int cnt = 0;
+
+	public int getCnt() {
+		return cnt;
+	}
+
+	public void setCnt(int cnt) {
+		this.cnt = cnt;
+	}
 
 	public int mapString2Int(String s1) {
 		Integer i1 = strMap.get(s1);

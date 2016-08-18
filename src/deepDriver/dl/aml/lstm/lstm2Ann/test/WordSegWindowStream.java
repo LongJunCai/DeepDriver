@@ -1,22 +1,26 @@
-package deepDriver.dl.aml.lstm.apps.wordSegmentation;
+package deepDriver.dl.aml.lstm.lstm2Ann.test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import deepDriver.dl.aml.lstm.IStream;
+import deepDriver.dl.aml.lstm.apps.wordSegmentation.WordSegSet;
+import deepDriver.dl.aml.lstm.apps.wordSegmentation.WordSegment;
 
-public class WordSegmentationStream implements IStream {
+public class WordSegWindowStream implements IStream {
 	
 	WordSegSet wss;	
 	int segmentType = 4;
 	int vSize = 0;
 	int tLength = 40;
+	
+	int cxtLength = 3;
 
-	public WordSegmentationStream(WordSegSet wss) {
+	public WordSegWindowStream(WordSegSet wss) {
 		super();
 		this.wss = wss;
-		vSize = wss.cnt;
+		vSize = wss.getCnt();
 	}
 	
 	double[][] sampleTT;
@@ -40,18 +44,24 @@ public class WordSegmentationStream implements IStream {
 
 	@Override
 	public boolean hasNext() {
-		return cnt < wss.scentences.size();
+		if (!finishScentence) {
+			return true;
+		}
+		return cnt < wss.getScentences().size();
 	}
 	
 	Random rd = new Random(System.currentTimeMillis());
 
 	@Override
 	public void next() {
-		int ri = cnt++;
-		double ss = wss.scentences.size(); 
-		if (random) {
-			ri = (int)(rd.nextDouble() * ss);
-		}		 
+		int ri = cnt;
+		if (finishScentence) {
+			cnt++;
+		}
+//		double ss = wss.getScentences().size(); 
+//		if (random) {
+//			ri = (int)(rd.nextDouble() * ss);
+//		}		 
 		next(ri);
 	}
 
@@ -86,31 +96,45 @@ public class WordSegmentationStream implements IStream {
 	public Object getPos() {
 		return pos;
 	}
-
+	
+	boolean finishScentence = true;
+	int posOfSen = 0;
+	List<Integer> sFs = new ArrayList<Integer>();
+	List<Integer> tFs = new ArrayList<Integer>();
+	
 	@Override
 	public void next(Object pos) {
 		this.pos = (Integer) pos;
-		WordSegment ws = wss.scentences.get(this.pos);
-		
-		List<Integer> sFs = new ArrayList<Integer>();
-		List<Integer> tFs = new ArrayList<Integer>();
-		while (ws != null) {
-			int [] wi = ws.getWordsInt();
-			for (int i = 0; i < wi.length; i++) {
-				sFs.add(wi[i]);
-				tFs.add(getWsType(wi.length, i));
+		if (finishScentence) {
+			posOfSen = 0;
+			WordSegment ws = wss.getScentences().get(this.pos);		
+			while (ws != null) {
+				int[] wi = ws.getWordsInt();
+				for (int i = 0; i < wi.length; i++) {
+					sFs.add(wi[i]);
+					tFs.add(getWsType(wi.length, i));
+				}
+				ws = ws.getNext();
 			}
-			ws = ws.getNext();
 		}
-		this.sampleTT = new double[sFs.size()][];
-		this.targetTT = new double[tFs.size()][];
+		
+		this.sampleTT = new double[cxtLength * 2 + 1][];
+		this.targetTT = new double[1][];
+		targetTT[0] = new double[segmentType];
+		targetTT[0][tFs.get(posOfSen)] = 1;
 		for (int i = 0; i < sampleTT.length; i++) {
+			int mi = i - cxtLength + posOfSen;
 			sampleTT[i] = new double[1];
-			sampleTT[i][0] = sFs.get(i);
-			
-			targetTT[i] = new double[segmentType];
-			targetTT[i][tFs.get(i)] = 1;
+			if (mi < 0 || mi > sFs.size() - 1) {
+				sampleTT[i][0] = wss.mapString2Int(wss.BLANK);
+			} else {
+				sampleTT[i][0] = sFs.get(mi);
+			}					
 		}
+		if (posOfSen == sFs.size() - 1) {
+			finishScentence = true;
+		}
+		posOfSen ++;		
 	}
 	
 	int Ws_B = 0;

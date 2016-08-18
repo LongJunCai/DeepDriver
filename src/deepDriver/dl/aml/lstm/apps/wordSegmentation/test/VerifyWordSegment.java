@@ -21,7 +21,7 @@ public class VerifyWordSegment {
 		wss.loadWordSegSet("D:\\6.workspace\\p.NLP\\train.conll");
 		
 		wss.setVoLoadOnly(false);
-		wss.setLockVo(true);
+//		wss.setLockVo(true);
 		wss.loadWordSegSet("D:\\6.workspace\\p.NLP\\dev.conll");
 
 		final int t = 5;
@@ -59,6 +59,7 @@ public class VerifyWordSegment {
 		
 		long l = System.currentTimeMillis();
 		WordSegmentationStream qsi = new WordSegmentationStream(wss);
+		qsi.setRandom(false);
 		
 		NeuroNetworkArchitecture nna = new NeuroNetworkArchitecture();
 
@@ -68,9 +69,9 @@ public class VerifyWordSegment {
 		String mfName = "Tws_1470879785314_7.m";
 		if (args.length > 0) {
 			mfName = args[0];
-		}
+		}		
 		
-		String sqFile = "D:\\workspace\\DeepDriver\\bin\\data\\"+mfName;
+		String sqFile = "D:\\workspace\\DDL\\bin\\data\\"+mfName;
 		if (sqFile != null) {
 			System.out.println("Upgrade qCfg from file: "+sqFile);
 			LSTMWwUpdater wWUpdater = new LSTMWwUpdater(false, true);

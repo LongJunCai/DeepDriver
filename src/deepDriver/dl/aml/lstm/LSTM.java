@@ -623,15 +623,24 @@ public class LSTM {
 		
 		int scNum = 0;
 		int correctScNum = 0;
+		int exceedingNum = 0;
 		while (qsi.hasNext()) {
 			qsi.next();
 			boolean scCorrect = true;
-			scNum ++;
+			scNum ++;			
+			double [][] sample = qsi.getSampleTT();
+			if (sample.length == 0) {
+				continue;
+			}
 			double [][] ts = qsi.getTarget();
-			double [][] rs = bPTT.fTT(qsi.getSampleTT(), true);
+			double [][] rs = bPTT.fTT(sample, true);
 			for (int i = 0; i < rs.length; i++) {
 				verifyNum ++;
-				if (check(ts[i], rs[i])) {
+				if (i > ts.length - 1) {
+					System.out.println(""+sample.length +", "+ts.length +", "+rs.length);
+					exceedingNum ++;
+				}
+				if (i > ts.length - 1 || check(ts[i], rs[i])) {
 					correctNum ++;
 				} else {
 					scCorrect = false;
@@ -646,6 +655,7 @@ public class LSTM {
 		System.out.println(scNum+" words in all, and "+correctScNum
 				+" words type are correct, the avg correction is: "
 				+(double)correctScNum/(double)scNum);
+		System.out.println("Exceeding num is: "+ exceedingNum);
 		
 	}
 

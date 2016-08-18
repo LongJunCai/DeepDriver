@@ -7,6 +7,7 @@ public interface INeuroUnit {
 	public double getAaz(int dataIndex);	
 	
 //	public int getInputSize();	
+//	public double[] getDeltaZ();
 	
 	public double get4PropagationPreviousDelta(int dataIndex, int previouNeuroIndex);
 	
