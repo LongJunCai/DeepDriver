@@ -7,6 +7,7 @@ import deepDriver.dl.aml.distribution.Fs;
 import deepDriver.dl.aml.lstm.BPTT;
 import deepDriver.dl.aml.lstm.IStream;
 import deepDriver.dl.aml.lstm.LSTMConfigurator;
+import deepDriver.dl.aml.utils.AccuracyCaculator;
 
 public class Lstm2AnnTeacher {
 	LSTMConfigurator qcfg;
@@ -30,6 +31,7 @@ public class Lstm2AnnTeacher {
 			double err = runEpich();
 			save2File(rcnt++ % 10 +"");
 			if (cnt > 0 && qcfg.getAccuracy() > 0 && qcfg.getAccuracy() > err) {
+				System.out.println("Satisfy the acc "+qcfg.getAccuracy());
 				break;
 			}
 		}
@@ -43,10 +45,11 @@ public class Lstm2AnnTeacher {
 		double lastAvg = 0;
 
 		while (qis.hasNext()) {
-			qis.next();
-			Object pos = qis.getPos();
-			qis.next(pos);
+			qis.next(); 
 			cnt++;
+//			if (cnt >= 338199) {
+////				System.out.println("Ready..");
+//			}
 			double m = qcfg.getM();
 			if (qcfg.getLr() != null) {
 				double l = qcfg.getLr().adjustML(error, qcfg.getLearningRate());
@@ -65,7 +68,7 @@ public class Lstm2AnnTeacher {
 			if (cnt % 200 == 0) {
 				System.out.println(qcfg.getName() + " avg Error is: "+ avgErr +" with "+cnt);
 				if (avgErr < 50.0) {
-					if (lastAvg == 0 || lastAvg -  avgErr> 1.0) {
+					if (cnt == 200 || lastAvg -  avgErr> 1.0) {
 						save2File(rcnt++ % 10 +"");
 						lastAvg = avgErr;
 					}					
@@ -100,6 +103,25 @@ public class Lstm2AnnTeacher {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
+	}
+	
+	AccuracyCaculator acc = new AccuracyCaculator();
+	
+	public void testModel(IStream qis, boolean skip) {
+		this.qis = qis;
+		System.out.println("Begin to train the model.");
+		acc.reset();
+		while (qis.hasNext()) {
+			qis.next(); 
+			acc.summaryCp();
+			double [] result = lstm2AnnBPTT.fTT(qis.getSampleTT());
+			double [] target = qis.getTarget()[0];
+			acc.cntIncrease();
+			if (acc.check(result, target)) {
+				acc.correctCntIncrease();
+			}
+		}
+		acc.summary();			
 	}
 	
 

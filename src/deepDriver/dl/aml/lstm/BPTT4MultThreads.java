@@ -81,5 +81,14 @@ public class BPTT4MultThreads extends BPTT {
 			}			
 		});
 	}
+	
+	public void bpttPartialFromNextLayer(final IRNNLayer nextLayer,  final RNNNeuroVo [] vos, final IRNNLayer layer, final boolean useDeActivate, final boolean addtive) {
+//		bpttPartialFromNextLayer(nextLayer,  vos, layer, useDeActivate, 0, vos.length, false);
+		runMutipleThreads(vos.length, new PartialCallback() {
+			public void runPartial(int offset, int runLen) {
+				bpttPartialFromNextLayer(nextLayer, vos, layer, useDeActivate, offset, runLen, addtive);
+			}			
+		});
+	}
 
 }

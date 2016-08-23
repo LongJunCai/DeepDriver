@@ -30,6 +30,7 @@ public class RNNNeuroVo implements IRNNNeuroVo, Serializable {
 //	public RNNNeuroVo(int t, boolean inHidenLayer, int previousNNN, int currentNNN) {
 //		this(t, inHidenLayer, previousNNN, currentNNN, currentNNN);
 //	}
+	public RNNNeuroVo(){}
 	public RNNNeuroVo(int t, boolean inHidenLayer, int previousNNN, int LayerNN, int blockNN, int nextLayerNN) {
 		super();
 		this.t = t;

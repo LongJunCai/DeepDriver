@@ -106,6 +106,8 @@ public class WordSegWindowStream implements IStream {
 	public void next(Object pos) {
 		this.pos = (Integer) pos;
 		if (finishScentence) {
+			sFs.clear();
+			tFs.clear();
 			posOfSen = 0;
 			WordSegment ws = wss.getScentences().get(this.pos);		
 			while (ws != null) {
@@ -116,12 +118,17 @@ public class WordSegWindowStream implements IStream {
 				}
 				ws = ws.getNext();
 			}
+			finishScentence = false;
 		}
 		
 		this.sampleTT = new double[cxtLength * 2 + 1][];
 		this.targetTT = new double[1][];
 		targetTT[0] = new double[segmentType];
-		targetTT[0][tFs.get(posOfSen)] = 1;
+		if (posOfSen > tFs.size() - 1) {
+			System.out.println("what is wrong.");
+		}
+		int ttype = tFs.get(posOfSen);
+		targetTT[0][ttype] = 1;
 		for (int i = 0; i < sampleTT.length; i++) {
 			int mi = i - cxtLength + posOfSen;
 			sampleTT[i] = new double[1];
@@ -147,7 +154,7 @@ public class WordSegWindowStream implements IStream {
 			return Ws_S;
 		} else {
 			int ti = index + 1;
-			if (ti == 0) {
+			if (ti == 1) {
 				return Ws_B;
 			} else if(ti == size) {
 				return Ws_E;

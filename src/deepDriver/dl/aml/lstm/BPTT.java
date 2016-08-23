@@ -59,7 +59,7 @@ public class BPTT implements IBPTT {
 
 	double [][] sample;
 	
-	private double [][] fTT(double [][] sample) {
+	protected double [][] fTT(double [][] sample) {
 		this.sample = sample;
 		for (int i = 0; i < sample.length; i++) {
 			t = i;
@@ -1171,11 +1171,19 @@ public class BPTT implements IBPTT {
 	}
 	
 	public void bpttPartialFromNextLayer(RNNNeuroVo [] vos, IRNNLayer layer, boolean useDeActivate, int offset, int length) {
+		bpttPartialFromNextLayer(cfg.layers[layerPos + 1],  vos, layer, useDeActivate, offset, length, false);
+	}
+	
+	public void bpttPartialFromNextLayer(IRNNLayer nextLayer,  RNNNeuroVo [] vos, IRNNLayer layer, boolean useDeActivate, boolean addtive) {
+		bpttPartialFromNextLayer(nextLayer,  vos, layer, useDeActivate, 0, vos.length, false);
+	}
+	
+	public void bpttPartialFromNextLayer(IRNNLayer nextLayer,  RNNNeuroVo [] vos, IRNNLayer layer, boolean useDeActivate, int offset, int length, boolean addtive) {
 		//do we need to reset all the values?
-		if (cfg.layers[layerPos + 1] instanceof RNNLayer) {
+		if (nextLayer instanceof RNNLayer) {
 			for (int i = offset; i < offset + length; i++) {
 				SimpleNeuroVo vo = vos[i].getNvTT()[t];
-				RNNNeuroVo[] nextVos = cfg.layers[layerPos + 1]
+				RNNNeuroVo[] nextVos = nextLayer
 						.getRNNNeuroVos();
 				double s = 0;
 				for (int j = 0; j < nextVos.length; j++) {
@@ -1188,11 +1196,15 @@ public class BPTT implements IBPTT {
 				if (useDeActivate) {
 					vo.deltaZz = s * f.deActivate(vo.zZ);
 				} else {
-					vo.deltaZz = s;
+					if (addtive) {
+						vo.deltaZz = vo.deltaZz + s;
+					} else {
+						vo.deltaZz = s;
+					}					
 				} 
 			}
-		} else if (cfg.layers[layerPos + 1] instanceof LSTMLayer) {
-			LSTMLayer nlayer = (LSTMLayer) cfg.layers[layerPos + 1];
+		} else if (nextLayer instanceof LSTMLayer) {
+			LSTMLayer nlayer = (LSTMLayer) nextLayer;
 			for (int i = offset; i < offset + length; i++) {
 				SimpleNeuroVo vo = vos[i].getNvTT()[t];
 				Block [] blocks = nlayer.getBlocks();
@@ -1219,7 +1231,12 @@ public class BPTT implements IBPTT {
 				if (useDeActivate) {
 					vo.deltaZz = s * f.deActivate(vo.zZ);
 				} else {
-					vo.deltaZz = s;
+//					vo.deltaZz = s;
+					if (addtive) {
+						vo.deltaZz = vo.deltaZz + s;
+					} else {
+						vo.deltaZz = s;
+					}
 				} 
 			}
 		}
@@ -1238,5 +1255,7 @@ public class BPTT implements IBPTT {
 	public void bpTT4RNNLayer(ProjectionLayer layer) {
 		bpttFromNextLayer(layer, false);		
 	}
+
+	
 
 }

@@ -21,7 +21,14 @@ public class ANN implements Serializable {
 	
 	ANNCfg aNNCfg = new ANNCfg();	
 	
-	
+	public ANNCfg getaNNCfg() {
+		return aNNCfg;
+	}
+
+	public void setaNNCfg(ANNCfg aNNCfg) {
+		this.aNNCfg = aNNCfg;
+	}
+
 	public String getName() {
 		return name;
 	}

@@ -26,6 +26,10 @@ public interface IBPTT extends IRNNLayerVisitor {
 	
 	public void bpTT4RNNLayer(ProjectionLayer layer);
 	
+//	public void fTT4RNNLayer(BiLstmLayer layer);
+//	
+//	public void bpTT4RNNLayer(BiLstmLayer layer);
+	
 //	public void updateWw4RNNLayer(RNNLayer layer);
 //	
 //	public void updateWw4RNNLayer(LSTMLayer layer);

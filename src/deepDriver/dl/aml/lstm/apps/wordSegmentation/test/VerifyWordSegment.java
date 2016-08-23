@@ -17,15 +17,17 @@ public class VerifyWordSegment {
 	
 	public static void main(String[] args) throws Exception {
 		WordSegSet wss = new WordSegSet();
-		wss.setVoLoadOnly(true);
+		wss.setVoLoadOnly(true);		
 		wss.loadWordSegSet("D:\\6.workspace\\p.NLP\\train.conll");
 		
 		wss.setVoLoadOnly(false);
+//		wss.setVoLoadOnly(true);		
 //		wss.setLockVo(true);
 		wss.loadWordSegSet("D:\\6.workspace\\p.NLP\\dev.conll");
 
 		final int t = 5;
 		final LSTMConfigurator qcfg = new LSTMConfigurator();
+		qcfg.setBiDirection(true);
 		qcfg.setBinaryLearning(true);
 		qcfg.setLoopNum(30);
 		qcfg.setAccuracy(1);
@@ -71,7 +73,7 @@ public class VerifyWordSegment {
 			mfName = args[0];
 		}		
 		
-		String sqFile = "D:\\workspace\\DDL\\bin\\data\\"+mfName;
+		String sqFile = "D:\\workspace\\DeepDriver\\bin\\data\\"+mfName;
 		if (sqFile != null) {
 			System.out.println("Upgrade qCfg from file: "+sqFile);
 			LSTMWwUpdater wWUpdater = new LSTMWwUpdater(false, true);

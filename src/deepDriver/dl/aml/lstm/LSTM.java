@@ -4,10 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Random;
 
-
 import deepDriver.dl.aml.distribution.Fs;
-import deepDriver.dl.aml.lrate.StepReductionLR;
-import deepDriver.dl.aml.lstm.apps.wordSegmentation.WordSegmentationStream;
 import deepDriver.dl.aml.lstm.beamSearch.BeamLayer;
 import deepDriver.dl.aml.lstm.beamSearch.BeamNode;
 import deepDriver.dl.aml.lstm.beamSearch.BeamSearch;
@@ -24,7 +21,7 @@ public class LSTM {
 	
 	public void rebuild(LSTMConfigurator cfg) {
 		this.cfg = cfg; 
-		this.bPTT = new BPTT4MultThreads(cfg);
+		this.bPTT = createBPTT();
 	}
 
 	public LSTM(LSTMConfigurator cfg) {
@@ -53,7 +50,7 @@ public class LSTM {
 	public void trainModel(IStream is, boolean skip) {
 		double lastError = 0;		
 		this.is = is;		
-		bPTT = new BPTT4MultThreads(cfg);
+		bPTT = createBPTT();
 		boolean isM = false;
 		int cnt = 0;
 		long st = System.currentTimeMillis();
@@ -138,10 +135,18 @@ public class LSTM {
 		this.finish1Cycle = finish1Cycle;		
 	}
 	
+	public BPTT createBPTT() {
+		if (cfg.isBiDirection()) {
+			return new BiBPTT(cfg);
+		} else {
+			return new BPTT4MultThreads(cfg);
+		}
+	}
+	
 	public double trainModelWithBatchSize(IStream is) {
 		if (this.is != is) {				
 			this.is = is;		
-			bPTT = new BPTT4MultThreads(cfg);						
+			bPTT = createBPTT();					
 			is.reset();
 			if (cfg.preCxtProvider != null) {
 				cfg.preCxtProvider.reset();
@@ -181,7 +186,7 @@ public class LSTM {
 	public double trainModelWithBatchSize2(IStream is) {
 		if (this.is != is) {				
 			this.is = is;		
-			bPTT = new BPTT4MultThreads(cfg);			
+			bPTT = createBPTT();			
 			long st = System.currentTimeMillis();
 			if (cfg.preCxtProvider != null) {
 				cfg.preCxtProvider.reset();
@@ -616,7 +621,7 @@ public class LSTM {
 	}
 
 	public void testModel(IStream qsi) {
-		bPTT = new BPTT4MultThreads(cfg);		
+		bPTT = createBPTT();	
 		qsi.reset();
 		int verifyNum = 0;
 		int correctNum = 0;
@@ -634,6 +639,7 @@ public class LSTM {
 			}
 			double [][] ts = qsi.getTarget();
 			double [][] rs = bPTT.fTT(sample, true);
+//			System.out.println(ts.length +","+ rs.length);
 			for (int i = 0; i < rs.length; i++) {
 				verifyNum ++;
 				if (i > ts.length - 1) {

@@ -22,6 +22,8 @@ public class TestWordSegment {
 
 		int t = 5;
 		LSTMConfigurator qcfg = new LSTMConfigurator();
+		//
+		qcfg.setBiDirection(true);
 		qcfg.setBinaryLearning(true);
 		qcfg.setLoopNum(30);
 		qcfg.setAccuracy(0.01);

@@ -42,7 +42,17 @@ public class LSTMConfigurator implements Serializable {
 	boolean debug = false;	
 	
 	int threadsNum = 1;	
+	
+	boolean biDirection = false;
 			
+	public boolean isBiDirection() {
+		return biDirection;
+	}
+
+	public void setBiDirection(boolean biDirection) {
+		this.biDirection = biDirection;
+	}
+
 	public boolean isBp4FirstLayer() {
 		return bp4FirstLayer;
 	}
@@ -218,12 +228,20 @@ public class LSTMConfigurator implements Serializable {
 	
 	public IRNNLayer createLSTMLayer(int nodeNN, 
 			int t, boolean inHidenLayer, int previousNNN, int nextLayerNN) {
+		if (biDirection) {
+			return new BiLstmLayer(nodeNN, 
+					t, inHidenLayer, previousNNN, nextLayerNN);
+		}
 		return new LSTMLayerV2(nodeNN, 
 				t, inHidenLayer, previousNNN, nextLayerNN);
 	}
 	
 	public IRNNLayer createRNNLayer(int nodeNN, 
 			int t, boolean inHidenLayer, int previousNNN, int nextLayerNN) {
+		if (biDirection && previousNNN == 0) {
+			return new BiRNNLayer(nodeNN, 
+					t, inHidenLayer, previousNNN, nextLayerNN);
+		}
 		return new RNNLayer(nodeNN, 
 				t, inHidenLayer, previousNNN, nextLayerNN);
 	}

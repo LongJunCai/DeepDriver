@@ -16,5 +16,52 @@ public class AccuracyCaculator {
 		}
 		return 1 - err/stdVar;
 	}
+	
+	public boolean check(double [] ta, double [] tb) {
+		if (getMaxPos(ta) == getMaxPos(tb)) {
+			return true;
+		}
+		return false;
+	}
+	
+	public int getMaxPos(double [] ta) {
+		int pos = 0;
+		for (int i = 0; i < ta.length; i++) {
+			if (ta[i] > ta[pos]) {
+				pos = i;
+			}
+		}
+		return pos;
+	}
+	
+	int cnt = 0;
+	int correctCnt = 0;
+	
+	public void cntIncrease() {
+		cnt ++;
+	}
+	
+	public void correctCntIncrease() {
+		correctCnt ++;
+	}
+	
+	public void reset() {
+		cnt = 0;
+		correctCnt = 0;
+	}
+	
+	int summaryInterval = 200;
+	
+	public void summaryCp() {
+		if (cnt % summaryInterval == 0) {
+			summary();
+		}
+	}
+	
+	public void summary() {
+		System.out.println("All count is: "+ cnt
+				+", the correct count is: "+correctCnt
+				+", the accuracy is: "+ (double)correctCnt/(double)cnt);
+	}
 
 }

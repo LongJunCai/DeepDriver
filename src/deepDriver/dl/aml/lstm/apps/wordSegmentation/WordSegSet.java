@@ -42,6 +42,8 @@ public class WordSegSet {
 	public void setLockVo(boolean lockVo) {
 		this.lockVo = lockVo;
 	}
+	
+	int wc = 0;
 
 	public void loadWordSegSet(String file) throws IOException {
 		BufferedReader bi = new BufferedReader(new InputStreamReader(
@@ -72,27 +74,37 @@ public class WordSegSet {
 					System.out.println("l > " + maxLength + ": " + content);
 				}
 			} else {
-				content = content.toLowerCase();
-				if (content.contains("http")) {
-					int hi = content.indexOf("http");
-					content = content.substring(0, hi);
-				}
+//				content = content.toLowerCase();
+//				if (content.contains("http")) {
+//					int hi = content.indexOf("http");
+//					content = content.substring(0, hi);
+//				}
 
-				content = content.replaceAll("[a-z]*", "");
-				content = content.replaceAll("[0-9]*", "");
-				content = content.trim();
+//				content = content.replaceAll("[a-z]*", "");
+//				content = content.replaceAll("[0-9]*", "");
+//				content = content.trim();
 				if (content.length() == 0) {
 					content = bi.readLine();
 					continue;
 				}
 				
-				if (content.length() > 40) {
-					System.out.println("l > 40: " + content);
-				}
+//				if (content.length() > 40) {
+//					System.out.println("l > 40: " + content);
+//				}
 				//parse the format
 				String [] segsFormat = content.split("\t");
+				if (segsFormat.length < 2) {
+					System.out.println("Invalid formate...");
+				}
 				seg = segsFormat[1].trim();
 				wordNum = wordNum + seg.length();
+				if (seg.length() == 0) {
+					System.out.println("It is empty....");
+				}
+				wc = wc + seg.length();
+//				if (wc >= 338200) {
+//					System.out.println("It is a issue. here");
+//				}
 				//		
 //				if (checkCendFlag(seg)) {
 //					previous = null;
@@ -138,7 +150,9 @@ public class WordSegSet {
 			content = bi.readLine();
 		}
 		bi.close();
-		System.out.println("There are " + cnt + " words");
+		System.out.println("There are " + cnt + " words in v");
+		
+		System.out.println("There are " + wc + " words in all");
 
 		if (requireBlank) {			
 			mapString2Int(BLANK);
@@ -227,7 +241,14 @@ public class WordSegSet {
 	
 	public static void main(String[] args) throws IOException {
 		WordSegSet wss = new WordSegSet();
+		wss.setMaxLength(1000);
+		wss.setRequireBlank(true);
+		wss.setRequireEndFlagCheck(false);
+		wss.setVoLoadOnly(true); 
 		wss.loadWordSegSet("D:\\6.workspace\\p.NLP\\train.conll");
+		
+		wss.setVoLoadOnly(false); 
+		wss.loadWordSegSet("D:\\6.workspace\\p.NLP\\dev.conll");
 		wss.summary();
 	}
 

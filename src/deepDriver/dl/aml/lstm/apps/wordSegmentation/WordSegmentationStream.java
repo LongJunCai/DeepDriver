@@ -123,7 +123,7 @@ public class WordSegmentationStream implements IStream {
 			return Ws_S;
 		} else {
 			int ti = index + 1;
-			if (ti == 0) {
+			if (ti == 1) {
 				return Ws_B;
 			} else if(ti == size) {
 				return Ws_E;

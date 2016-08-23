@@ -11,6 +11,10 @@ public class LSTMLayer implements IRNNLayer, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	Block [] blocks;
+	public LSTMLayer() {
+		
+	}
+	
 	public LSTMLayer(int nodeNN, int t, boolean inHidenLayer, int previousNNN, int nextLayerNN) {
 		blocks = new Block[1];
 		blocks[0] = new Block(nodeNN, nodeNN, t, inHidenLayer, previousNNN, nextLayerNN);
