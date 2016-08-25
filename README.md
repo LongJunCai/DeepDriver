@@ -7,6 +7,6 @@ This is a Deep Learning framework projects written with JAVA, including:
 - Bi-LSTM
 - Encoder-Decoder framework and so on.
 
-This framework provides some functionalities:
-- Chinese word segmentation
+This framework provides some examples:
+- NLP: Chinese word segmentation
 - CNN txt classification
