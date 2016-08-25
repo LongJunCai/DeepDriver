@@ -46,6 +46,7 @@ public class WordSegSet {
 	int wc = 0;
 
 	public void loadWordSegSet(String file) throws IOException {
+		mapString2Int(UnKnown);
 		BufferedReader bi = new BufferedReader(new InputStreamReader(
 				new FileInputStream(new File(file)), "utf-8"));
 		String content = bi.readLine();
@@ -113,7 +114,7 @@ public class WordSegSet {
 				string = new int[seg.length()];
 				aa = new String[seg.length()];
 				for (int i = 0; i < aa.length; i++) {
-					aa[i] = content.substring(i, i + 1);
+					aa[i] = seg.substring(i, i + 1);
 				}
 			}
 
@@ -240,15 +241,20 @@ public class WordSegSet {
 	}
 	
 	public static void main(String[] args) throws IOException {
+//		WordSegSet wss = new WordSegSet();
 		WordSegSet wss = new WordSegSet();
-		wss.setMaxLength(1000);
-		wss.setRequireBlank(true);
-		wss.setRequireEndFlagCheck(false);
-		wss.setVoLoadOnly(true); 
 		wss.loadWordSegSet("D:\\6.workspace\\p.NLP\\train.conll");
 		
-		wss.setVoLoadOnly(false); 
+		wss.setVoLoadOnly(true); 
 		wss.loadWordSegSet("D:\\6.workspace\\p.NLP\\dev.conll");
+//		wss.setMaxLength(1000);
+//		wss.setRequireBlank(true);
+//		wss.setRequireEndFlagCheck(false);
+//		wss.setVoLoadOnly(true); 
+//		wss.loadWordSegSet("D:\\6.workspace\\p.NLP\\train.conll");
+//		
+//		wss.setVoLoadOnly(false); 
+//		wss.loadWordSegSet("D:\\6.workspace\\p.NLP\\dev.conll");
 		wss.summary();
 	}
 

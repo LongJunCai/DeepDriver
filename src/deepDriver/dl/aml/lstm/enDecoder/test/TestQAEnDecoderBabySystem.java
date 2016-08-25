@@ -9,6 +9,7 @@ public class TestQAEnDecoderBabySystem {
 	
 	public static void main(String[] args) throws Exception {
 		Encoder2DecoderSetup encoder2DecoderSetup = new Encoder2DecoderSetup();
+		encoder2DecoderSetup.setSetupDic(true);
 		encoder2DecoderSetup.bootstrap(null, false);
 		EncoderDecoderLSTM encoderDecoderLSTM = new EncoderDecoderLSTM(encoder2DecoderSetup.getQcfg(),
 				encoder2DecoderSetup.getAcfg());

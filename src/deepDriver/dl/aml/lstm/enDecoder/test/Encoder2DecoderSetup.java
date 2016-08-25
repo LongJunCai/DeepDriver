@@ -17,6 +17,36 @@ import deepDriver.dl.aml.string.ThinRandomQNFixedStreamImpV2;
 public class Encoder2DecoderSetup implements Seq2SeqLSTMBoostrapper {
 
 	Dictionary dic = new Dictionary();
+	
+	boolean setupDic = true;
+	
+	String dicObjPath = "D:\\6.workspace\\ANN\\lstm\\QaModel\\v_1516.m";
+	String dicPath = "D:\\6.workspace\\ANN\\lstm\\talk2015_2016.txt";
+		
+	public boolean isSetupDic() {
+		return setupDic;
+	}
+
+	public void setSetupDic(boolean setupDic) {
+		this.setupDic = setupDic;
+	}
+
+	public String getDicObjPath() {
+		return dicObjPath;
+	}
+
+	public void setDicObjPath(String dicObjPath) {
+		this.dicObjPath = dicObjPath;
+	}
+
+	public String getDicPath() {
+		return dicPath;
+	}
+
+	public void setDicPath(String dicPath) {
+		this.dicPath = dicPath;
+	}
+
 	@Override
 	public void prepareData(boolean isServer) throws Exception {
 		
@@ -30,7 +60,12 @@ public class Encoder2DecoderSetup implements Seq2SeqLSTMBoostrapper {
 //		} else {
 //			dic.loadDicFromFile("D:\\6.workspace\\ANN\\lstm\\talk2015_2016.txt");
 //		}		
-		dic = (Dictionary) Fs.readObjFromFile("D:\\6.workspace\\ANN\\lstm\\QaModel\\v_1516.m");
+		if (setupDic) {
+			dic.loadDicFromFile(dicPath);
+		} else {
+			dic = (Dictionary) Fs.readObjFromFile(dicObjPath);
+		}
+		
 		dic.summaryInf();
 //		String sqFile = null;//aa    D:\\workspace\\ANN\\data\\q_lstm_1464485024333_0.m
 //		if (args.length >= qFile + 1) {
@@ -50,6 +85,8 @@ public class Encoder2DecoderSetup implements Seq2SeqLSTMBoostrapper {
 	@Override
 	public void bootstrap(SimpleTask task, boolean need4Test) throws Exception {		
 		prepareData(true);
+		qcfg.setBiDirection(true);//setup bidirection
+		
 		qcfg.setBinaryLearning(true);
 		qcfg.setLoopNum(30);
 		qcfg.setAccuracy(35);
@@ -111,9 +148,13 @@ public class Encoder2DecoderSetup implements Seq2SeqLSTMBoostrapper {
 		nna.setNnArch(new int [] {128, 128});
 		nna.setCostFunction(LSTMConfigurator.SOFT_MAX);
 		
+		NeuroNetworkArchitecture nna4a = new NeuroNetworkArchitecture(); 
+		nna4a.setNnArch(new int [] {256, 256});
+		nna4a.setCostFunction(LSTMConfigurator.SOFT_MAX);
+		
 		qcfg.setRequireLastRNNLayer(false);
 		qcfg.buildArchitecture(qsi, nna);
-		acfg.buildArchitecture(asi, nna);
+		acfg.buildArchitecture(asi, nna4a);
 		
 
 		qcfg.setName("qcfg");
