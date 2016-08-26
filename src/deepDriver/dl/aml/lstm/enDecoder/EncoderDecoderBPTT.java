@@ -2,6 +2,7 @@ package deepDriver.dl.aml.lstm.enDecoder;
 
 import deepDriver.dl.aml.lstm.BPTT;
 import deepDriver.dl.aml.lstm.BPTT4MultThreads;
+import deepDriver.dl.aml.lstm.BiBPTT;
 import deepDriver.dl.aml.lstm.Context;
 import deepDriver.dl.aml.lstm.ContextLayer;
 import deepDriver.dl.aml.lstm.IBlock;
@@ -25,10 +26,18 @@ public class EncoderDecoderBPTT {
 		super();
 		this.qcfg = qcfg;
 		this.acfg = acfg;
-		qBptt = new BPTT4MultThreads(qcfg);
+		qBptt = createBPTT(qcfg);
 		qBptt.setUseAbsoluteSc(true);
-		aBptt = new BPTT4MultThreads(acfg);
+		aBptt = createBPTT(acfg);
 		aBptt.setUseAbsoluteSc(true);
+	}
+	
+	public BPTT createBPTT(LSTMConfigurator cfg) {
+		if (cfg.isBiDirection()) {
+			return new BiBPTT(cfg);
+		} else {
+			return new BPTT4MultThreads(cfg);
+		}
 	}
 	
 	public void fTTEncoder(double [][] qsample) {
