@@ -71,14 +71,44 @@ public class CNNForwardVisitor implements ICNNLayerVisitor {
 			}
 	}
 	
+	public void visitResNetLayer(FractalBlock block) {
+		FractalBlock [] blocks = block.getFbs();
+		for (int i = 0; i < blocks.length; i++) {
+			visitFractualBlock(blocks[i]);
+		}
+		IFeatureMap [] prevFms = block.getPreviousLayer().getFeatureMaps();
+		
+		IFeatureMap [] fms = block.getFeatureMaps();
+		IFeatureMap [] bfms = blocks[blocks.length - 1].getFeatureMaps();
+		for (int i = 0; i < fms.length; i++) {
+			double [][] fs = fms[i].getFeatures();
+			double [][] pfs = prevFms[(int)((double)i * (double)prevFms.length/
+					(double)fms.length)].getFeatures();
+			double [][] bfs = bfms[i].getFeatures();
+			for (int j = 0; j < fs.length; j++) {
+				for (int j2 = 0; j2 < fs[j].length; j2++) {
+					fs[j][j2] = (bfs[j][j2] + pfs[(int)((double)j * (double)pfs.length/(double)fs.length)]
+							[(int)((double)j2 * (double)pfs[j].length/(double)fs[j].length)]);//);//;j2
+				}
+			}
+		}
+	}
+	
+	
+	
 	public void visitFractualBlock(FractalBlock block) {
+		if (block.isResNet()) {
+			visitResNetLayer(block);
+		}
 		CNNLayer dLayer = block.getDirectLayer();
 		if (dLayer != null) {
 			visitCNNLayer(dLayer);
+			
 			FractalBlock [] blocks = block.getFbs();
 			for (int i = 0; i < blocks.length; i++) {
 				visitFractualBlock(blocks[i]);
 			}
+			
 			IFeatureMap [] fms = block.getFeatureMaps();
 			IFeatureMap [] dfms = dLayer.getFeatureMaps();
 			IFeatureMap [] bfms = blocks[blocks.length - 1].getFeatureMaps();

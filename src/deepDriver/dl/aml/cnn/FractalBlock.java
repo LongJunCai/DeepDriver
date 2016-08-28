@@ -14,7 +14,11 @@ public class FractalBlock extends CNNLayer implements IFractalBlock {
 		super(lc, previousLayer);
 		this.currentDepth = cDepth;
 		if (cDepth > 1) {
-			directLayer = new CNNLayer(lc, previousLayer);
+			this.resNet = lc.isResNetLayer();
+			if (!resNet) {
+				directLayer = new CNNLayer(lc, previousLayer);
+			}
+			
 			fbs = new FractalBlock[lc.getFblockLayerNum()];
 			for (int i = 0; i < fbs.length; i++) {
 				if (i == 0) {
@@ -25,10 +29,18 @@ public class FractalBlock extends CNNLayer implements IFractalBlock {
 			}
 		} 
 	}
+	boolean resNet;
+	
 	int currentDepth;
 	CNNLayer directLayer;
 	FractalBlock [] fbs;
 	
+	public boolean isResNet() {
+		return resNet;
+	}
+	public void setResNet(boolean resNet) {
+		this.resNet = resNet;
+	}
 	public int getCurrentDepth() {
 		return currentDepth;
 	}

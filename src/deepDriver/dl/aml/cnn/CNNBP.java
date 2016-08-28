@@ -93,12 +93,19 @@ public class CNNBP implements ICNNBP {
 	public boolean useVisitFractalBlock(CNNLayer layer) {
 		if (layer instanceof FractalBlock) {
 			FractalBlock fb = (FractalBlock) layer;
-			if (fb.getDirectLayer() != null) {
+			if (fb.getDirectLayer() != null || fb.isResNet()) {
 				return true;
 			}			
 		}
 		return false;
 	}
+	
+//	public boolean hasDirectLayerOrResLayer(FractalBlock fb) {
+//		if (fb.getDirectLayer() != null || fb.isResNet()) {
+//			return true;
+//		}
+//		return false;
+//	}
 	
 //	boolean useBN = false;
 
@@ -302,7 +309,29 @@ public class CNNBP implements ICNNBP {
 		}
 	}
 	
+	public void visitResNetLayer(FractalBlock block) {
+		FractalBlock [] blocks = block.getFbs();
+		IFeatureMap [] fms = block.getFeatureMaps();
+		IFeatureMap [] bfms = blocks[blocks.length - 1].getFeatureMaps();
+		for (int i = 0; i < fms.length; i++) {
+			double [][] dzzs = fms[i].getDeltaZzs();
+			double [][] bdzzs = bfms[i].getDeltaZzs();
+			for (int j = 0; j < dzzs.length; j++) {
+				for (int j2 = 0; j2 < dzzs[j].length; j2++) {
+					bdzzs[j][j2] = dzzs[j][j2];
+				}
+			}
+		}
+		for (int i = blocks.length - 1; i >= 0; i--) {
+			visitFractualBlock(blocks[i]);
+		}	
+	}
+	
 	public void visitFractualBlock(FractalBlock block) {
+		if (block.isResNet()) {
+			visitResNetLayer(block);
+		}
+		
 		CNNLayer dLayer = block.getDirectLayer();
 		if (dLayer != null) {
 			FractalBlock [] blocks = block.getFbs();

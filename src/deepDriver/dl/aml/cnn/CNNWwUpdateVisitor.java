@@ -47,7 +47,17 @@ public class CNNWwUpdateVisitor implements ICNNLayerVisitor {
 		}
 	}
 	
+	private void visitResNetLayer(FractalBlock block) {
+		FractalBlock [] blocks = block.getFbs();
+		for (int i = blocks.length - 1; i >= 0; i--) {
+			visitFractualBlock(blocks[i]);
+		}
+	}
+	
 	public void visitFractualBlock(FractalBlock block) {
+		if (block.isResNet()) {
+			visitResNetLayer(block);
+		}
 		CNNLayer dLayer = block.getDirectLayer();
 		if (dLayer != null) {
 			FractalBlock [] blocks = block.getFbs();
@@ -60,6 +70,8 @@ public class CNNWwUpdateVisitor implements ICNNLayerVisitor {
 		}		
 	}
 	
+	
+
 	private void updateGlobalWws(IFeatureMap fms) {
 		fms.setGema(fms.getGema() + fms.getDgamma());
 		fms.setBeta(fms.getBeta() + fms.getDbeta());

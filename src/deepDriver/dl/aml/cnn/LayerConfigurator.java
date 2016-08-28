@@ -28,6 +28,8 @@ public class LayerConfigurator implements Serializable {
 	
 	int type = CONVOLUTION_LAYER;
 	
+	boolean resNetLayer;
+	
 	int padding = 0;
 	
 	int featureMapNum;
@@ -58,8 +60,16 @@ public class LayerConfigurator implements Serializable {
 		this.ckRows = ckWidth;
 		this.ckColumns = ckHeight;
 		this.step = step;
-	}			
+	}				
 	
+	public boolean isResNetLayer() {
+		return resNetLayer;
+	}
+	
+	public void setResNetLayer(boolean resNetLayer) {
+		this.resNetLayer = resNetLayer;
+	}
+
 	public int getFblockDepth() {
 		return fblockDepth;
 	}
