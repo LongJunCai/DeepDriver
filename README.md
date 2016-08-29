@@ -10,3 +10,5 @@ This is a Deep Learning framework projects written with JAVA, including:
 This framework provides some examples:
 - NLP: Chinese word segmentation
 - CNN txt classification
+
+#end
