@@ -20,16 +20,28 @@ public class ProjectionLayer implements IRNNLayer, Serializable {
 	Map<Integer, double []> w2vList = new HashMap<Integer, double []>();
 	
 	RNNNeuroVo [] vos0;		
-	public ProjectionLayer(int projectionLength, int maxT, int nextLayerNN) {
+	public ProjectionLayer(int projectionLength, int maxT, int nextLayerNN, LayerCfg lc) {
 		super();
 		this.projectionLength = projectionLength;
 		this.maxT = maxT;
 		
+		this.lc = lc;
+		
 		ws = new int[maxT];
 		vos0 = new RNNNeuroVo[projectionLength];
 		for (int i = 0; i < vos0.length; i++) {
-			vos0[i] = new RNNNeuroVo(maxT, false, 0, 0, 0, nextLayerNN);
+			vos0[i] = new RNNNeuroVo(maxT, false, 0, 0, 0, nextLayerNN, lc);
 		}
+	}
+	
+	LayerCfg lc;
+	
+	public LayerCfg getLc() {
+		return lc;
+	}
+
+	public void setLc(LayerCfg lc) {
+		this.lc = lc;
 	}
 	
 	public void copyW2v2Pl(ProjectionLayer pl) {

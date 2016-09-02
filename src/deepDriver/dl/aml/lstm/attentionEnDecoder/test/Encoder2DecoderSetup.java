@@ -1,4 +1,4 @@
-package deepDriver.dl.aml.lstm.enDecoder.test;
+package deepDriver.dl.aml.lstm.attentionEnDecoder.test;
 
 
 import deepDriver.dl.aml.distribution.Fs;
@@ -21,7 +21,7 @@ public class Encoder2DecoderSetup implements Seq2SeqLSTMBoostrapper {
 	boolean setupDic = true;
 	
 	String dicObjPath = "D:\\6.workspace\\ANN\\lstm\\QaModel\\v_1516.m";
-	String dicPath = "D:\\6.workspace\\ANN\\lstm\\talk2015_2016.txt";
+	String dicPath = "D:\\6.workspace\\ANN\\lstm\\talk2015.txt";//talk2015_2016.txt
 		
 	public boolean isSetupDic() {
 		return setupDic;
@@ -128,6 +128,7 @@ public class Encoder2DecoderSetup implements Seq2SeqLSTMBoostrapper {
 		acfg.setEnableUseCellAa(true);
 		acfg.setUseThinData(true);
 		acfg.setUseBias(true);
+		acfg.setAttentionLength(256);
 		
 		acfg.setThreadsNum(4);
 		StepReductionLR aslr = new StepReductionLR();
@@ -148,13 +149,13 @@ public class Encoder2DecoderSetup implements Seq2SeqLSTMBoostrapper {
 		nna.setNnArch(new int [] {128, 128});
 		nna.setCostFunction(LSTMConfigurator.SOFT_MAX);
 		
-		NeuroNetworkArchitecture nna4a = new NeuroNetworkArchitecture(); 
-		nna4a.setNnArch(new int [] {256, 256});
-		nna4a.setCostFunction(LSTMConfigurator.SOFT_MAX);
+//		NeuroNetworkArchitecture nna4a = new NeuroNetworkArchitecture(); 
+//		nna4a.setNnArch(new int [] {256, 256});
+//		nna4a.setCostFunction(LSTMConfigurator.SOFT_MAX);
 		
 		qcfg.setRequireLastRNNLayer(false);
 		qcfg.buildArchitecture(qsi, nna);
-		acfg.buildArchitecture(asi, nna4a);
+		acfg.buildArchitecture(asi, nna);
 		
 
 		qcfg.setName("qcfg");

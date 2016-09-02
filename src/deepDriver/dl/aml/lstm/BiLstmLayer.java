@@ -16,11 +16,11 @@ public class BiLstmLayer extends LSTMLayer implements IRNNLayer, Serializable {
 	
 	BiCell [] cells;
 	Block [] blocks;
-	public BiLstmLayer(int nodeNN, int t, boolean inHidenLayer, int previousNNN, int nextLayerNN) {
+	public BiLstmLayer(int nodeNN, int t, boolean inHidenLayer, int previousNNN, int nextLayerNN, LayerCfg lc) {
 //		super(nodeNN, t, inHidenLayer, previousNNN, nextLayerNN);
 		//include 2 LSTM Layers.
-		layer = new LSTMLayerV2(nodeNN, t, inHidenLayer, previousNNN, nextLayerNN);
-		ilayer = new LSTMLayerV2(nodeNN, t, inHidenLayer, previousNNN, nextLayerNN);
+		layer = new LSTMLayerV2(nodeNN, t, inHidenLayer, previousNNN, nextLayerNN, lc);
+		ilayer = new LSTMLayerV2(nodeNN, t, inHidenLayer, previousNNN, nextLayerNN, lc);
 		
 		cells = new BiCell[nodeNN * 2];
 		blocks = new Block[layer.getBlocks().length + ilayer.getBlocks().length];

@@ -158,6 +158,16 @@ public class LSTMConfigurator implements Serializable {
 	}
 	
 	boolean requireLastRNNLayer = true;
+	
+	int attentionLength;
+
+	public int getAttentionLength() {
+		return attentionLength;
+	}
+
+	public void setAttentionLength(int attentionLength) {
+		this.attentionLength = attentionLength;
+	}
 
 	public boolean isRequireLastRNNLayer() {
 		return requireLastRNNLayer;
@@ -199,51 +209,59 @@ public class LSTMConfigurator implements Serializable {
 			}
 			if (i == 0) {
 //				rnnVos[i] = new RNNNeuroVo[sampleFeature.length];
-				layers[i] = createRNNLayer(sampleFeatureNum, maxTimePeriod, false, 0, nextNN);
+				layers[i] = createRNNLayer(sampleFeatureNum, maxTimePeriod, false, 0, nextNN, null);
 			} else if (i == ProjectionLayerID && nna.isUseProjectionLayer()) {
-				layers[i] = createProjectionLayer(nna.getNnArch()[i - 1], maxTimePeriod, nextNN);
+				layers[i] = createProjectionLayer(nna.getNnArch()[i - 1], maxTimePeriod, nextNN, null);
 			} else if (i == layers.length - 1 && requireLastRNNLayer) {
 //				rnnVos[i] = new RNNNeuroVo[sampleTarget.length];
 //				constructRNNNeuroVos(rnnVos[i], timePeriod, true, rnnVos[i - 1].length, 
 //						rnnVos[i].length);
-				layers[i] = createRNNLayer(targetFeatureNum, maxTimePeriod, false, layers[i-1].getRNNNeuroVos().length, 0);
+				layers[i] = createRNNLayer(targetFeatureNum, maxTimePeriod, false, layers[i-1].getRNNNeuroVos().length, 0, null);
 			} else {
 //				rnnVos[i] = new RNNNeuroVo[nna.getNnArch()[i - 1]];
 //				constructRNNNeuroVos(rnnVos[i], timePeriod, false, rnnVos[i - 1].length, 
 //						rnnVos[i].length);
 				if (nna.getHiddenType() == NeuroNetworkArchitecture.HiddenRNN) {
-					layers[i] = createRNNLayer(nna.getNnArch()[i - 1], maxTimePeriod, true, layers[i-1].getRNNNeuroVos().length, nextNN);
+					layers[i] = createRNNLayer(nna.getNnArch()[i - 1], maxTimePeriod, true, layers[i-1].getRNNNeuroVos().length, nextNN, null);
 				} else {
-					layers[i] = createLSTMLayer(nna.getNnArch()[i - 1], maxTimePeriod, true, layers[i-1].getRNNNeuroVos().length, nextNN);
+					LayerCfg lc = null;
+					if (firstLstm) {
+						firstLstm = false;
+						lc = new LayerCfg();
+						lc.setAttentionLength(attentionLength);
+					}					
+					layers[i] = createLSTMLayer(nna.getNnArch()[i - 1], maxTimePeriod, true, layers[i-1].getRNNNeuroVos().length, nextNN, lc);
 				}
 			}	
 		}
 	}
 	
+	boolean firstLstm = true;
+	
 	static int ProjectionLayerID = 1;
 	
-	public IRNNLayer createProjectionLayer(int projectionLength, int maxT, int nextLayerNN) {
-		return new ProjectionLayer(projectionLength, maxT, nextLayerNN);
+	public IRNNLayer createProjectionLayer(int projectionLength, int maxT, int nextLayerNN, LayerCfg lc) { 
+		return new ProjectionLayer(projectionLength, maxT, nextLayerNN, lc);
 	}
 	
 	public IRNNLayer createLSTMLayer(int nodeNN, 
-			int t, boolean inHidenLayer, int previousNNN, int nextLayerNN) {
+			int t, boolean inHidenLayer, int previousNNN, int nextLayerNN, LayerCfg lc) {
 		if (biDirection) {
 			return new BiLstmLayer(nodeNN, 
-					t, inHidenLayer, previousNNN, nextLayerNN);
+					t, inHidenLayer, previousNNN, nextLayerNN, lc);
 		}
 		return new LSTMLayerV2(nodeNN, 
-				t, inHidenLayer, previousNNN, nextLayerNN);
+				t, inHidenLayer, previousNNN, nextLayerNN, lc);
 	}
 	
 	public IRNNLayer createRNNLayer(int nodeNN, 
-			int t, boolean inHidenLayer, int previousNNN, int nextLayerNN) {
+			int t, boolean inHidenLayer, int previousNNN, int nextLayerNN, LayerCfg lc) {
 		if (biDirection && previousNNN == 0) {
 			return new BiRNNLayer(nodeNN, 
-					t, inHidenLayer, previousNNN, nextLayerNN);
+					t, inHidenLayer, previousNNN, nextLayerNN, lc);
 		}
 		return new RNNLayer(nodeNN, 
-				t, inHidenLayer, previousNNN, nextLayerNN);
+				t, inHidenLayer, previousNNN, nextLayerNN, lc);
 	}
 //	public void buildArchitecture(LSTMDataSet ds, NeuroNetworkArchitecture nna) {
 //		this.ds = ds;

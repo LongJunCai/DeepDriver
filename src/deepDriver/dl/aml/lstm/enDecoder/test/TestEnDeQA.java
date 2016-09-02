@@ -8,6 +8,7 @@ import deepDriver.dl.aml.distribution.Fs;
 import deepDriver.dl.aml.lstm.LSTMConfigurator;
 import deepDriver.dl.aml.lstm.LSTMDataSet;
 import deepDriver.dl.aml.lstm.LSTMWwUpdater;
+import deepDriver.dl.aml.lstm.attentionEnDecoder.test.Encoder2DecoderSetup;
 import deepDriver.dl.aml.lstm.beamSearch.BeamLayer;
 import deepDriver.dl.aml.lstm.beamSearch.BeamNode;
 import deepDriver.dl.aml.lstm.beamSearch.BeamSearch;

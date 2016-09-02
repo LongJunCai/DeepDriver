@@ -4,8 +4,8 @@ public class BiRNNLayer extends RNNLayer {
 	private static final long serialVersionUID = 1L;
 	BiRNNNeuroVo [] vos1;
 	public BiRNNLayer(int nodeNN, 
-			int t, boolean inHidenLayer, int previousNNN, int nextLayerNN) {
-		super(nodeNN, t, inHidenLayer, previousNNN, nextLayerNN);
+			int t, boolean inHidenLayer, int previousNNN, int nextLayerNN, LayerCfg lc) {
+		super(nodeNN, t, inHidenLayer, previousNNN, nextLayerNN, lc);
 		vos1 = new BiRNNNeuroVo[vos0.length];
 		for (int i = 0; i < vos1.length; i++) {
 			vos1[i] = new BiRNNNeuroVo(vos0[i]);

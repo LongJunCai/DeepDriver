@@ -11,15 +11,26 @@ public class LSTMLayer implements IRNNLayer, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	Block [] blocks;
+	LayerCfg lc;
 	public LSTMLayer() {
 		
 	}
 	
-	public LSTMLayer(int nodeNN, int t, boolean inHidenLayer, int previousNNN, int nextLayerNN) {
+	public LSTMLayer(int nodeNN, int t, boolean inHidenLayer, int previousNNN, int nextLayerNN, LayerCfg lc) {
 		blocks = new Block[1];
-		blocks[0] = new Block(nodeNN, nodeNN, t, inHidenLayer, previousNNN, nextLayerNN);
+		this.lc = lc;
+		blocks[0] = new Block(nodeNN, nodeNN, t, inHidenLayer, previousNNN, nextLayerNN, lc);
 		
 	}
+	
+	public LayerCfg getLc() {
+		return lc;
+	}
+
+	public void setLc(LayerCfg lc) {
+		this.lc = lc;
+	}
+	
 	@Override
 	public RNNNeuroVo[] getRNNNeuroVos() { 
 		return blocks[0].getRNNNeuroVos();

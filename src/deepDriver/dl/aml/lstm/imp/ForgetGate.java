@@ -14,7 +14,7 @@ public class ForgetGate extends RNNNeuroVo implements IForgetGate, Serializable 
 
 	public ForgetGate(int t, boolean inHidenLayer, int previousNNN,
 			int LayerNN, int blockNN, int nextLayerNN) {
-		super(t, inHidenLayer, previousNNN, LayerNN, blockNN, nextLayerNN);
+		super(t, inHidenLayer, previousNNN, LayerNN, blockNN, nextLayerNN, null);
 	}
 
 }

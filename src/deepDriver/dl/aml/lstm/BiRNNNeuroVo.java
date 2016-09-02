@@ -19,8 +19,8 @@ public class BiRNNNeuroVo extends RNNNeuroVo {
 	}
 
 	public BiRNNNeuroVo(int t, boolean inHidenLayer, int previousNNN,
-			int LayerNN, int blockNN, int nextLayerNN) {
-		super(t, inHidenLayer, previousNNN, LayerNN, blockNN, nextLayerNN);
+			int LayerNN, int blockNN, int nextLayerNN, LayerCfg lc) {
+		super(t, inHidenLayer, previousNNN, LayerNN, blockNN, nextLayerNN, lc);
 		orignalNvs = neuroVos;
 		reverseNvs = new SimpleNeuroVo[neuroVos.length];
 	}

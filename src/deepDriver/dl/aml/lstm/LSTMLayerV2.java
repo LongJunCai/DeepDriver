@@ -14,13 +14,13 @@ public class LSTMLayerV2 extends LSTMLayer implements IRNNLayer, Serializable {
 	Block [] blocks;
 	Cell [] cells;
 	int cellN = 1;
-	public LSTMLayerV2(int nodeNN, int t, boolean inHidenLayer, int previousNNN, int nextLayerNN) {
-		super(nodeNN, t, inHidenLayer, previousNNN, nextLayerNN);
+	public LSTMLayerV2(int nodeNN, int t, boolean inHidenLayer, int previousNNN, int nextLayerNN, LayerCfg lc) {
+		super(nodeNN, t, inHidenLayer, previousNNN, nextLayerNN, lc);
 		blocks = new Block[nodeNN];
 		cells = new Cell[nodeNN * cellN];
 		int cnt = 0;
 		for (int i = 0; i < blocks.length; i++) {
-			blocks[i] = new Block(cells.length, cellN, t, inHidenLayer, previousNNN, nextLayerNN);
+			blocks[i] = new Block(cells.length, cellN, t, inHidenLayer, previousNNN, nextLayerNN, lc);
 			Cell [] bcs = (Cell[]) blocks[i].getCells();
 			for (int j = 0; j < bcs.length; j++) {
 				cells[cnt ++] = bcs[j];

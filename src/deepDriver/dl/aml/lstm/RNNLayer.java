@@ -9,13 +9,25 @@ public class RNNLayer implements IRNNLayer, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	RNNNeuroVo [] vos0;
+	
+	LayerCfg lc;
+	
 	public RNNLayer(int nodeNN, 
-			int t, boolean inHidenLayer, int previousNNN, int nextLayerNN) {
+			int t, boolean inHidenLayer, int previousNNN, int nextLayerNN, LayerCfg lc) {
+		this.lc = lc;
 		vos0 = new RNNNeuroVo[nodeNN];
 		for (int i = 0; i < vos0.length; i++) {
 //			vos0[i] = new RNNNeuroVo(t, inHidenLayer, previousNNN, nodeNN, nodeNN);
-			vos0[i] = new RNNNeuroVo(t, inHidenLayer, previousNNN, nodeNN, 0,  nextLayerNN);
+			vos0[i] = new RNNNeuroVo(t, inHidenLayer, previousNNN, nodeNN, 0,  nextLayerNN, lc);
 		}
+	}  
+
+	public LayerCfg getLc() {
+		return lc;
+	}
+
+	public void setLc(LayerCfg lc) {
+		this.lc = lc;
 	}
 
 	@Override

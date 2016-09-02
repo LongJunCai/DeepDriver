@@ -7,6 +7,7 @@ import deepDriver.dl.aml.lstm.ICell;
 import deepDriver.dl.aml.lstm.IForgetGate;
 import deepDriver.dl.aml.lstm.IInputGate;
 import deepDriver.dl.aml.lstm.IOutputGate;
+import deepDriver.dl.aml.lstm.LayerCfg;
 import deepDriver.dl.aml.lstm.RNNNeuroVo;
 
 public class Block implements IBlock, Serializable {
@@ -15,14 +16,14 @@ public class Block implements IBlock, Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public Block(int layerNN, int blockNN, int t, boolean inHidenLayer, int previousNNN, int nextLayerNN) {
+	public Block(int layerNN, int blockNN, int t, boolean inHidenLayer, int previousNNN, int nextLayerNN, LayerCfg lc) {
 		this.inputGate = new InputGate(t, inHidenLayer, previousNNN, layerNN, blockNN, nextLayerNN);
 		this.outPutGate = new OutputGate(t, inHidenLayer, previousNNN, layerNN, blockNN, nextLayerNN);
 		this.forgetGate = new ForgetGate(t, inHidenLayer, previousNNN, layerNN, blockNN, nextLayerNN);
 		
 		cells = new Cell[blockNN];
 		for (int i = 0; i < cells.length; i++) {
-			cells[i] = new Cell(t, inHidenLayer, previousNNN, layerNN, blockNN, nextLayerNN);
+			cells[i] = new Cell(t, inHidenLayer, previousNNN, layerNN, blockNN, nextLayerNN, lc);
 			//it is said state should be 1 initialization
 			double [] sc = new double[t];
 			for (int j = 0; j < sc.length; j++) {

@@ -36,13 +36,31 @@ public class BPTT implements IBPTT {
 		this.enableUseCellAa = cfg.enableUseCellAa;
 	}
 	
+	LstmAttention attention;
+	double [][] attentionDhj;
+	
 	int t;
 	double [] feature;
 	double [] target;
 	int layerPos;
 	
-	boolean isTesting = false;
-	
+	boolean isTesting = false; 	
+	public LstmAttention getAttention() {
+		return attention;
+	}
+
+	public void setAttention(LstmAttention attention) {
+		this.attention = attention;
+	} 
+
+	public double[][] getAttentionDhj() {
+		return attentionDhj;
+	}
+
+	public void setAttentionDhj(double[][] attentionDhj) {
+		this.attentionDhj = attentionDhj;
+	}
+
 	public double [][] fTT(double [][] sample, boolean test) {
 		isTesting = test;
 		tLength = sample.length;
@@ -446,6 +464,9 @@ public class BPTT implements IBPTT {
 					 *  </0 phase sc>
 					 * */
 				}
+				if (attention != null) {
+					sc = sc + attention.fttAttentionSc(layer, (RNNNeuroVo) cell, t);
+				}
 				cell.getSc()[t] = sc;	
 				/**
 				 * <apply drop out>
@@ -493,6 +514,9 @@ public class BPTT implements IBPTT {
 
 	@Override
 	public void fTT4RNNLayer(LSTMLayer layer) {
+		if (attention != null) {
+			attention.fTT4RNNLayerAttention(layer, t);
+		}
 		if (layerPos == 0) {
 			return;
 		}
@@ -798,6 +822,9 @@ public class BPTT implements IBPTT {
 					/*</delta context>
 					 * **/
 				}
+				if (attention != null && t < tLength - 1) {
+					deltaSc = deltaSc + attention.getDeltaSct_1(layer, abs + j);
+				}
 				cell.getDeltaSc()[t] = deltaSc;
 				/*drop out	
 				 * **/
@@ -850,6 +877,11 @@ public class BPTT implements IBPTT {
 
 	@Override
 	public void bpTT4RNNLayer(LSTMLayer layer) {
+		if (attention != null) {
+			if (t + 1 < tLength) {
+				attention.bp4RNNLayerAttention(layer, t + 1);
+			}			
+		}
 		if (layerPos == cfg.layers.length - 1) {			
 		}
 //		RNNNeuroVo [] nextVos = cfg.layers[layerPos + 1].getRNNNeuroVos();
@@ -858,17 +890,25 @@ public class BPTT implements IBPTT {
 			bpttFromNextLayer(layer, false);
 		} else {						
 			//
-			if (t == tLength - 1) {
+			if (attentionDhj != null) {
 				for (int j = 0; j < allCells.length; j++) {
 					SimpleNeuroVo vo = allCells[j].getNvTT()[t];
-					vo.deltaZz = this.cxtDeltaZz(layerPos)[j];
+					vo.deltaZz = attentionDhj[t][j];
 				}
 			} else {
-				for (int j = 0; j < allCells.length; j++) {
-					SimpleNeuroVo vo = allCells[j].getNvTT()[t];
-					vo.deltaZz = 0;
+				if (t == tLength - 1) {
+					for (int j = 0; j < allCells.length; j++) {
+						SimpleNeuroVo vo = allCells[j].getNvTT()[t];
+						vo.deltaZz = this.cxtDeltaZz(layerPos)[j];
+					}
+				} else {
+					for (int j = 0; j < allCells.length; j++) {
+						SimpleNeuroVo vo = allCells[j].getNvTT()[t];
+						vo.deltaZz = 0;
+					}
 				}
 			}
+			
 			//
 		}
 		
@@ -987,6 +1027,9 @@ public class BPTT implements IBPTT {
 	
 	@Override
 	public void updateWw4RNNLayer(LSTMLayer layer) {
+		if (attention != null) { 
+			attention.updateWw(layer);
+		}
 		if (layerPos != 0) {
 			IBlock [] blocks = layer.getBlocks();
 			updateWw4PartialLstmLayer(layer, blocks);

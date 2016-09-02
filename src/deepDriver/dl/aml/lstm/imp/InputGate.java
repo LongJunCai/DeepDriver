@@ -14,7 +14,7 @@ public class InputGate extends RNNNeuroVo implements IInputGate, Serializable {
 
 	public InputGate(int t, boolean inHidenLayer, int previousNNN,
 			int LayerNN, int blockNN, int nextLayerNN) {
-		super(t, inHidenLayer, previousNNN, LayerNN, blockNN, nextLayerNN); 
+		super(t, inHidenLayer, previousNNN, LayerNN, blockNN, nextLayerNN, null); 
 	}
 
 }

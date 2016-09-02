@@ -3,6 +3,7 @@ package deepDriver.dl.aml.lstm.imp;
 import java.io.Serializable;
 
 import deepDriver.dl.aml.lstm.ICell;
+import deepDriver.dl.aml.lstm.LayerCfg;
 import deepDriver.dl.aml.lstm.RNNNeuroVo;
 
 public class Cell extends RNNNeuroVo implements ICell, Serializable {
@@ -15,10 +16,11 @@ public class Cell extends RNNNeuroVo implements ICell, Serializable {
 	transient double [] deltaSc;
 	
 	transient double [] cZz;
-	transient double [] deltaC;
+	transient double [] deltaC;	
 
-	public Cell(int t, boolean inHidenLayer, int previousNNN, int layerNN, int blockNN, int nextLayerNN) {
-		super(t, inHidenLayer, previousNNN, layerNN, blockNN, nextLayerNN);
+	public Cell(int t, boolean inHidenLayer, int previousNNN, int layerNN, int blockNN, int nextLayerNN,
+			LayerCfg lc) {
+		super(t, inHidenLayer, previousNNN, layerNN, blockNN, nextLayerNN, lc);
 	}
 
 	public double [] getSc() {

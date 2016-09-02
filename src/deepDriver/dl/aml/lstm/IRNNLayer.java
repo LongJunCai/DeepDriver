@@ -10,7 +10,11 @@ public interface IRNNLayer {
 	
 	public void setRNNNeuroVos(RNNNeuroVo [] rnnvos);
 	
-	public void updateWw(IRNNLayerVisitor visitor);
+	public void updateWw(IRNNLayerVisitor visitor); 	
+	
+	public LayerCfg getLc();
+
+	public void setLc(LayerCfg lc);
 	
 //	public ICell [] getCells();
 	

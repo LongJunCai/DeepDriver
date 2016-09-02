@@ -22,6 +22,9 @@ public class RNNNeuroVo implements IRNNNeuroVo, Serializable {
 	double [] xRwWs;	
 	double [] xLwWs;
 	
+	double [] wWas;
+	double [] deltaWwas;
+	
 	transient SimpleNeuroVo [] neuroVos;
 	int t;
 	boolean inHidenLayer;
@@ -31,7 +34,8 @@ public class RNNNeuroVo implements IRNNNeuroVo, Serializable {
 //		this(t, inHidenLayer, previousNNN, currentNNN, currentNNN);
 //	}
 	public RNNNeuroVo(){}
-	public RNNNeuroVo(int t, boolean inHidenLayer, int previousNNN, int LayerNN, int blockNN, int nextLayerNN) {
+	public RNNNeuroVo(int t, boolean inHidenLayer, int previousNNN, int LayerNN, int blockNN, int nextLayerNN
+			, LayerCfg lc) {
 		super();
 		this.t = t;
 		this.inHidenLayer = inHidenLayer;
@@ -45,6 +49,10 @@ public class RNNNeuroVo implements IRNNNeuroVo, Serializable {
 			this.deltaWWs = new double[previousNNN + 1];
 			xWWs = new double[previousNNN + 1];
 		} 
+		if (lc != null && lc.getAttentionLength() > 0) {
+			wWas = new double[lc.getAttentionLength()];
+			deltaWwas = new double[lc.getAttentionLength()];
+		}
 		int hiddenNN = 0;
 		if (inHidenLayer) {
 			if (LayerNN != 0) {
@@ -90,10 +98,29 @@ public class RNNNeuroVo implements IRNNNeuroVo, Serializable {
 				}
 			}
 			
+			if (wWas != null) {
+				for (int i = 0; i < wWas.length; i++) {
+					wWas[i] = length * random.nextDouble()
+					+ min;
+				}
+			}
+			
 		}		
 	}
 	
 	
+	public double[] getwWas() {
+		return wWas;
+	}
+	public void setwWas(double[] wWas) {
+		this.wWas = wWas;
+	}
+	public double[] getDeltaWwas() {
+		return deltaWwas;
+	}
+	public void setDeltaWwas(double[] deltaWwas) {
+		this.deltaWwas = deltaWwas;
+	}
 	public double[] getLwWs() {
 		return lwWs;
 	}

@@ -164,17 +164,25 @@ public class BiBPTT extends BPTT4MultThreads {
 				bpttPartialFromNextLayer(nLayer, currentLayer.getRNNNeuroVos(), layer, false, false);
 			} else {						
 				//
-				if (t == tLength - 1) {
+				if (attentionDhj != null) {
 					for (int j = 0; j < allCells.length; j++) {
 						SimpleNeuroVo vo = allCells[j].getNvTT()[t];
-						vo.deltaZz = this.cxtDeltaZz(layerPos)[j];
+						vo.deltaZz = attentionDhj[t][j];
 					}
 				} else {
-					for (int j = 0; j < allCells.length; j++) {
-						SimpleNeuroVo vo = allCells[j].getNvTT()[t];
-						vo.deltaZz = 0;
+					if (t == tLength - 1) {
+						for (int j = 0; j < allCells.length; j++) {
+							SimpleNeuroVo vo = allCells[j].getNvTT()[t];
+							vo.deltaZz = this.cxtDeltaZz(layerPos)[j];
+						}
+					} else {
+						for (int j = 0; j < allCells.length; j++) {
+							SimpleNeuroVo vo = allCells[j].getNvTT()[t];
+							vo.deltaZz = 0;
+						}
 					}
 				}
+				
 				//
 			}
 			currentLayer.reverseBackOpposite(); 
