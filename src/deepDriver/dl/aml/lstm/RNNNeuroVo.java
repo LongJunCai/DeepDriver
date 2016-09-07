@@ -24,6 +24,7 @@ public class RNNNeuroVo implements IRNNNeuroVo, Serializable {
 	
 	double [] wWas;
 	double [] deltaWwas;
+	double [] ldWwas;
 	
 	transient SimpleNeuroVo [] neuroVos;
 	int t;
@@ -52,6 +53,7 @@ public class RNNNeuroVo implements IRNNNeuroVo, Serializable {
 		if (lc != null && lc.getAttentionLength() > 0) {
 			wWas = new double[lc.getAttentionLength()];
 			deltaWwas = new double[lc.getAttentionLength()];
+			ldWwas = new double[deltaWwas.length];
 		}
 		int hiddenNN = 0;
 		if (inHidenLayer) {
@@ -126,8 +128,12 @@ public class RNNNeuroVo implements IRNNNeuroVo, Serializable {
 	}
 
 
-
-
+	public double[] getLdWwas() {
+		return ldWwas;
+	}
+	public void setLdWwas(double[] ldWwas) {
+		this.ldWwas = ldWwas;
+	}
 	public void setLwWs(double[] lwWs) {
 		this.lwWs = lwWs;
 	}

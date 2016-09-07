@@ -8,7 +8,7 @@ import deepDriver.dl.aml.distribution.Fs;
 import deepDriver.dl.aml.lstm.LSTMConfigurator;
 import deepDriver.dl.aml.lstm.LSTMDataSet;
 import deepDriver.dl.aml.lstm.LSTMWwUpdater;
-import deepDriver.dl.aml.lstm.attentionEnDecoder.test.Encoder2DecoderSetup;
+import deepDriver.dl.aml.lstm.attentionEnDecoder.test.AttEn2DeSetup;
 import deepDriver.dl.aml.lstm.beamSearch.BeamLayer;
 import deepDriver.dl.aml.lstm.beamSearch.BeamNode;
 import deepDriver.dl.aml.lstm.beamSearch.BeamSearch;
@@ -19,10 +19,11 @@ public class TestEnDeQA {
 	
 	public static void main(String[] args) throws Exception {
 		Encoder2DecoderSetup encoder2DecoderSetup = new Encoder2DecoderSetup();
+		encoder2DecoderSetup.setSetupDic(false);
 		encoder2DecoderSetup.bootstrap(null, false);
-		String root = "D:\\workspace\\ANN\\data\\";
-		String qfile = root+"qcfg_1470017901907_0.m";
-		String afile = root+"acfg_1470017901907_0.m";
+		String root = "D:\\6.workspace\\ANN\\lstm\\QaModel\\";
+		String qfile = root+"qcfg_1472196807792_2.m";
+		String afile = root+"acfg_1472196807792_2.m";
 		LSTMWwUpdater checker = new LSTMWwUpdater(true, true);
 		LSTMWwUpdater wWUpdater = new LSTMWwUpdater(false, true);
 		LSTMConfigurator qcfg = (LSTMConfigurator) Fs.readObjFromFile(qfile);
@@ -41,7 +42,7 @@ public class TestEnDeQA {
 				+ ", m="+encoder2DecoderSetup.getAcfg().getM());
 		
 		Dictionary dic = encoder2DecoderSetup.getDic();
-		String start = "为什么我看视频一直缓冲";//怎么我的是黄金套餐还要购买才能看电影如何取消自动续费//
+		String start = "我刚冲的黄金一年VIP为什么显示不出来";//到期了怎么办//为什么登录不了//怎么我的是黄金套餐还要购买才能看电影//为什么我看视频一直缓冲//如何取消自动续费
 		System.out.println(start);
 		LSTMDataSet qds = dic.encodeSample(start, start.length(), qcfg.isUseThinData());
 		LSTMDataSet ads = dic.encodeSample(Dictionary.EOS, 1, qcfg.isUseThinData());

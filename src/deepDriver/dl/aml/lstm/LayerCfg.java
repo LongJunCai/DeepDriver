@@ -1,7 +1,13 @@
 package deepDriver.dl.aml.lstm;
 
-public class LayerCfg {
+import java.io.Serializable;
+
+public class LayerCfg implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	int attentionLength;
 
 	public int getAttentionLength() {

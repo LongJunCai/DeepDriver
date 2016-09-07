@@ -1,11 +1,17 @@
 package deepDriver.dl.aml.lstm;
 
+import java.io.Serializable;
+
 import deepDriver.dl.aml.attention.SoftAttention;
 import deepDriver.dl.aml.cnn.ActivationFactory;
 import deepDriver.dl.aml.lstm.imp.Cell;
 
-public class LstmAttention {
+public class LstmAttention implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	SoftAttention attention;
 	public LstmAttention(int waSize, int uaSize, int maxLength) {
 		attention = new SoftAttention(waSize, uaSize,  ActivationFactory.getAf().getTanh(), maxLength);
@@ -123,7 +129,9 @@ public class LstmAttention {
 		for (int i = 0; i < cells.length; i++) {
 			Cell cell = (Cell) cells[i];
 			for (int j = 0; j < cell.getwWas().length; j++) {
-				cell.getwWas()[j] = cell.getwWas()[j] - l * cell.getDeltaWwas()[j];
+				double ml = - l * cell.getDeltaWwas()[j] + m * cell.getLdWwas()[j];
+				cell.getwWas()[j] = cell.getwWas()[j] + ml;
+				cell.getLdWwas()[j] = ml;
 			}
 		}
 		attention.updateWw();

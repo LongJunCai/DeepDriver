@@ -1,18 +1,30 @@
 package deepDriver.dl.aml.attention;
 
+import java.io.Serializable;
+
 import deepDriver.dl.aml.ann.IActivationFunction;
 import deepDriver.dl.aml.random.RandomFactory;
 
-public class SoftAttention {
+public class SoftAttention implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	IActivationFunction af;
 	
 	double [] wa;
 	double [] dwa;	
+	double [] ldwa;
+	
 	double [] ua;
 	double [] dua;
+	double [] ldua;
+	
 	double va;
 	double dva;
+	double ldva;
 	
 	int maxLength;
 	double [][] as;
@@ -70,12 +82,25 @@ public class SoftAttention {
 	
 	public void updateWw() {
 		for (int i = 0; i < wa.length; i++) {
-			wa[i] = wa[i] - l * dwa[i];
+//			wa[i] = wa[i] - l * dwa[i];
+			wa[i] = wa[i] + useM(dwa, ldwa, i);
 		}
 		for (int i = 0; i < ua.length; i++) {
-			ua[i] = ua[i] - l * dua[i];
+//			ua[i] = ua[i] - l * dua[i];
+			ua[i] = ua[i] + useM(dua, ldua, i);
 		}
-		va = va - l * dva;
+		double nv = - l * dva + m * ldva;
+		va = va + nv;
+		ldva = nv;
+	}
+	
+	public double useM(double [] ds, double [] lds, int i) {
+		if (lds == null) {
+			lds = new double[ds.length];
+		}
+		ds[i] = - l * ds[i] + m * lds[i];
+		lds[i] = ds[i];
+		return ds[i];
 	}
 
 	public double dot(double [] a, double [] b) {

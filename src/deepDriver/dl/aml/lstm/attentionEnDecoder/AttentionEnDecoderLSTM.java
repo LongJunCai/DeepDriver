@@ -21,6 +21,8 @@ public class AttentionEnDecoderLSTM {
 	LSTMConfigurator qcfg;
 	LSTMConfigurator acfg;	
 	
+	AttentionCfg attCfg;
+	
 	public AttentionEnDecoderLSTM(LSTMConfigurator qcfg, LSTMConfigurator acfg) {
 		super();
 		this.qcfg = qcfg;
@@ -31,6 +33,7 @@ public class AttentionEnDecoderLSTM {
 		this.qis = qis;
 		this.ais = ais;
 		encoderDecoderBPTT = new AttentionEnDecoderBPTT(qcfg, acfg);
+		attCfg = new AttentionCfg(qcfg, acfg, encoderDecoderBPTT.attention);
 		System.out.println("Begin to train the model.");
 		while (true && !skip) {
 			double err = runEpich();
@@ -54,6 +57,10 @@ public class AttentionEnDecoderLSTM {
 			qis.next(pos);
 			cnt++;
 			double m = acfg.getM();
+			if (first) {
+				System.out.println("m="+m+", l="+acfg.getLearningRate());
+				first = false;
+			}
 			if (acfg.getLr() != null) {
 				double l = acfg.getLr().adjustML(error, acfg.getLearningRate());
 				if (l != acfg.getLearningRate()) {
@@ -70,7 +77,7 @@ public class AttentionEnDecoderLSTM {
 			qcfg.setM(m);
 			double avgErr = error/(double)cnt;
 			if (cnt % 200 == 0) {
-				System.out.println(acfg.getName() + " avg Error is: "+ avgErr +" with "+cnt);
+				System.out.println(acfg.getName() + " avg Error is: "+ avgErr +" with "+cnt+", lastAvg: "+lastAvg);
 				if (avgErr < 50.0) {
 					if (lastAvg == 0 || lastAvg -  avgErr> 1.0) {
 						save2File(rcnt++ % 10 +"");
@@ -87,23 +94,25 @@ public class AttentionEnDecoderLSTM {
 	
 	long currentTimestamp = System.currentTimeMillis();
 	private void save2File(String middleName) {
-		save2File(middleName, qcfg);
-		save2File(middleName, acfg);
+//		save2File(middleName, qcfg);
+//		save2File(middleName, acfg);
+		save2File(middleName, attCfg, attCfg.getName());
+		
 	}
-	private void save2File(String middleName, LSTMConfigurator cfg) {
+	private void save2File(String middleName, Object cfg, String name) {
 		String sf = System.getProperty("user.dir");		
 		File dir = new File(sf, "data");
 		dir.mkdirs();		
 		File f = null;
 		if (middleName == null) {
-			f = new File(dir, cfg.getName()+"_"+currentTimestamp+".m");
+			f = new File(dir, name+"_"+currentTimestamp+".m");
 		} else {
-			f = new File(dir, cfg.getName()+"_"+currentTimestamp+
+			f = new File(dir, name+"_"+currentTimestamp+
 					"_"+middleName+".m");
 		}		
 		try {
 			Fs.writeObj2FileWithTs(f.getAbsolutePath(), cfg);
-			System.out.println("Save "+cfg.getName()+" into "+f.getAbsolutePath());
+			System.out.println("Save "+name+" into "+f.getAbsolutePath());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		

@@ -643,11 +643,26 @@ public class BPTT implements IBPTT {
 		vo.getNvTT()[t].zZ = zZ;
 		vo.getNvTT()[t].aA = f.activate(zZ);
 	}
+	
+	public void dzZ4TopLayer() {
+		if (dzZs4TopLayer != null) {//assuming it is a RNN layer, otherwise this is not correct.
+			IRNNLayer layer = cfg.getLayers()[cfg.layers.length - 1];
+			RNNNeuroVo [] vos = layer.getRNNNeuroVos();
+ 			for (int i = 0; i < dzZs4TopLayer.length; i++) {
+				RNNNeuroVo vo = vos[i];
+				vo.getNvTT()[tLength - 1].deltaZz = dzZs4TopLayer[i];
+			} 
+		}
+	}
 
 	double learningRate = 0.01;
 	double m = 0.8;
 	double dropOut = 0;
 	public void caculateWithCostFunction(RNNNeuroVo [] vos) {
+		if (dzZs4TopLayer != null) {
+			dzZ4TopLayer();
+			return;
+		}
 		if (LSTMConfigurator.SOFT_MAX == cfg.costFunction) {
 			double [] yt = new double[vos.length];
 			double sum = 0;
@@ -679,8 +694,23 @@ public class BPTT implements IBPTT {
 		
 	}
 	
+	public double [] retreiveTopLayerZzs() {//assuming retreive from rnn layer always.
+		IRNNLayer layer = cfg.getLayers()[cfg.layers.length - 1];
+		RNNNeuroVo [] vos = layer.getRNNNeuroVos();
+		double [] zZs = new double[vos.length];
+		for (int i = 0; i < zZs.length; i++) {
+			RNNNeuroVo vo = vos[i];
+			zZs[i] = vo.getNvTT()[tLength - 1].zZ;
+		}
+		return zZs;
+	}
 	
+	double [] dzZs4TopLayer;	
 	
+	public void setDzZs4TopLayer(double[] dzZs4TopLayer) {
+		this.dzZs4TopLayer = dzZs4TopLayer;
+	} 
+
 	@Override
 	public void bpTT4RNNLayer(RNNLayer layer) {
 		if (layerPos == cfg.layers.length - 1) {

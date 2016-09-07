@@ -14,14 +14,14 @@ import deepDriver.dl.aml.string.NFixedStreamImpV2;
 import deepDriver.dl.aml.string.ThinRandomANFixedStreamImpV2;
 import deepDriver.dl.aml.string.ThinRandomQNFixedStreamImpV2;
 
-public class Encoder2DecoderSetup implements Seq2SeqLSTMBoostrapper {
+public class AttEn2DeSetup implements Seq2SeqLSTMBoostrapper {
 
 	Dictionary dic = new Dictionary();
 	
 	boolean setupDic = true;
 	
 	String dicObjPath = "D:\\6.workspace\\ANN\\lstm\\QaModel\\v_1516.m";
-	String dicPath = "D:\\6.workspace\\ANN\\lstm\\talk2015.txt";//talk2015_2016.txt
+	String dicPath = "D:\\6.workspace\\ANN\\lstm\\talk2015_2016.txt";//talk2015.txt
 		
 	public boolean isSetupDic() {
 		return setupDic;
@@ -108,7 +108,7 @@ public class Encoder2DecoderSetup implements Seq2SeqLSTMBoostrapper {
 		qcfg.setLr(slr);
 		
 		StepReductionLR srm = new StepReductionLR();
-		srm.setStepsCnt(30000);
+		srm.setStepsCnt(100000);
 		srm.setReductionRate(0.5);
 		srm.setMinLr(0.01);
 		qcfg.setSrm(srm);
@@ -122,7 +122,7 @@ public class Encoder2DecoderSetup implements Seq2SeqLSTMBoostrapper {
 		acfg.setAccuracy(40);
 		acfg.setMaxTimePeriod(41);
 		acfg.setLearningRate(0.1);
-		acfg.setM(0);
+		acfg.setM(0.2);//? add m to accelerate the speed.
 		acfg.setMBSize(1);
 		acfg.setDropOut(0);
 		acfg.setEnableUseCellAa(true);
@@ -132,7 +132,7 @@ public class Encoder2DecoderSetup implements Seq2SeqLSTMBoostrapper {
 		
 		acfg.setThreadsNum(4);
 		StepReductionLR aslr = new StepReductionLR();
-		aslr.setStepsCnt(50000);
+		aslr.setStepsCnt(100000);
 		aslr.setReductionRate(0.5);
 		aslr.setMinLr(0.001);
 		acfg.setLr(aslr);
