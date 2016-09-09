@@ -264,6 +264,14 @@ public class LSTM {
 		this.error = error;
 	}
 	
+	public double [] retreiveTopLayerZzs() {
+		return this.bPTT.retreiveTopLayerZzs();
+	}
+	
+	public void setDzZs4TopLayer(double[] dzZs4TopLayer) {
+		this.bPTT.setDzZs4TopLayer(dzZs4TopLayer);
+	}
+	
 	public double runEpich() {
 		double error = 0;
 		int cnt = 0;

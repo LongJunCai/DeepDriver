@@ -42,7 +42,7 @@ public class TestEnDeQA {
 				+ ", m="+encoder2DecoderSetup.getAcfg().getM());
 		
 		Dictionary dic = encoder2DecoderSetup.getDic();
-		String start = "我刚冲的黄金一年VIP为什么显示不出来";//到期了怎么办//为什么登录不了//怎么我的是黄金套餐还要购买才能看电影//为什么我看视频一直缓冲//如何取消自动续费
+		String start = "到期了怎么办";////为什么登录不了//怎么我的是黄金套餐还要购买才能看电影//为什么我看视频一直缓冲//如何取消自动续费
 		System.out.println(start);
 		LSTMDataSet qds = dic.encodeSample(start, start.length(), qcfg.isUseThinData());
 		LSTMDataSet ads = dic.encodeSample(Dictionary.EOS, 1, qcfg.isUseThinData());

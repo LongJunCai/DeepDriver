@@ -122,7 +122,7 @@ public class AttEn2DeSetup implements Seq2SeqLSTMBoostrapper {
 		acfg.setAccuracy(40);
 		acfg.setMaxTimePeriod(41);
 		acfg.setLearningRate(0.1);
-		acfg.setM(0.2);//? add m to accelerate the speed.
+		acfg.setM(0.1);//? add m to accelerate the speed.
 		acfg.setMBSize(1);
 		acfg.setDropOut(0);
 		acfg.setEnableUseCellAa(true);
