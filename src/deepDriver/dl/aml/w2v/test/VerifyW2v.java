@@ -9,9 +9,9 @@ import deepDriver.dl.aml.w2v.W2V;
 public class VerifyW2v {
 	
 	public static void main(String[] args) throws Exception {
-		W2V w2v = (W2V) Fs.readObjFromFile("D:\\workspace\\DeepDriver\\data\\" +
-				"w2v_1473676087690_300.m");
-		String k = "中国";
+		W2V w2v = (W2V) Fs.readObjFromFile("D:\\workspace\\DeepDriver\\bin\\data\\" +
+				"w2v_1473748434654_0.m");
+		String k = "狗血";
 		List<KeyCntPair> list = w2v.getSimilarity(k, 100);
 		System.out.println("Similarity with "+k+" is: ");
 		for (int i = 0; i < 10; i++) {

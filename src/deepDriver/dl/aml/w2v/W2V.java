@@ -25,9 +25,10 @@ public class W2V implements Serializable {
 	
 	
 	List<KeyCntPair> keyCntPairs = new ArrayList<KeyCntPair>();
+	List<KeyCntPair> allKeyCntPairs = new ArrayList<KeyCntPair>();
 	
 	public String hit(double r) {
-		double l = r * (double)repeatCnt;
+		double l = r * (double)negRepeatCnt;
 		double lc = 0;
 		for (int i = 0; i < keyCntPairs.size(); i++) {
 			lc = lc + keyCntPairs.get(i).value;
@@ -38,19 +39,38 @@ public class W2V implements Serializable {
 		return null;
 	}
 	
-	int repeatCnt = 0;
+	int allRepeatCnt = 0;
 	int wordSegCnt = 0;
 	
-	public void sort() {
+	int lowThreadhold = 5;
+	double highThreadhold = 0.001;
+	
+	int negRepeatCnt = 0;
+	
+	public void etlData() {
 		Iterator<String> iter = wCnt.keySet().iterator();
 		while (iter.hasNext()) {
 			String key = (String) iter.next();
 			KeyCntPair kcp = new KeyCntPair();
 			kcp.key = key;
-			kcp.value = wCnt.get(key);			
-			keyCntPairs.add(kcp);
-			repeatCnt = repeatCnt + (int)kcp.value;
+			kcp.value = wCnt.get(key);		
+			allKeyCntPairs.add(kcp);
 			wordSegCnt ++;
+			
+			//remove the low/high frequence words.
+			if (kcp.value <= lowThreadhold) {
+				continue;
+			}
+			double f = kcp.value/(double)allRepeatCnt;
+			double f1 = highThreadhold/f;
+			double ran = Math.sqrt(f1) + f1;
+			double r = random.nextDouble();
+			if (r >= ran) {
+				continue;
+			}
+			keyCntPairs.add(kcp);
+			negRepeatCnt = negRepeatCnt + (int)kcp.value;
+			
 		}
 		sort(keyCntPairs);
 	}
@@ -78,7 +98,7 @@ public class W2V implements Serializable {
 	
 	public void summary() {
 		System.out.println("There are "+wordSegCnt+" unique words, " +
-				"and there are "+repeatCnt+" words used.");
+				"and there are "+allRepeatCnt+" words used.");
 	}
 	
 	boolean debug;
@@ -102,6 +122,7 @@ public class W2V implements Serializable {
 		} else {
 			wCnt.put(w, wCnt.get(w) + 1);
 		}		
+		allRepeatCnt ++; 
 	}
 	
 	int projectionLength = 100;
@@ -118,12 +139,15 @@ public class W2V implements Serializable {
 	double min = -1.0;
 	double max = 1.0;
 	double length = max - min; 
+	
+	double bound = 0.5;
 
 	public double [] generateV() {
 		double [] v = new double[projectionLength];
 		for (int i = 0; i < v.length; i++) {
-			v[i] = length * random.nextDouble()
-					+ min;
+//			v[i] = length * random.nextDouble()
+//					+ min;
+			v[i] = (random.nextDouble()/max - bound)/(double)projectionLength;
 		}
 		return v;
 	}
@@ -131,11 +155,11 @@ public class W2V implements Serializable {
 	public List<KeyCntPair> getSimilarity(String word, int topN) {
 		List<KeyCntPair> list = new ArrayList<KeyCntPair>();
 		double [] v = this.w2v.get(word);
-		for (int i = 0; i < this.keyCntPairs.size(); i++) {
-			double [] v1 = w2v.get(keyCntPairs.get(i).key);
+		for (int i = 0; i < this.allKeyCntPairs.size(); i++) {
+			double [] v1 = w2v.get(allKeyCntPairs.get(i).key);
 			double cos = MathUtil.cos(v, v1);
 			KeyCntPair kcp = new KeyCntPair();
-			kcp.key = keyCntPairs.get(i).key;
+			kcp.key = allKeyCntPairs.get(i).key;
 			kcp.value = cos;
 			list.add(kcp);
 		}

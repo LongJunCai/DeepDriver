@@ -11,7 +11,7 @@ public class TestNegativeSampling {
 		wss.setMaxLength(1000);
 		wss.setRequireBlank(true);
 		wss.setRequireEndFlagCheck(false);
-		wss.loadFlatDs("D:\\6.workspace\\p.NLP\\msr_corpus");
+		wss.loadFlatDs("D:\\6.workspace\\p.NLP\\000000_0.0");//50000-corpus.txt
 		
 //		wss.setVoLoadOnly(true); 
 //		wss.loadWordSegSet("D:\\6.workspace\\p.NLP\\dev.conll");
