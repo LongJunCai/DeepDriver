@@ -2,7 +2,7 @@
 This is a Deep Learning framework projects written with JAVA, including:
 - ANN, the forward feed neural network
 - DNN, a deep ANN
-- CNN, the convNet, including LetNet, FNN, and so on.
+- CNN, the convNet, including LetNet, VGG, ResNet, FNN, and so on.
 - RNN/LSTM, used for sequential strings handeling
 - Bi-LSTM
 - W2V supports also is added already
