@@ -1,4 +1,4 @@
-package deepDriver.dl.aml.contrib.MNIST;
+package deepDriver.dl.aml.contrib.mnist;
 
 import java.io.File;
 
