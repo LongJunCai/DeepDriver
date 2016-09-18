@@ -10,7 +10,7 @@ public class VerifyW2v {
 	
 	public static void main(String[] args) throws Exception {
 		W2V w2v = (W2V) Fs.readObjFromFile("D:\\workspace\\DeepDriver\\bin\\data\\" +
-				"w2v_1473748434654_0.m");
+				"w2v_1473748434654_100.m");
 		String k = "狗血";
 		List<KeyCntPair> list = w2v.getSimilarity(k, 100);
 		System.out.println("Similarity with "+k+" is: ");
