@@ -54,7 +54,7 @@ public class LstmAttention implements Serializable {
 		cs[t] = attention.forward(st_1, hj, t); 
 	}
 	
-	public double fttAttentionSc(LSTMLayer layer, RNNNeuroVo rnVo, int t) {
+	public double fttAttentionSc(LSTMLayer layer, RNNNeuroVo rnVo, int t) {//it is multiple threads already.
 		LayerCfg lc = layer.getLc(); 
 		if (lc == null || lc.getAttentionLength() <= 0 || t == 0) {
 			return 0;

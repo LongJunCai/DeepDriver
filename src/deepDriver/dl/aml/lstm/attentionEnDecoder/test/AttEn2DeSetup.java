@@ -132,7 +132,7 @@ public class AttEn2DeSetup implements Seq2SeqLSTMBoostrapper {
 		
 		acfg.setThreadsNum(4);
 		StepReductionLR aslr = new StepReductionLR();
-		aslr.setStepsCnt(100000);
+		aslr.setStepsCnt(60000);
 		aslr.setReductionRate(0.5);
 		aslr.setMinLr(0.001);
 		acfg.setLr(aslr);

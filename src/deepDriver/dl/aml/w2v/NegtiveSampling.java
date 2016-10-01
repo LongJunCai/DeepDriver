@@ -6,6 +6,8 @@ import java.util.Random;
 import deepDriver.dl.aml.ann.IActivationFunction;
 import deepDriver.dl.aml.cnn.ActivationFactory;
 import deepDriver.dl.aml.distribution.Fs;
+import deepDriver.dl.aml.distribution.modelParallel.PartialCallback;
+import deepDriver.dl.aml.distribution.modelParallel.ThreadParallel;
 import deepDriver.dl.aml.lstm.apps.wordSegmentation.WordSegSet;
 import deepDriver.dl.aml.math.MathUtil;
 import deepDriver.dl.aml.stream.IWordStream;
@@ -28,19 +30,43 @@ public class NegtiveSampling {
 		System.out.println("Training w2v..."); 
 		for (int i = 0; i < loop; i++) {
 			s.reset();
-			while (s.hasNext()) {
-				s.next();
-				String [] ws = s.getSampleTT();
-				String [] ts = s.getTarget();
-				runEpich(ws, ts);
-			}		
+			if (threadNum == 1) {
+				while (s.hasNext()) {
+					s.next();
+					String [] ws = s.getSampleTT();
+					String [] ts = s.getTarget();
+					runEpich(ws, ts);
+				}	
+			} else {			
+				boolean isOver = false;
+				while (true) {
+//					System.out.println("Run in "+threadNum +" threads.");
+					String [][] wss = new String[batchNum][];
+					String [][] tss = new String[batchNum][];
+					for (int j = 0; j < tss.length; j++) {
+						if (s.hasNext()) {
+							s.next();
+							wss[j] = s.getSampleTT();
+							tss[j] = s.getTarget();							
+						} else {
+							isOver = true;
+							break;							
+						}
+					}
+					runEpichInParallel(wss, tss);
+					if (isOver) {
+						break;
+					}
+				}
+			}
+				
 			if (i % 100 == 0) {
 				save2File(i+"", "w2v", w2v);
 			}
-		}
-		
+		}		
 	}
-	
+	 
+	int batchNum = 1000;
 	int loop = 800;
 	
 	public void initW2v(String [] ws, String [] ts) {
@@ -81,10 +107,39 @@ public class NegtiveSampling {
 			e.printStackTrace();
 		}		
 	}
+	int threadNum = 1;
 	
-	IActivationFunction af = ActivationFactory.getAf().getAcf();
+	public int getThreadNum() {
+		return threadNum;
+	}
+
+	public void setThreadNum(int threadNum) {
+		this.threadNum = threadNum;
+	}
+
+	ThreadParallel threadParallel = new ThreadParallel();
+	public void runMutipleThreads(int length, PartialCallback p) { 
+		threadParallel.runMutipleThreads(length, p, threadNum);
+	}
+	
+	IActivationFunction af = ActivationFactory.getAf().getSsigMod();
+	public void runEpichInParallel(final String [][] ws, final String [][] ts) {
+		runMutipleThreads(ws.length, new PartialCallback() {
+			public void runPartial(int offset, int runLen) {
+				runEpich(ws, ts, offset, runLen);
+			}			
+		});
+	}
+	public void runEpich(String [][] ws, String [][] ts, int offset, int length) {
+		for (int i = offset; i < length; i++) {
+			runEpich(ws[i], ts[i]);
+		}
+	}
 	
 	public void runEpich(String [] ws, String [] ts) {
+		if (ws == null) {
+			return;
+		}
 		double [] cxt = new double[w2v.getProjectionLength()];
 		double [] dc = new double[w2v.getProjectionLength()];
 		for (int i = 0; i < ws.length; i++) {
@@ -121,18 +176,25 @@ public class NegtiveSampling {
 		MathUtil.plus2V(v, d, dc);
 		
 		//update the vectors..
-		MathUtil.plus2V(cxt, d, v);		
+		synchronized (v) {
+			MathUtil.plus2V(cxt, d, v);	
+		}
+			
 //		MathUtil.scale(dc, 1.0/(double)ws.length);		
 		for (int i = 0; i < ws.length; i++) {
 			if (WordSegSet.BLANK.equals(ws[i])) {
 				continue;
 			}
 			double [] v1 = w2v.getByWord(ws[i]);
-			MathUtil.plus2V(dc, v1);
+			synchronized (v1) {
+				MathUtil.plus2V(dc, v1);
+			}			
 		}
 		for (int i = 0; i < negTs.length; i++) {
 			double [] v1 = w2v.getByWord(negTs[i]);
-			MathUtil.plus2V(dnegVs[i], v1);
+			synchronized (v1) {
+				MathUtil.plus2V(dnegVs[i], v1);
+			}			
 		}
 	}
 	

@@ -1,6 +1,7 @@
 package deepDriver.dl.aml.cnn;
 
 
+import deepDriver.dl.aml.af.SimpleSigmod;
 import deepDriver.dl.aml.ann.IActivationFunction;
 import deepDriver.dl.aml.ann.imp.LogicsticsActivationFunction;
 import deepDriver.dl.aml.lstm.imp.TanhAf;
@@ -8,6 +9,8 @@ import deepDriver.dl.aml.lstm.imp.TanhAf;
 public class ActivationFactory {
 	
 	IActivationFunction acf = new LogicsticsActivationFunction();
+	
+	IActivationFunction ssigMod = new SimpleSigmod();
 
 	IActivationFunction flatAcf = new FlatAcf();
 	IActivationFunction reLU = new ReLU();
@@ -40,6 +43,11 @@ public class ActivationFactory {
 	}
 	public void setTanh(IActivationFunction tanh) {
 		this.tanh = tanh;
-	}	
-	
+	}
+	public IActivationFunction getSsigMod() {
+		return ssigMod;
+	}
+	public void setSsigMod(IActivationFunction ssigMod) {
+		this.ssigMod = ssigMod;
+	}		
 }
