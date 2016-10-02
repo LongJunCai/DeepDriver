@@ -15,6 +15,7 @@ public class TestNegativeSamplingV2 {
 		
 		NegtiveSampling negtiveSampling = new NegtiveSampling();
 		negtiveSampling.setThreadNum(4);
+		negtiveSampling.setLoop(1);
 		long l = System.currentTimeMillis();
 		negtiveSampling.w2v(nativeWordStream);
 		System.out.println("time is: "+(System.currentTimeMillis() - l));

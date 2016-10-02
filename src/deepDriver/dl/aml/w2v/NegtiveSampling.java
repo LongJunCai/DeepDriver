@@ -67,8 +67,16 @@ public class NegtiveSampling {
 	}
 	 
 	int batchNum = 1000;
-	int loop = 800;
+	int loop = 800;	
 	
+	public int getLoop() {
+		return loop;
+	}
+
+	public void setLoop(int loop) {
+		this.loop = loop;
+	}
+
 	public void initW2v(String [] ws, String [] ts) {
 		initW2v(ws);
 		initW2v(ts);
@@ -131,10 +139,12 @@ public class NegtiveSampling {
 		});
 	}
 	public void runEpich(String [][] ws, String [][] ts, int offset, int length) {
-		for (int i = offset; i < length; i++) {
+		for (int i = offset; i < offset + length; i++) {
 			runEpich(ws[i], ts[i]);
 		}
 	}
+	
+	boolean syncL = false;
 	
 	public void runEpich(String [] ws, String [] ts) {
 		if (ws == null) {
@@ -176,25 +186,39 @@ public class NegtiveSampling {
 		MathUtil.plus2V(v, d, dc);
 		
 		//update the vectors..
-		synchronized (v) {
+		/**/
+		if (syncL) {
+			synchronized (v) {
+				MathUtil.plus2V(cxt, d, v);	
+			}
+		} else {
 			MathUtil.plus2V(cxt, d, v);	
-		}
-			
+		}			
 //		MathUtil.scale(dc, 1.0/(double)ws.length);		
 		for (int i = 0; i < ws.length; i++) {
 			if (WordSegSet.BLANK.equals(ws[i])) {
 				continue;
 			}
 			double [] v1 = w2v.getByWord(ws[i]);
-			synchronized (v1) {
+			/***/
+			if (syncL) {
+				synchronized (v1) {
+					MathUtil.plus2V(dc, v1);
+				}
+			} else {
 				MathUtil.plus2V(dc, v1);
-			}			
+			}		
 		}
 		for (int i = 0; i < negTs.length; i++) {
 			double [] v1 = w2v.getByWord(negTs[i]);
-			synchronized (v1) {
+			/***/
+			if (syncL) {
+				synchronized (v1) {
+					MathUtil.plus2V(dnegVs[i], v1);
+				}
+			} else {
 				MathUtil.plus2V(dnegVs[i], v1);
-			}			
+			}		
 		}
 	}
 	
