@@ -96,9 +96,10 @@ public class W2V implements Serializable {
 		summary();
 	}
 	
+	
 	public void summary() {
-		System.out.println("There are "+wordSegCnt+" unique words, " +
-				"and there are "+allRepeatCnt+" words used.");
+//		System.out.println("There are "+wordSegCnt+" unique words, " +
+//				"and there are "+allRepeatCnt+" words used.");
 	}
 	
 	boolean debug;
@@ -152,18 +153,37 @@ public class W2V implements Serializable {
 		return v;
 	}
 	
+//	int topNum = 100;
+	int simCnt = 0;
+	
 	public List<KeyCntPair> getSimilarity(String word, int topN) {
+		simCnt = 0;
 		List<KeyCntPair> list = new ArrayList<KeyCntPair>();
 		double [] v = this.w2v.get(word);
+		System.out.println("There are words: "+allKeyCntPairs.size());
 		for (int i = 0; i < this.allKeyCntPairs.size(); i++) {
-			double [] v1 = w2v.get(allKeyCntPairs.get(i).key);
+			String key = allKeyCntPairs.get(i).key;
+			double [] v1 = w2v.get(key);
 			double cos = MathUtil.cos(v, v1);
-			KeyCntPair kcp = new KeyCntPair();
-			kcp.key = allKeyCntPairs.get(i).key;
-			kcp.value = cos;
-			list.add(kcp);
+			
+			if (simCnt < topN) {
+				KeyCntPair kcp = new KeyCntPair();
+				kcp.key = key;
+				kcp.value = cos;
+				list.add(kcp);
+				simCnt ++;
+			} else {
+//				System.out.println("The list size is: "+list.size());
+				sort(list);
+				KeyCntPair kcp = list.get(list.size() - 1);				
+				if (kcp.value < cos) {
+					kcp.key = key;
+					kcp.value = cos;
+				}
+			}
+			
 		}
-		sort(list);
+		
 		return list;
 	}
 

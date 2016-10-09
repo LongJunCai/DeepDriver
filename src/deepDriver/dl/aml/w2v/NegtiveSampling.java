@@ -60,12 +60,13 @@ public class NegtiveSampling {
 				}
 			}
 				
-			if (i % 100 == 0) {
+			if (i % mloop == 0) {	
 				save2File(i+"", "w2v", w2v);
 			}
 		}		
 	}
 	 
+	int mloop = 1;
 	int batchNum = 1000;
 	int loop = 800;	
 	
