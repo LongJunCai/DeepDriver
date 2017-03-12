@@ -7,7 +7,7 @@ This is a Deep Learning framework projects written with JAVA, including:
 - Bi-LSTM
 - W2V supports also is added already
 - Encoder-Decoder framework and so on.
-- add supporting for DNC(Differential Neural Computer)
+- add supporting for DNC(Differential Neural Computer) DeepDriver/src/deepDriver/dl/aml/dnc/
 
 This framework provides some examples:
 - NLP: Chinese word segmentation
