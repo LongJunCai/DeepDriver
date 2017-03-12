@@ -18,7 +18,7 @@ public class BiBPTT extends BPTT4MultThreads {
 				layerPos = j;
 				for (int i = 0; i < sample.length; i++) {
 					biDirection = NORMAL;
-					t = i;
+					t = i;//not sure how to handle the bi-directional
 					feature = sample[i];
 					cfg.layers[j].fTT(this);
 				}		

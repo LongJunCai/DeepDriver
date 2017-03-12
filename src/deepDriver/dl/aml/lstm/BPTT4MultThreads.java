@@ -19,6 +19,14 @@ public class BPTT4MultThreads extends BPTT {
 		threadParallel.runMutipleThreads(length, p, tn);
 	}
 	
+	public void fTT4FeatureAssignment(RNNNeuroVo [] vos, double [] feature) {
+		runMutipleThreads(vos.length, new PartialCallback() {
+			public void runPartial(int offset, int runLen) {
+				fTT4FeatureAssignment(vos, feature, offset, runLen);
+			}			
+		});	
+	}
+	
 	public void fTT4PartialRNNLayer(final RNNNeuroVo [] vos, final RNNNeuroVo [] previousVos) {
 //		fTT4PartialRNNLayer(vos, previousVos, 0, vos.length);
 		runMutipleThreads(vos.length, new PartialCallback() {

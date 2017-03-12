@@ -4,19 +4,7 @@ import java.util.Random;
 
 import deepDriver.dl.aml.random.RandomFactory;
 
-public class MathUtil {
-	
-	static int threadCnt = 4;
-	static IMathFunction mf = new MathUtil4MThreads();
-	
-	public static int getThreadCnt() {
-		return threadCnt;
-	}
-
-	public static void setThreadCnt(int tc) {
-		threadCnt = tc;
-		mf.setThreadCnt(tc);
-	}
+public class MathUtilBase {
 	
 	public static double sum(double [] v1) { 
 		double sum = 0;
@@ -222,14 +210,10 @@ public class MathUtil {
 		double s = 0;
 		s = Math.abs(multiple(v1, v2));
 		double a = Math.pow(multiple(v1, v1) * multiple(v2, v2), 0.5);
-		if (a == 0 || Math.abs(a) < 1.0E-7) {
-			return -1.0;
-		} 
-		double t = s/a;
-		if (isNaN(t)) {
+		if (a == 0) {
 			return -1.0;
 		}
-		return t;
+		return s/a;
 	}
 	
 	public static double [] difCos(double dr, double [] dv1, double [] v1, double [] v2) {
@@ -342,19 +326,38 @@ public class MathUtil {
 	}
 	
 	public static double [][] transpose(double [][] x) {
-		return mf.transpose(x);
+		double [][] t = new double[x[0].length][];
+		for (int i = 0; i < t.length; i++) {
+			t[i] = new double[x.length];
+			for (int j = 0; j < t[i].length; j++) {
+				t[i][j] = x[j][i];
+			}
+		}
+		return t;
 	}
 	
 	public static void minus(double [][] x, double [][] y, double [][] r) { 
-		mf.minus(x, y, r);
+		for (int i = 0; i < x.length; i++) { 
+			for (int j = 0; j < x[i].length; j++) {
+				r[i][j] = x[i][j] - y[i][j];
+			}
+		} 
 	}
 	
 	public static void multipleByElements(double [][] x, double [][] y, double [][] r) { 
-		mf.multipleByElements(x, y, r);
+		for (int i = 0; i < x.length; i++) { 
+			for (int j = 0; j < x[i].length; j++) {
+				r[i][j] = x[i][j] * y[i][j];
+			}
+		} 
 	}
 	
 	public static void difMultipleByElements(double [][] dx, double [][] y, double [][] r) { 
-		mf.difMultipleByElements(dx, y, r);
+		for (int i = 0; i < dx.length; i++) { 
+			for (int j = 0; j < dx[i].length; j++) {
+				r[i][j] = dx[i][j] * y[i][j];
+			}
+		} 
 	}
 	
 	public static void plus(double [][] x, double [][] y, double [][] r) {
@@ -362,15 +365,27 @@ public class MathUtil {
 	}
 	
 	public static void plus(double [][] x, double xp, double [][] y, double yp, double [][] r) { 
-		mf.plus(x, xp, y, yp, r);		
+		for (int i = 0; i < x.length; i++) { 
+			for (int j = 0; j < x[i].length; j++) {
+				r[i][j] = xp * x[i][j] + yp * y[i][j];
+			}
+		} 
 	}
 	
 	public static void plus(double [][] x, double [][] y, double yp, double [][] r) { 
-		mf.plus(x, y, yp, r);
+		for (int i = 0; i < x.length; i++) { 
+			for (int j = 0; j < x[i].length; j++) {
+				r[i][j] = x[i][j] + yp * y[i][j];
+			}
+		} 
 	}
 	
 	public static void set(double [][] x, double [][] y) { 
-		mf.set(x, y);
+		for (int i = 0; i < x.length; i++) { 
+			for (int j = 0; j < x[i].length; j++) {
+				x[i][j] = y[i][j];
+			}
+		} 
 	}
 	
 	public static double [] matrix2Vector(double [][] m) {
@@ -382,18 +397,34 @@ public class MathUtil {
 	}
 	
 	public static double[] multipleV2v(double [][] x, double [] y) {
-		return mf.multipleV2v(x, y);
+		double[][] r = multipleV(x, y);
+		return matrix2Vector(r);
 	}
 	/**
 	 * Take the double [] y as the vertical vector, not a horizetal one.
 	 * no need tranpose again and again. 
 	 * **/
 	public static double[][] multipleV(double [][] x, double [] y) {
-		return mf.multipleV(x, y);
+		double[][] result = new double[x.length][];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = new double[1];
+			for (int j = 0; j < result[i].length; j++) {
+				result[i][j] = multiple(x[i], y);
+			}
+		}
+		return result;
 	}
 	
 	public static double[][] multiple(double [][] x, double [][] y) {
-		return mf.multiple(x, y);
+		double [][] t = transpose(y);
+		double[][] result = new double[x.length][];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = new double[t.length];
+			for (int j = 0; j < result[i].length; j++) {
+				result[i][j] = multiple(x[i], t[j]);
+			}
+		}
+		return result;
 	}
 	
 	/***
@@ -402,30 +433,52 @@ public class MathUtil {
 	 * ***/
 	public static double[][] difMultipleX(double [][] dr, double [][] y) {
 		//dr ith row, y jth row
-		return mf.difMultipleX(dr, y);
+		double [][] dm = new double[dr.length][];
+		for (int i = 0; i < dm.length; i++) {
+			dm[i] = new double[y.length];
+			for (int j = 0; j < dm[i].length; j++) {
+				dm[i][j] = multiple(dr[i] , y[j]);
+			}
+		}
+		return dm;
 	}
 	
 	public static double[][] difMultipleX(double [][] dr, double [] y) {
 		//dr ith row, y jth row
-		return mf.difMultipleX(dr, y);
+		double [][] yt = transpose(new double[][]{y});
+		return difMultipleX(dr, yt);
 	}
 	
 	public static double[][] difMultipleX(double [] dr, double [] y) {
 		//dr ith row, y jth row
-		return mf.difMultipleX(dr, y);
+		double [][] drt = transpose(new double[][]{dr});
+		double [][] yt = transpose(new double[][]{y});
+		return difMultipleX(drt, yt);
 	}
 	
 	public static double[] difMultipleY2v(double []dr, double [][] x) {
-		return mf.difMultipleY2v(dr, x);
+		double [][] y = difMultipleY(dr, x);
+		return matrix2Vector(y);
 	}
 	
 	public static double[][] difMultipleY(double []dr, double [][] x) {
-		return mf.difMultipleY(dr, x);
+		double [][] drt = transpose(new double[][]{dr});
+		return difMultipleY(drt, x);
 	}
 	
 	public static double[][] difMultipleY(double [][] dr, double [][] x) {
 		//dr jth column, x ith column
-		return mf.difMultipleY(dr, x);
+		double [][] drt = transpose(dr);
+		double [][] xt = transpose(x);
+		
+		double [][] dm = new double[x[0].length][];
+		for (int i = 0; i < dm.length; i++) {
+			dm[i] = new double[dr[0].length];
+			for (int j = 0; j < dm[i].length; j++) {
+				dm[i][j] = multiple(drt[j] , xt[i]);
+			}
+		}
+		return dm;
 	}
 		
 	public static boolean check(double [] ta, double [] tb) {

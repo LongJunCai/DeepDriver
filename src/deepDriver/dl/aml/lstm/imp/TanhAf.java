@@ -31,11 +31,13 @@ public class TanhAf implements IActivationFunction, Serializable {
 	
 	public static void main(String[] args) {
 		TanhAf tanhAf = new TanhAf();
-		System.out.println(tanhAf.activate(1190));
-		System.out.println(tanhAf.deActivate(1190));
+		System.out.println(tanhAf.activate(1190000000));
+		System.out.println(tanhAf.deActivate(1190000000));
 		
-		System.out.println(tanhAf.activate(-1190));
-		System.out.println(tanhAf.deActivate(-1190));
+		System.out.println(tanhAf.activate(-1190000000));
+		System.out.println(tanhAf.deActivate(-1190000000));
+		System.out.println(tanhAf.activate(0));
+		System.out.println(tanhAf.deActivate(0));
 	}
 
 }

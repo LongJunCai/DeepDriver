@@ -79,6 +79,38 @@ public class Dictionary implements Serializable {
 	public void setDebug(boolean debug) {
 		this.debug = debug;
 	}
+	
+	public Map<String, Integer> getStrMap() {
+		return strMap;
+	}
+
+	public void setStrMap(Map<String, Integer> strMap) {
+		this.strMap = strMap;
+	}
+
+	public Map<Integer, String> getIntMap() {
+		return intMap;
+	}
+
+	public void setIntMap(Map<Integer, String> intMap) {
+		this.intMap = intMap;
+	}
+
+	public List<int[]> getTxt() {
+		return txt;
+	}
+
+	public void setTxt(List<int[]> txt) {
+		this.txt = txt;
+	}
+
+	public int getCnt() {
+		return cnt;
+	}
+
+	public void setCnt(int cnt) {
+		this.cnt = cnt;
+	}
 
 	public void loadDicFromFile(String file) throws Exception {
 		loadDicFromFile(file, true);

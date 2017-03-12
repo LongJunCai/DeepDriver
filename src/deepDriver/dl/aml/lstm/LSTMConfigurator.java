@@ -44,7 +44,17 @@ public class LSTMConfigurator implements Serializable {
 	int threadsNum = 1;	
 	
 	boolean biDirection = false;
+	
+	boolean autoSequence = true;
 			
+	public boolean isAutoSequence() {
+		return autoSequence;
+	}
+
+	public void setAutoSequence(boolean autoSequence) {
+		this.autoSequence = autoSequence;
+	}
+
 	public boolean isBiDirection() {
 		return biDirection;
 	}

@@ -63,7 +63,9 @@ public class BPTT implements IBPTT {
 
 	public double [][] fTT(double [][] sample, boolean test) {
 		isTesting = test;
-		tLength = sample.length;
+		if (cfg.isAutoSequence()) {
+			tLength = sample.length;
+		}		
 		return fTT(sample);
 	}	
 	
@@ -77,11 +79,24 @@ public class BPTT implements IBPTT {
 
 	double [][] sample;
 	
+	
+	public int getT() {
+		return t;
+	}
+
+	public void setT(int t) {
+		this.t = t;
+	}
+
 	protected double [][] fTT(double [][] sample) {
 		this.sample = sample;
 		for (int i = 0; i < sample.length; i++) {
-			t = i;
-			feature = sample[t];			
+			if (cfg.isAutoSequence()) {//by default, it is auto sequence 
+				t = i;
+				feature = sample[t];
+			} else {
+				feature = sample[i];
+			}						
 			for (int j = 0; j < cfg.layers.length; j++) {
 				layerPos = j;
 				cfg.layers[j].fTT(this);
@@ -195,6 +210,14 @@ public class BPTT implements IBPTT {
 	int mibatchSize = 1;
 	int tLength;
 	
+	public int gettLength() {
+		return tLength;
+	}
+
+	public void settLength(int tLength) {
+		this.tLength = tLength;
+	}
+
 	int ngram = 0;
 	public double runEpich(double [][] sample, 
 			double [][] targets) {		
@@ -212,8 +235,13 @@ public class BPTT implements IBPTT {
 	public double bptt(double [][] targets) {
 		error = 0;
 		for (int i = (targets.length - 1); i >= ngram ; i--) {
-			t = i;			
-			target = targets[t];
+			if (cfg.isAutoSequence()) {//by default, it is auto sequence
+				t = i;	
+				target = targets[t];
+			} else {
+				target = targets[i];
+			}					
+			
 			if (cfg.isRequireLastRNNLayer()) {
 				error = error + caculateError(target, cfg.layers[cfg.layers.length -1].getRNNNeuroVos(),
 					t);
@@ -260,6 +288,16 @@ public class BPTT implements IBPTT {
 	public void fTT4PartialRNNLayer(RNNNeuroVo [] vos, RNNNeuroVo [] previousVos) {
 		fTT4PartialRNNLayer(vos, previousVos, 0, vos.length);
 	}
+	
+	public void fTT4FeatureAssignment(RNNNeuroVo [] vos, double [] feature, int offset, int length) {
+		for (int i = offset; i < length; i++) {	
+			vos[i].neuroVos[t].aA = feature[i];
+		}
+	}
+	
+	public void fTT4FeatureAssignment(RNNNeuroVo [] vos, double [] feature) {
+		fTT4FeatureAssignment(vos, feature, 0, vos.length);
+	}
 
 	@Override
 	public void fTT4RNNLayer(RNNLayer layer) {
@@ -268,9 +306,10 @@ public class BPTT implements IBPTT {
 				return;//use thin data from sample directly.
 			}			
 			RNNNeuroVo [] vos = layer.getRNNNeuroVos();
-			for (int i = 0; i < vos.length; i++) {				
-				vos[i].neuroVos[t].aA = feature[i];
-			}
+			fTT4FeatureAssignment(vos, feature);
+//			for (int i = 0; i < vos.length; i++) {	
+//				vos[i].neuroVos[t].aA = feature[i];
+//			}
 			return;
 		}
 		RNNNeuroVo [] vos = layer.getRNNNeuroVos();
@@ -926,7 +965,7 @@ public class BPTT implements IBPTT {
 					vo.deltaZz = attentionDhj[t][j];
 				}
 			} else {
-				if (t == tLength - 1) {
+				if (t == tLength - 1 || !cfg.isAutoSequence()) {//auto sequence, it should be ok all the time
 					for (int j = 0; j < allCells.length; j++) {
 						SimpleNeuroVo vo = allCells[j].getNvTT()[t];
 						vo.deltaZz = this.cxtDeltaZz(layerPos)[j];
@@ -1206,6 +1245,15 @@ public class BPTT implements IBPTT {
 	double rmsProp_u = 0.001;
 	
 	double gm = 5;
+	
+	public double getGm() {
+		return gm;
+	}
+
+	public void setGm(double gm) {
+		this.gm = gm;
+	}
+
 	@Override
 	public void updateWw4RNNLayer(ProjectionLayer layer) {
 		RNNNeuroVo [] rNNNeuroVos = layer.getRNNNeuroVos();

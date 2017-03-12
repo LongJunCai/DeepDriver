@@ -35,9 +35,9 @@ public class WordSegSetV2 extends WordSegSet {
 				previous = null;
 				//parse the format
 				String [] segsFormat = content.split(" ");
-//				if (segsFormat.length < 2) {
-//					System.out.println("Invalid formate...");
-//				}
+				if (segsFormat.length < 2) {
+					System.out.println("Invalid formate...");
+				}
 				for (int k = 0; k < segsFormat.length; k++) {
 					WordSegment ws = new WordSegment();
 					String seg = segsFormat[k].trim();

@@ -56,6 +56,8 @@ public class SoftMax4ANN implements ICostFunction, Serializable {
 		}		
 		if (!(sum > 0)) {
 			System.out.println("Sum is not bigger than 0, sum:"+sum+", max: "+max);
+		} else {
+//			System.out.println("It is normal...");
 		}
 		for (int i = 0; i < neuros.size(); i++) {
 			NeuroUnitImp nu = (NeuroUnitImp) neuros.get(i);

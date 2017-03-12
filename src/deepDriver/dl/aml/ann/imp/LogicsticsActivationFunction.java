@@ -25,6 +25,8 @@ public class LogicsticsActivationFunction implements IActivationFunction , Seria
 		System.out.println(tanhAf.deActivate(1199999990));
 		System.out.println(tanhAf.activate(1199999990));
 		System.out.println(tanhAf.deActivate(-1190000));
+		System.out.println(tanhAf.deActivate(0));
+		System.out.println(tanhAf.activate(0));
 	}
 
 }
