@@ -1,9 +1,13 @@
 package deepDriver.dl.aml.dnc.test.babi;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import deepDriver.dl.aml.dnc.ITxtStream;
+import deepDriver.dl.aml.random.RandomFactory;
 import deepDriver.dl.aml.string.Dictionary;
 
 public class BabiStream implements ITxtStream {
@@ -65,7 +69,6 @@ public class BabiStream implements ITxtStream {
 	 
 	
 	public void next() {
-		cnt ++;
 		next(cnt);
 	}
 	boolean out = false;
@@ -83,6 +86,10 @@ public class BabiStream implements ITxtStream {
 	
 	Paragraph root;
 	Paragraph pa = null;
+	
+	List<Paragraph> pas = new ArrayList<>();
+	boolean shuffle = false;
+	
 	public void constructParagraph() {
 		cnt ++; 
 		int [] is = dic.getTxt().get(cnt);
@@ -90,7 +97,9 @@ public class BabiStream implements ITxtStream {
 		while (true) {
 			if (is[0] == INT_NUM_1) {
 				Paragraph pa1 = new Paragraph();
-				pa1.dic = dic;
+				pas.add(pa1);
+				
+				pa1.intEnMap = intEnMap;
 				if (pa != null) {
 					pa.next = pa1;
 				}
@@ -140,10 +149,28 @@ public class BabiStream implements ITxtStream {
 		return int1;
 	}
 	
+	public static Random random = RandomFactory.getRandom();
+	private Paragraph getPara() {
+		if (shuffle) {
+			cnt ++;
+			int size = pas.size();
+			if (cnt >= size) {
+				return null;
+			}
+			int index = (int)((double)size * random.nextDouble());
+			Paragraph pa1 = pas.get(index);
+			pa1.reset();
+			return pa1; 
+		} else {
+			pa = pa.next;
+			return pa;
+		}		
+	}
+	
 	public void next(Object pos) {
 		int [] is = pa.nextTxt();		
 		if (is == null) {
-			pa = pa.next;
+			pa = getPara();
 			if (pa == null) {
 				sampleTT = null;
 				return;

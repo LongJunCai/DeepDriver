@@ -1,5 +1,7 @@
 package deepDriver.dl.aml.dnc;
 
+import deepDriver.dl.aml.distribution.modelParallel.PartialCallback;
+import deepDriver.dl.aml.distribution.modelParallel.ThreadParallel;
 import deepDriver.dl.aml.math.MathUtil;
 
 public class DNCMemory {
@@ -41,6 +43,7 @@ public class DNCMemory {
 		memory = new double[cfg.getMaxTime()][][];
 		dmemory = new double[cfg.getMaxTime()][][];
 		memory_1 = MathUtil.allocate(num, len); 
+//		MathUtil.initMatrix(memory_1, rL, -rmin);
 		for (int i = 0; i < memory.length; i++) {
 			memory[i] = MathUtil.allocate(num, len); 
 			dmemory[i] = MathUtil.allocate(num, len); 
@@ -81,9 +84,22 @@ public class DNCMemory {
 		this.bptt = bptt;
 	}
 	
+	double rL = 0.01;
+	double rmin = -0.01;
+	public void prepareEnv() {
+//		MathUtil.initMatrix(memory, rL, -rmin);
+		
+		MathUtil.reset2zero(memory); 
+		MathUtil.reset2zero(linkages); 
+		MathUtil.reset2zero(a); 
+		MathUtil.reset2zero(ut); 
+		MathUtil.reset2zero(pt); 
+		MathUtil.reset2zero(fi); 
+	}
 	
 
 	public void reset4Bp() {
+		
 		MathUtil.reset2zero(dlinkages); 
 		MathUtil.reset2zero(da); 
 		MathUtil.reset2zero(dut); 
@@ -171,6 +187,16 @@ public class DNCMemory {
 	
 	public void updateAllocateMemory() {
 		
+	}
+	
+	public void backAllocateMemory2() {
+		
+	}
+	
+	public void allocateMemory2() {
+		int t = bptt.t;
+		MathUtil.reset2zero(a[t]); 
+		a[t][t] = 1;
 	}
 
 	public void allocateMemory() {
@@ -272,28 +298,7 @@ public class DNCMemory {
 			wt = cfg.writeHead.wWs[t+1];
 		} 
 //		MathUtil.difMultipleY(dlinkages[t + 1], x)
-		for (int i = 0; i < linkages[t].length; i++) {
-			for (int j = 0; j < linkages[t][i].length; j++) {
-//				if
-				if (t < bptt.lastT) {
-					dlinkages[t][i][j] = dlinkages[t][i][j] + (1.0 - wt[i] - wt[j])
-						* dlinkages[t + 1][i][j];
-					dpt[t][j] = dpt[t][j] + wt[i] * dlinkages[t + 1][i][j];	
-				}
-				
-				if (t > 0) {
-					cfg.writeHead.dwWs[t][i] = cfg.writeHead.dwWs[t][i]
-							- linkages[t - 1][i][j] * dlinkages[t][i][j];
-					cfg.writeHead.dwWs[t][j] = cfg.writeHead.dwWs[t][j]
-							- linkages[t - 1][i][j] * dlinkages[t][i][j];
-
-					cfg.writeHead.dwWs[t][i] = cfg.writeHead.dwWs[t][i]
-							+ pt[t - 1][j] * dlinkages[t][i][j];// since pt0 =
-																// 0;
-				} 	
-								
-			}
-		}
+		backInitLinkages(t, wt);
 		
 		/**
 		 * Disable the linkage simplex for now.	*****/	
@@ -351,6 +356,64 @@ public class DNCMemory {
 //		MathUtil.gm(cfg.writeHead.dwWs[t], 1.0);
 	}
 	
+	public void backPartialInitLinkages(int t, double [] wt, int offset, int runLen) {
+		for (int i = offset; i < offset + runLen; i++) {
+			for (int j = 0; j < dlinkages[t][i].length; j++) {
+//				if
+				if (t < bptt.lastT) {
+					dlinkages[t][i][j] = dlinkages[t][i][j] + (1.0 - wt[i] - wt[j])
+						* dlinkages[t + 1][i][j];
+					dpt[t][j] = dpt[t][j] + wt[i] * dlinkages[t + 1][i][j];	
+				}
+				
+				if (t > 0) {
+					cfg.writeHead.dwWs[t][i] = cfg.writeHead.dwWs[t][i]
+							- linkages[t - 1][i][j] * dlinkages[t][i][j];
+					cfg.writeHead.dwWs[t][j] = cfg.writeHead.dwWs[t][j]
+							- linkages[t - 1][i][j] * dlinkages[t][i][j];
+
+					cfg.writeHead.dwWs[t][i] = cfg.writeHead.dwWs[t][i]
+							+ pt[t - 1][j] * dlinkages[t][i][j];// since pt0 =
+																// 0;
+				} 	
+								
+			}
+		}
+	}
+	
+	public void backInitLinkages(int t, double [] wt) {
+		tp.runMutipleThreads(dlinkages[t].length, new PartialCallback() {
+			public void runPartial(int offset, int runLen) {
+				backPartialInitLinkages(t, wt, offset, runLen);	
+			}
+		}, threadCnt);
+	}
+	
+	public void backInitLinkages2(int t, double [] wt) {
+		for (int i = 0; i < linkages[t].length; i++) {
+			for (int j = 0; j < linkages[t][i].length; j++) {
+//				if
+				if (t < bptt.lastT) {
+					dlinkages[t][i][j] = dlinkages[t][i][j] + (1.0 - wt[i] - wt[j])
+						* dlinkages[t + 1][i][j];
+					dpt[t][j] = dpt[t][j] + wt[i] * dlinkages[t + 1][i][j];	
+				}
+				
+				if (t > 0) {
+					cfg.writeHead.dwWs[t][i] = cfg.writeHead.dwWs[t][i]
+							- linkages[t - 1][i][j] * dlinkages[t][i][j];
+					cfg.writeHead.dwWs[t][j] = cfg.writeHead.dwWs[t][j]
+							- linkages[t - 1][i][j] * dlinkages[t][i][j];
+
+					cfg.writeHead.dwWs[t][i] = cfg.writeHead.dwWs[t][i]
+							+ pt[t - 1][j] * dlinkages[t][i][j];// since pt0 =
+																// 0;
+				} 	
+								
+			}
+		}
+	}
+	
 	public void updateWriteMemoryLinkage() {
 		
 	}
@@ -384,7 +447,44 @@ public class DNCMemory {
 			System.out.println("The pts sum is: "+s);
 		}***/
 		
+		initLinkages(t, pt_1, wt);
+			
+		/**
+		 * Disable the linkage simplex for now.* ***/		
+		MathUtil.simplex(linkages[t], linkagesum[t], MathUtil.K);
+        
 		
+//		DNCChecker.checkSimplex(linkages[t], "linkage", t);
+	}
+	
+	ThreadParallel tp = new ThreadParallel();
+	int threadCnt = 4;
+	
+	public void initPartialLinkages(int t, double [] pt_1, double [] wt, int offset, int runLen) {
+		for (int i = offset; i < offset + runLen; i++) {
+			for (int j = 0; j < linkages[t][i].length; j++) {
+				if (t > 0) {
+					linkages[t][i][j] = (1.0 - wt[i] - wt[j]) * linkages[t - 1][i][j] + wt[i] * pt_1[j];	
+				} else {
+					linkages[t][i][j] = wt[i] * pt_1[j];
+				}
+				
+				if (i == j) {
+					linkages[t][i][j] = 0;
+				}
+			}
+		}
+	}
+	
+	public void initLinkages(int t, double [] pt_1, double [] wt) {
+		tp.runMutipleThreads(linkages[t].length, new PartialCallback() {
+			public void runPartial(int offset, int runLen) {
+				initPartialLinkages(t, pt_1, wt, offset, runLen);	
+			}
+		}, threadCnt);
+	}
+	
+	public void initLinkages2(int t, double [] pt_1, double [] wt) {
 		for (int i = 0; i < linkages[t].length; i++) {
 			for (int j = 0; j < linkages[t][i].length; j++) {
 				if (t > 0) {
@@ -399,13 +499,6 @@ public class DNCMemory {
 				}
 			}
 		}
-			
-		/**
-		 * Disable the linkage simplex for now.* ***/		
-		MathUtil.simplex(linkages[t], linkagesum[t], MathUtil.K);
-        
-		
-//		DNCChecker.checkSimplex(linkages[t], "linkage", t);
 	}
 	
 

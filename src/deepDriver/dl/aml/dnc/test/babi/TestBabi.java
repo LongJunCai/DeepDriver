@@ -3,12 +3,15 @@ package deepDriver.dl.aml.dnc.test.babi;
 import java.util.Map;
 
 import deepDriver.dl.aml.ann.ANN;
+import deepDriver.dl.aml.ann.IActivationFunction;
+import deepDriver.dl.aml.ann.imp.LogicsticsActivationFunction;
 import deepDriver.dl.aml.costFunction.SoftMax4ANN;
 import deepDriver.dl.aml.dnc.DNC;
 import deepDriver.dl.aml.dnc.DNCConfigurator;
 import deepDriver.dl.aml.lrate.StepReductionLR;
 import deepDriver.dl.aml.lstm.LSTMConfigurator;
 import deepDriver.dl.aml.lstm.NeuroNetworkArchitecture;
+import deepDriver.dl.aml.lstm.imp.TanhAf;
 import deepDriver.dl.aml.math.MathUtil;
 import deepDriver.dl.aml.string.Dictionary;
 
@@ -18,13 +21,13 @@ public class TestBabi {
 		Dictionary dic = new Dictionary(); 		
 		dic.setUseParser(true);
 		String dfile = "D:\\yk.workspace\\p.AI\\babi\\" +
-				"tasks_1-20_v1-2\\en\\qa1_single-supporting-fact_train.txt";
+				"tasks_1-20_v1-2\\en-10k\\qa1_single-supporting-fact_train.txt";
 		if (args.length > 0) {
 			dfile = args[0];			
 		}
 		
 		int threadNum = 4;
-		int ldecayLoop = 80000;
+		int ldecayLoop = 40000;
 		if (args.length > 1) {
 			threadNum = Integer.parseInt(args[1]);
 		}
@@ -41,8 +44,8 @@ public class TestBabi {
 		Map<String, Integer> mp= dic.getStrMap();
 		System.out.println();
 		
-		BabiStream babiStream = new BabiStream(dic, 10);
-//		FullPBabiStream babiStream = new FullPBabiStream(dic, 10);
+//		BabiStream babiStream = new BabiStream(dic, 10);
+		FullPBabiStream babiStream = new FullPBabiStream(dic, 10);
 //		while (babiStream.hasNext()) {
 //			babiStream.next(); 
 //		}
@@ -80,9 +83,9 @@ public class TestBabi {
 		
 		NeuroNetworkArchitecture nna = new NeuroNetworkArchitecture();
 
-		nna.setNnArch(new int [] {256, 256});
-		int rhNum = 4;
-		int memoryNum = 96;
+		nna.setNnArch(new int [] {128, 128});
+		int rhNum = 2;
+		int memoryNum = 90;
 		int memoryLength = 32; 
 		
  		nna.setCostFunction(LSTMConfigurator.SOFT_MAX);
@@ -93,24 +96,33 @@ public class TestBabi {
  				nna);
  		cfg.setName("dncController");
 		
- 		int yLen = rhNum * memoryLength + nna.getNnArch()[nna.getNnArch().length - 1];
+// 		int yLen = rhNum * memoryLength + nna.getNnArch()[nna.getNnArch().length - 1] * 2;
+ 		int yLen = rhNum * memoryLength + nna.getNnArch()[nna.getNnArch().length - 1];// * nna.getNnArch().length
+// 				+ babiStream.getSampleFeatureNum() + rhNum * memoryLength
+ 				;
+// 		int yLen = 512;
 		int kLength = babiStream.getTargetFeatureNum();
-		ANN ann = new ANN();
+		ANN ann = new ANN() 
+//		{
+//			public IActivationFunction createActivation() {
+//				return new TanhAf();
+//			}
+//		}
+				;
 		ann.getaNNCfg().setThreadsNum(cfg.getThreadsNum());
 		ann.setName("dncOutput");
 		ann.setCf(new SoftMax4ANN());
-		ann.buildUp(new int[]{yLen, yLen, kLength});	
+		ann.buildUp(new int[]{yLen, kLength});	
 		MathUtil.setThreadCnt(1);
-		
 		 
-		DNCConfigurator dcfg = new DNCConfigurator(0.1, 0.2, maxTime, ann, cfg, yLen, rhNum, memoryNum, memoryLength);
+		DNCConfigurator dcfg = new DNCConfigurator(0.1, 0.1, maxTime, ann, cfg, yLen, rhNum, memoryNum, memoryLength);
 //		dcfg.setL(0.01);
 //		dcfg.setM(0.1); 
 		dcfg.setMl(0.0001);
 		dcfg.setLdecayLoop(ldecayLoop);
 		
-		
 		DNC dnc = new DNC(dcfg);
+		dnc.setFlexL(true);
 		dnc.train(babiStream);
 		
 	}

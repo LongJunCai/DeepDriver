@@ -2,6 +2,7 @@ package deepDriver.dl.aml.dnc.test.babi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import deepDriver.dl.aml.string.Dictionary;
 
@@ -13,7 +14,8 @@ public class Paragraph {
 	List<KP> answer = new ArrayList<KP>();
 	Paragraph next;
 	
-	Dictionary dic;
+//	Dictionary dic;
+	Map<Integer, String> intEnMap;
 	
 	class KP {
 		int k;
@@ -38,7 +40,7 @@ public class Paragraph {
 	
 	public int getAnswer() {
 		if (out) {
-			String as = dic.getIntMap().get(answer.get(cnt).k);
+			String as = intEnMap.get(answer.get(cnt).k);
 			System.out.println("ANSWER:="+as);
 		}		
 		return answer.get(cnt).k;
@@ -59,7 +61,7 @@ public class Paragraph {
 		for (int i = 0; i < txt.length; i++) {
 			txt[i] = words.get(i);
 			if (out) {
-				sb.append(dic.getIntMap().get(txt[i]));
+				sb.append(intEnMap.get(txt[i]));
 				sb.append(" ");
 			}
 		}

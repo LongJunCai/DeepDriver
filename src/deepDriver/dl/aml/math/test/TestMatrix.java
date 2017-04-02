@@ -10,6 +10,56 @@ public class TestMatrix {
 		System.out.println(s);
 	}
 	
+	public static void testDifMultipleY() {
+		
+		double [][] dr = {
+				{1, 2},
+				{3, 4}
+		};
+		
+		double [][] x = {
+				{1, 2},
+				{3, 4}
+		};
+		double [][] dy = MathUtil.difMultipleY(dr, x);
+		print(dy);
+	}
+	
+	public static void testDifMultipleX() {
+		
+		double [][] dr = {
+				{1, 2},
+				{3, 4}
+		};
+		
+		double [][] y = {
+				{1, 2},
+				{3, 4}
+		};
+		double [][] dx = MathUtil.difMultipleX(dr, y);
+		print(dx);
+	}
+	
+	public static void testMultipleV() {
+		double [][] x = {
+				{1,1,1},
+				{2,2,2}
+		};
+		
+		double [] y = {1,2,1} ;
+		double [][] r = MathUtil.multipleV(x, y);
+		print(r);
+	}
+	
+	public static void print(double [][] r) {
+		for (int i = 0; i < r.length; i++) {
+			for (int j = 0; j < r[i].length; j++) {
+				System.out.print(r[i][j]+"\t");
+			}
+			System.out.println();
+		}
+	}
+	
 	public static void testMultiple() {
 		double [][] x = {
 				{1,1,1},
@@ -22,11 +72,7 @@ public class TestMatrix {
 				{1,2}
 		};
 		double [][] r = MathUtil.multiple(x, y);
-		for (int i = 0; i < r.length; i++) {
-			for (int j = 0; j < r[i].length; j++) {
-				System.out.println(r[i][j]);
-			}
-		}
+		print(r);
 	}
 	
 	public static void testSort() { 
@@ -42,7 +88,10 @@ public class TestMatrix {
 	public static void main(String[] args) {
 //		testSum();
 //		testMultiple();
-		testSort();
+		testDifMultipleX();
+//		testDifMultipleY();
+//		testMultipleV();
+//		testSort();
 	}
 
 }

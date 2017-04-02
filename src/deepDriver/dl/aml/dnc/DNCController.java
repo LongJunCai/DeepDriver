@@ -65,6 +65,12 @@ public class DNCController {
 		
 		hts = new double[dcfg.maxTime][];
 	} 
+	
+	public void prepareEnv() {
+		MathUtil.reset2zero(yt);
+		MathUtil.reset2zero(hts);
+		reset4Bp();
+	}
 
 	public int getHtsLen() {
 		return htsLen;
@@ -85,6 +91,41 @@ public class DNCController {
 	public void updateProcessInput() {
 		bPTT.updateWws();
 	}
+	
+	public void generateHts(ContextLayer [] cls, double [] x) {
+		int t = dbptt.t;
+//		ContextLayer cl = cls[cls.length - 1];
+//		hts[t] = cl.getPreCxtAa();		
+		
+		int cnt = 0;
+//		hts[t] = new double[cls[0].getPreCxtAa().length * cls.length + x.length];
+		/***Use all the lstm layers
+		hts[t] = new double[cls[0].getPreCxtAa().length * cls.length];
+		for (int i = cls.length - 1; i >=0 ; i--) {			
+			ContextLayer cl1 = cls[i];
+			for (int j = 0; j < cl1.getPreCxtAa().length; j++) {
+				hts[t][cnt ++] = cl1.getPreCxtAa()[j];
+			} 
+		}***/
+		
+		/****<START>Use the last layer only***/
+		hts[t] = new double[cls[0].getPreCxtAa().length]; 
+		ContextLayer cl1 = cls[0];
+		for (int j = 0; j < cl1.getPreCxtAa().length; j++) {
+			hts[t][cnt ++] = cl1.getPreCxtAa()[j];
+		}  
+		/****</END>Use the last layer only***/
+//		for (int i = 0; i < x.length; i++) {
+//			hts[t][cnt ++] = x[i];
+//		}
+		/**
+		for (int i = 0; i < cl.getPreCxtAa().length; i++) {
+			hts[t][cnt ++] = cl.getPreCxtAa()[i];
+		}
+		for (int i = 0; i < cl.getPreCxtSc().length; i++) {
+			hts[t][cnt ++] = cl.getPreCxtSc()[i];
+		}****/
+	}
 		
 	public double [] processInput(double [][] x) {
 		lstmCfg.setLearningRate(dcfg.getL());
@@ -95,16 +136,17 @@ public class DNCController {
 		bPTT.fTT(x, false);
 		Context cxt = bPTT.getHLContext();
 		ContextLayer [] cls = cxt.getContextLayers();
-		ContextLayer cl = cls[cls.length - 1];
-		hts[t] = cl.getPreCxtAa();		
-		if (MathUtil.isNaN(hts[t]) && !b) {
-			System.out.println("LSTM produced NaN:"+ t);
-			print(hts[t]);
-			print(x[t]);
-			b = true;
-			System.out.println(MathUtil.isNaN(cls[0].getPreCxtAa()));
-			print(cls[0].getPreCxtAa());
-		}
+		
+		generateHts(cls, x[0]);
+		
+//		if (MathUtil.isNaN(hts[t]) && !b) {
+//			System.out.println("LSTM produced NaN:"+ t);
+//			print(hts[t]);
+//			print(x[t]);
+//			b = true;
+//			System.out.println(MathUtil.isNaN(cls[0].getPreCxtAa()));
+//			print(cls[0].getPreCxtAa());
+//		}
 //		if (MathUtil.isNaN(hts[t])) {
 //			System.out.println("Reset the hts..");
 //			MathUtil.reset2zero(hts[t]);
@@ -144,10 +186,42 @@ public class DNCController {
 		bPTT.bptt(x);
 	}
 	
-	public double [] output() {
+	double [][] yts;
+	int ytsCnt = 0;
+	
+	double[][] rss;
+	
+	public double[][] getRss() {
+		return rss;
+	}
+
+	public void setRss(double[][] rss) {
+		this.rss = rss;
+	}
+	
+	public double [] output(int length, int [] pos) {
 //		softMaxExp.compute(yt);
 //		return softMaxExp.getR();
-		return ann.forward(new double[][] {yt});
+		int t = dbptt.t;
+		if (pos == null) {
+			return ann.forward(new double[][] {yt});
+		} else {
+			if (yts == null || pos[0] == t) {
+				yts = MathUtil.allocate(pos.length, yt.length);
+				ytsCnt = 0;
+			} 
+			for (int i = 0; i < yt.length; i++) {
+				yts[ytsCnt][i] = yt[i];
+			}
+			ytsCnt++;
+			if (t == length - 1) {
+				ann.forward(yts);
+				rss = ann.getRss();
+				yts = null;
+				ytsCnt = 0;				
+			} 
+			return null;
+		}		
 	}
 	
 	public void updateOutput() {
@@ -157,8 +231,14 @@ public class DNCController {
 	double [] dyt;
 	double err;
 	
-	public double [] backOutput(double [] output) { 
-		err = ann.bp(new double[][] {output}, lstmCfg.getLearningRate(), lstmCfg.getM(), 0);
+	int botCnt = 0;
+	public double [] backOutput(double [][] output) { 
+		int t = dbptt.t;
+		if (t == dbptt.lastT) {
+			err = ann.bp(output, lstmCfg.getLearningRate(), lstmCfg.getM(), 0);
+			botCnt = output.length - 1;
+		}
+		
 		List<INeuroUnit> nuList = ann.getFirstLayer().getNeuros();
 		
 		if (dyt == null) {
@@ -166,12 +246,15 @@ public class DNCController {
 		}
 		for (int j = 0; j < nuList.size(); j++) {
 			NeuroUnitImp nu = (NeuroUnitImp)nuList.get(j);
-			dyt[j] = nu.getDeltaZ()[0];
+			dyt[j] = nu.getDeltaZ()[botCnt];
 		}
+		botCnt--;
 		return dyt;
 	}
 	
 	public void reset4Bp() {
+		MathUtil.reset2zero(dhts);
+		MathUtil.reset2zero(dyt);
 		MathUtil.reset2zero(dwr);
 		MathUtil.reset2zero(dwy);
 	}

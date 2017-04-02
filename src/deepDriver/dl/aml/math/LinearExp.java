@@ -23,11 +23,13 @@ public class LinearExp implements IExp4Function {
 		deltaPara = new double[parameters.length];
 		deltaPara2 = new double[parameters.length];
 		dv = new double[parameters.length];
-//		double b = Math.pow(6.0/(double)(length + 
-//				length), 0.5);
-//		min = -b;
-//		max = b;
-//		this.length = max - min;
+		
+		/***do we need to comment the xvaier
+		double b = Math.pow(6.0/(double)(length + 
+				length), 0.5);
+		min = -b;
+		max = b;
+		this.length = max - min;**/
 		init();
 	}
 	

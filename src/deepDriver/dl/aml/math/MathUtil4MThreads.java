@@ -6,7 +6,7 @@ import deepDriver.dl.aml.distribution.modelParallel.ThreadParallel;
 public class MathUtil4MThreads implements IMathFunction {
 	
 	ThreadParallel tp = new ThreadParallel();
-	int threadCnt = 4;
+	int threadCnt = 1;
 	
 	public int getThreadCnt() {
 		return threadCnt;

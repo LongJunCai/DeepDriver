@@ -67,10 +67,10 @@ public class NeuroUnitImp implements INeuroUnit , Serializable {
 
 	@Override
 	public void backPropagation(List<INeuroUnit> previousNeuros, List<INeuroUnit> nextNeuros, double [][] result, InputParameters parameters) {
-		if (deltaZ == null) {
-				deltaZ = new double[aas.length];
-				deltaThetas = new double[thetas.length];
+		if (deltaZ == null) {			
+			deltaThetas = new double[thetas.length];
 		}
+		deltaZ = new double[aas.length];
 		if (nextNeuros == null) {			
 			for (int i = 0; i < deltaZ.length; i++) {
 				deltaZ[i] = (aas[i] - result[i][position]) * activationFunction.deActivate(zzs[i]);

@@ -79,6 +79,12 @@ public class MathUtil {
 	
 	public static Random random = RandomFactory.getRandom();
 	
+	public static void initMatrix(double [][][] x, double length, double min) {
+		for (int i = 0; i < x.length; i++) {
+			initMatrix(x[i], length, min);
+		}
+	}
+	
 	public static void initMatrix(double [][] x, double length, double min) {
 		for (int i = 0; i < x.length; i++) {
 			for (int j = 0; j < x[i].length; j++) {
@@ -112,6 +118,9 @@ public class MathUtil {
 	}
 	
 	public static void reset2zero(double [] x) {  
+		if (x == null) {
+			return;
+		}
 		for (int i = 0; i < x.length; i++) {
 			x[i] = 0;
 		}
@@ -125,6 +134,9 @@ public class MathUtil {
 	
 	public static void reset2zero(double [][] x) {  
 		for (int i = 0; i < x.length; i++) {
+			if (x[i] == null) {
+				continue;
+			}
 			for (int j = 0; j < x[i].length; j++) {
 				x[i][j] = 0;
 			}
@@ -220,27 +232,30 @@ public class MathUtil {
 	
 	public static double cos(double [] v1, double [] v2) {
 		double s = 0;
-		s = Math.abs(multiple(v1, v2));
+//		s = Math.abs(multiple(v1, v2));
+		s = multiple(v1, v2);
 		double a = Math.pow(multiple(v1, v1) * multiple(v2, v2), 0.5);
-		if (a == 0 || Math.abs(a) < 1.0E-7) {
-			return -1.0;
+//		if (a == 0 || Math.abs(a) < 1.0E-7) {
+		if (a == 0) {
+			return -2.0;
 		} 
 		double t = s/a;
 		if (isNaN(t)) {
-			return -1.0;
+			return -2.0;
 		}
 		return t;
 	}
 	
 	public static double [] difCos(double dr, double [] dv1, double [] v1, double [] v2) {
 		double s = 0;
-		s = Math.abs(multiple(v1, v2));
+		s = multiple(v1, v2);
 		double v1_2 = multiple(v1, v1);
 		double v2_2 = multiple(v2, v2);
 		
 		double a = Math.pow(v1_2 * v2_2, 0.5);
-		if (a == 0 || Math.abs(a) < 1.0E-7) {  
-//		if (a == 0) {
+		double t = s/a;
+//		if (a == 0 || Math.abs(a) < 1.0E-7) {  
+		if (a == 0 || isNaN(t)) {
 			return dv1;
 		}
 		for (int i = 0; i < dv1.length; i++) {
@@ -334,7 +349,7 @@ public class MathUtil {
 //		if (x > max) {
 //			x = max;
 //		}
-		return 1.0 + Math.log(1 + Math.exp(x));
+		return 1.0 + Math.log(1.0 + Math.exp(x));
 	}
 	
 	public static double difOnePlus(double x) {
@@ -468,7 +483,7 @@ public class MathUtil {
 		return false;
 	}	
 	
-	static boolean useSimplex = true;
+	static boolean useSimplex = false;
 	
 	public static void gm(double [] x, double gm) {
 		double s = 0;

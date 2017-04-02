@@ -208,7 +208,7 @@ public class MathUtilBase {
 	
 	public static double cos(double [] v1, double [] v2) {
 		double s = 0;
-		s = Math.abs(multiple(v1, v2));
+		s = multiple(v1, v2);
 		double a = Math.pow(multiple(v1, v1) * multiple(v2, v2), 0.5);
 		if (a == 0) {
 			return -1.0;
@@ -218,7 +218,7 @@ public class MathUtilBase {
 	
 	public static double [] difCos(double dr, double [] dv1, double [] v1, double [] v2) {
 		double s = 0;
-		s = Math.abs(multiple(v1, v2));
+		s = multiple(v1, v2);
 		double v1_2 = multiple(v1, v1);
 		double v2_2 = multiple(v2, v2);
 		

@@ -83,6 +83,16 @@ public class ANN implements Serializable {
 		}
 		lastLayer = tlayer;
 	}
+	
+	double[][] rss;
+	
+	public double[][] getRss() {
+		return rss;
+	}
+
+	public void setRss(double[][] rss) {
+		this.rss = rss;
+	}
 	 
 	public double[] forward(double [][] input) {
 		ILayer layer = firstLayer;
@@ -93,6 +103,7 @@ public class ANN implements Serializable {
 			layer = layer.getNextLayer();
 		}		
  		if (cf != null && lastLayer.getRs() != null) {
+ 			rss = lastLayer.getRss();
 			return lastLayer.getRs();
 		} else {
 			return new double[] {lastLayer.getNeuros().get(0).getAaz(0)};

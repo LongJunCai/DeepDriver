@@ -6,7 +6,6 @@ import deepDriver.dl.aml.math.LinearMatrixExp;
 import deepDriver.dl.aml.math.MathUtil;
 import deepDriver.dl.aml.math.OnePlusExp;
 import deepDriver.dl.aml.math.SigmodExp;
-import deepDriver.dl.aml.math.SigmodMatrixExp;
 import deepDriver.dl.aml.math.SoftMaxExp;
 
 public class DNCReadHead {
@@ -29,6 +28,7 @@ public class DNCReadHead {
 	double [][] dpis;
 	
 	double [][] wWs;
+	double [][] wWs4s;
 	double [][] rs;
 	double [] wWsum;
 	
@@ -73,6 +73,7 @@ public class DNCReadHead {
 		dpis = MathUtil.allocate(cfg.maxTime, piLen);
 		
 		wWs = MathUtil.allocate(cfg.getMaxTime(), cfg.memory.num);
+		wWs4s = MathUtil.allocate(cfg.getMaxTime(), cfg.memory.num);
 		rs = MathUtil.allocate(cfg.getMaxTime(), cfg.memory.len);
 		wWsum = new double[cfg.maxTime]; 
 		fdsum = new double[cfg.maxTime];
@@ -108,6 +109,11 @@ public class DNCReadHead {
 		beta.update(l, m); 
 		fg.update(l, m); 
 		pi.update(l, m);
+	}
+	
+	public void prepareEnv() {
+		MathUtil.reset2zero(wWs);
+		MathUtil.reset2zero(rs);
 	}
 
 	public void generateInterfaceParameters(double [] hts) {
@@ -168,7 +174,7 @@ public class DNCReadHead {
 		return dv;
 	}
 	
-	boolean bg = false;  
+	boolean bg = true;  
 	public boolean checkBg(double [] x, String s, int t) {
 		if (!bg) {			
 			if (checkNormal(x, "rh_bg"+ s, t)) {
@@ -184,6 +190,7 @@ public class DNCReadHead {
 		MathUtil.reset2zero(dfds);
 		MathUtil.reset2zero(dbks);
 		MathUtil.reset2zero(drs); 
+		MathUtil.reset2zero(dwWs); 
 	}
 	
 	public void readMemory() { 
@@ -226,9 +233,7 @@ public class DNCReadHead {
 			MathUtil.plus2V(dws2, 1.0, dwWs[t]);
 			MathUtil.plus2V(dws3, 1.0, dwWs[t]);
 			
-			/****Disable read ww, it can not process last ones.
-			MathUtil.difSimplex(wWs[t], wWsum[t], dwWs[t]);*****/
-			MathUtil.scale(dwWs[t], 1.0/wWsum[t]);
+			difSoftMax4Wws();
 			
 		} 
 	}
@@ -268,13 +273,17 @@ public class DNCReadHead {
 			dpis[t][0] = MathUtil.multiple(dwWs[t], fds[t]);
 			dpis[t][1] = MathUtil.multiple(dwWs[t], cs[t]);
 			dpis[t][2] = MathUtil.multiple(dwWs[t], bks[t]);
+			
+			//TODO do we need to refine the when t = 0;
+			MathUtil.plus2V(dwWs[t], pis[t][0], dfds[t], true);		
+			MathUtil.plus2V(dwWs[t], pis[t][1], dc[t], true);
+			MathUtil.plus2V(dwWs[t], pis[t][2], dbks[t], true);
 		} else {
 			dpis[t][1] = MathUtil.multiple(dwWs[t], cs[t]);
+			MathUtil.plus2V(dwWs[t], pis[t][1], dc[t], true);
 		}		
 		
-		MathUtil.plus2V(dwWs[t], pis[t][0], dfds[t], true);		
-		MathUtil.plus2V(dwWs[t], pis[t][1], dc[t], true);
-		MathUtil.plus2V(dwWs[t], pis[t][2], dbks[t], true);
+		
 		
 		/****Disable fd, and bk sum simplex.
 		MathUtil.difSimplex(fds[t], fdsum[t], dfds[t]);
@@ -371,10 +380,9 @@ public class DNCReadHead {
 		wWsum[t] = MathUtil.sumMaxK(ws, MathUtil.K);
 		MathUtil.simplex2(ws, wWsum[t], MathUtil.K);***/
 		
-		/**try with normalization***/
-		wWsum[t] = MathUtil.sum(ws);
-		MathUtil.normalize(ws);
+		softMax4Wws();
 		
+		/***
 		if (!b) {			
 			// checkNormal(krs[t], "krs", t);
 			boolean a1 = checkNormal(fds[t], "fds", t);
@@ -398,8 +406,33 @@ public class DNCReadHead {
 					break;
 				}				
 			}
+		}***/
+	}
+	
+	boolean useNormalize = true;
+	
+	public void softMax4Wws() {
+		int t = bptt.t;
+		if (useNormalize) {
+			/**try with normalization***/
+			wWsum[t] = MathUtil.sum(wWs[t]);
+			MathUtil.normalize(wWs[t]);			
+		} else {
+			MathUtil.plus2V(wWs[t], 1.0, wWs4s[t], true);
+			wWs[t] = MathUtil.softMax(wWs[t], 1.0);
 		}
 		
+	}
+	
+	public void difSoftMax4Wws() {
+		int t = bptt.t; 
+		if (useNormalize) {
+			/****Disable read ww, it can not process last ones.
+			MathUtil.difSimplex(wWs[t], wWsum[t], dwWs[t]);*****/
+			MathUtil.scale(dwWs[t], 1.0/wWsum[t]);
+		} else {
+			dwWs[t] = MathUtil.difSoftMax4Weighting(dwWs[t], wWs4s[t], 1.0);
+		}		
 	}
 	
 	boolean b = false;

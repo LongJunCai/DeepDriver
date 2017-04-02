@@ -290,7 +290,7 @@ public class BPTT implements IBPTT {
 	}
 	
 	public void fTT4FeatureAssignment(RNNNeuroVo [] vos, double [] feature, int offset, int length) {
-		for (int i = offset; i < length; i++) {	
+		for (int i = offset; i < offset + length; i++) {	
 			vos[i].neuroVos[t].aA = feature[i];
 		}
 	}

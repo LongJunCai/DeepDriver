@@ -27,8 +27,42 @@ public class DNCBPTT {
 	public void setxSteps(int xSteps) {
 		this.xSteps = xSteps;
 	}
+	
+	public void prepareEnv() {
+		cfg.controller.prepareEnv();
+		cfg.memory.prepareEnv();
+		cfg.writeHead.prepareEnv(); 
+		for (int i = 0; i < cfg.readHeads.length; i++) {
+			cfg.readHeads[i].prepareEnv();
+		}
+	}
+	
+	long ci = 0;
+	long pi = 0;
+	long gp = 0;
+	long am = 0;
+	
+	long wa = 0;
+	long wl = 0;
+	
+	long wm = 0;
+	long ra = 0;
+	long rm = 0;
+	
+	long mg = 0;
+	long ot = 0;
+	
+	public void summary() {
+		double all = ci + pi + gp + am + wa + wl + wm + ra + rm + mg + ot;
+		System.out.println("ci"+(double)ci/all + "pi"+(double)pi/all + "gp"+(double)gp/all
+				 + "am"+(double)am/all  + "wa"+(double)wa/all + "wl"+(double)wl/all
+				 + "wm"+(double)wm/all + "ra"+(double)ra/all + "rm"+(double)rm/all
+				 + "mg"+(double)mg/all + "ot"+(double)ot/all);
 
-	public double [] forward(double [] x) {
+	}
+	
+	int fcnt = 0;
+	public double [] forward(double [] x, int [] pos, int length) {
 		this.cfg.controller.dbptt = this;
 		this.cfg.memory.setBptt(this);
 		DNCReadHead [] rh = cfg.readHeads;
@@ -39,33 +73,78 @@ public class DNCBPTT {
 		if (!init) {
 			init = true;
 			t = 0;
+			fcnt = 0;
 		} else {
 			t ++;
 		}
 		
-		double [] result = null;
+		double [] result = null;		
+		long t1 = System.currentTimeMillis();
 		//(1) construct input
 		double [] xt = constructInput(x);
+		ci = ci + System.currentTimeMillis() - t1;
+		t1 = System.currentTimeMillis();
+		
 		//(1.1) process input by controller
 		double [] hts = processInput(xt);//how to ensure the xt's length fits controller.
+		pi = pi + System.currentTimeMillis() - t1;
+		t1 = System.currentTimeMillis();
+		
 		//(2) generate the interface params;
 		generateInterfaceParameters(hts);
+		gp = gp + System.currentTimeMillis() - t1;
+		t1 = System.currentTimeMillis();
+		
 		//(3) allocate memory usage
 		allocateMemory();
+		am = am + System.currentTimeMillis() - t1;
+		t1 = System.currentTimeMillis();
+		
 		//(3.1) write memory addressing
 		writeHeadAddressing();
+		wa = wa + System.currentTimeMillis() - t1;
+		t1 = System.currentTimeMillis();
+		
 		//(3.2) memory writing linkage
 		writeMemoryLinkage();
+		wl = wl + System.currentTimeMillis() - t1;
+		t1 = System.currentTimeMillis();
+		
 		//(3.3) write memory
 		writeMemory();
+		wm = wm + System.currentTimeMillis() - t1;
+		t1 = System.currentTimeMillis();
+		
 		//(3.4) read head addressing
 		readHeadAddressing();
+		ra = ra + System.currentTimeMillis() - t1;
+		t1 = System.currentTimeMillis();
+		
 		//(4) read from memory
 		readMemory();
+		rm = rm + System.currentTimeMillis() - t1;
+		t1 = System.currentTimeMillis();
+		
 		//(5) merge result from controller and read heads.
 		mergeResult();
-		//(6) regression or classify the results.		
-		result = output();
+		mg = mg + System.currentTimeMillis() - t1;
+		t1 = System.currentTimeMillis();
+		
+		//(6) regression or classify the results.	
+		if (pos == null) {
+			if (t == length - 1) { 
+				result = output(length, pos);
+			} else {
+				result = null;
+			}			
+		} else {
+			if (t == pos[fcnt]) { 				
+				result = output(length, pos);
+				fcnt ++;
+			}
+		}
+		ot = ot + System.currentTimeMillis() - t1;
+		t1 = System.currentTimeMillis();
 			
 		return result;
 	}
@@ -73,17 +152,38 @@ public class DNCBPTT {
 	
 	
 	
-	public double [] output() {
-		return cfg.controller.output();
+	public double [] output(int length, int [] pos) {
+		return cfg.controller.output(length, pos);
 	}
 	
 	public void mergeResult() {
 		cfg.controller.mergeResult();		
 	}
 	
-	public void readMemory() {
+	public void readMemory2() {
 		for (int i = 0; i < this.cfg.readHeads.length; i++) {
 			cfg.readHeads[i].readMemory();
+		}
+	} 
+	
+	public void readMemory() {
+		Thread [] ts = new Thread[cfg.readHeads.length];
+		for (int i = 0; i < cfg.readHeads.length; i++) {
+			final int id = i;
+			ts[i] = new Thread() {
+				public void run() {
+					cfg.readHeads[id].readMemory();
+				}				
+			};
+			ts[i].start();
+		} 
+		
+		try {
+			for (int i = 0; i < ts.length; i++) {
+				ts[i].join();
+			} 
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	} 
 	
@@ -100,6 +200,27 @@ public class DNCBPTT {
 	}
 	
 	public void readHeadAddressing() {
+		Thread [] ts = new Thread[cfg.readHeads.length];
+		for (int i = 0; i < cfg.readHeads.length; i++) {
+			final int id = i;
+			ts[i] = new Thread() {
+				public void run() {
+					cfg.readHeads[id].readHeadAddressing();
+				}				
+			};
+			ts[i].start();
+		} 
+		
+		try {
+			for (int i = 0; i < ts.length; i++) {
+				ts[i].join();
+			} 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void readHeadAddressing2() {
 		for (int i = 0; i < cfg.readHeads.length; i++) {
 			cfg.readHeads[i].readHeadAddressing();
 		} 
@@ -122,6 +243,35 @@ public class DNCBPTT {
 			cfg.readHeads[i].generateInterfaceParameters(hts);
 		}
 		cfg.writeHead.generateInterfaceParameters(hts);
+	}
+	
+	public void generateInterfaceParameters3(double [] hts) {
+		Thread [] ts = new Thread[cfg.readHeads.length];
+		for (int i = 0; i < cfg.readHeads.length; i++) {
+			final int id = i;
+			ts[i] = new Thread() {
+				public void run() {
+					cfg.readHeads[id].generateInterfaceParameters(hts);
+				}				
+			};
+			ts[i].start();
+		}
+		Thread wt = new Thread() {
+			public void run() {
+				cfg.writeHead.generateInterfaceParameters(hts);
+			}
+		};
+		wt.start();
+		
+		try {
+			for (int i = 0; i < ts.length; i++) {
+				ts[i].join();
+			}
+			wt.join();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	int lastT;
@@ -225,6 +375,9 @@ public class DNCBPTT {
 		
 		error = 0;		
 		int cnt = 0;
+		if (pos != null) {
+			cnt = pos.length - 1;
+		}
 		
 		double err = 0;
 		lastT = t;
@@ -234,14 +387,16 @@ public class DNCBPTT {
 			if (pos == null) {
 				if (i == lastT) {
 					//(6) regression or classify the results.
-					dyt = backOutput(targets[0]);
+					dyt = backOutput(targets);
 					error = error + cfg.controller.err;
 				}	
 			} else {
-				if (i == pos[cnt]) {
-					dyt = backOutput(targets[cnt]);
-					cnt ++;
-					error = error + cfg.controller.err;
+				if (cnt >= 0 && i == pos[cnt]) {
+					dyt = backOutput(targets);
+					cnt --;
+					if (i == lastT) {
+						error = error + cfg.controller.err;
+					}					
 				}
 			}
 					
@@ -288,6 +443,7 @@ public class DNCBPTT {
 			MathUtil.plus2V(dv1, dv);
 		}
 		
+//		MathUtil.scale(dv, (double)1.0/(double)(1 + cfg.readHeads.length));
 		DNCChecker.checkBg(dv, "backGenerateInterfaceParameters dv ", t);
 //		if (MathUtil.isNaN(dv)) {
 //			System.out.println("DV is not a number...");
@@ -337,7 +493,7 @@ public class DNCBPTT {
 	} 
 
 
-	public double [] backOutput(double [] output) { 
+	public double [] backOutput(double [][] output) { 
 		return cfg.controller.backOutput(output);
 	}
 	

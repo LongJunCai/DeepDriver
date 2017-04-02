@@ -19,6 +19,14 @@ public class DummyCostFunction implements ICostFunction, Serializable {
 	LayerImp layer;
 	
 	int zZIndex = 0;
+	
+	public int getzZIndex() {
+		return zZIndex;
+	}
+
+	public void setzZIndex(int zZIndex) {
+		this.zZIndex = zZIndex;
+	}
 
 	@Override
 	public double [] activate() {

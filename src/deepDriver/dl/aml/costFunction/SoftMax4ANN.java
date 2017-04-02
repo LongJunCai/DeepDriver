@@ -20,6 +20,14 @@ public class SoftMax4ANN implements ICostFunction, Serializable {
 	
 	int zZIndex = 0;
 	
+	public int getzZIndex() {
+		return zZIndex;
+	}
+
+	public void setzZIndex(int zZIndex) {
+		this.zZIndex = zZIndex;
+	}
+
 	public double [] result1Ofk() {
 		List<INeuroUnit> neuros = layer.getNeuros();
 		double [] yt = new double[neuros.size()];

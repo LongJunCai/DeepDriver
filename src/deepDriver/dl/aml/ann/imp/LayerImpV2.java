@@ -51,6 +51,10 @@ public class LayerImpV2 extends LayerImp implements Serializable {
 					vONeuro.buildup(input, j);
 				} 
 				NeuroUnitImp vONeuro = (NeuroUnitImp) getNeuros().get(j);
+				if (vONeuro.getAas().length != input.length) {
+					vONeuro.setAas(new double[input.length]);
+					vONeuro.setZzs(new double[input.length]);
+				}				
 //				vONeuro.setResult(i, input[i][j]);
 				vONeuro.getAas()[i] = input[i][j];
 			}
@@ -96,8 +100,11 @@ public class LayerImpV2 extends LayerImp implements Serializable {
 //			}
 		}		
 		if (getNextLayer() == null && costFunction != null) {
-			costFunction.setTarget(finalResult[0]);
-			costFunction.caculateCostError();
+			for (int i = 0; i < finalResult.length; i++) {
+				costFunction.setzZIndex(i);
+				costFunction.setTarget(finalResult[i]);
+				costFunction.caculateCostError();
+			}
 		}
 	}
 	
@@ -147,7 +154,11 @@ public class LayerImpV2 extends LayerImp implements Serializable {
 				if (aNNCfg.isTesting()) {//by default, there is no bp in testing.	
 				} else {
 					if (neuro.isDropOut()) {
-						neuro.getDeltaZ()[zZIndex] = 0;// no further bp
+						double [] dzs = neuro.getDeltaZ();
+						for (int j = 0; j < dzs.length; j++) {
+							dzs[j] = 0;
+						}
+						// no further bp
 					} else {
 						neuro.backPropagation(getPreviousLayer() == null? null :this.getPreviousLayer().getNeuros(), getNextLayer() == null? null : this.getNextLayer().getNeuros(), finalResult, parameters);
 					}
@@ -156,7 +167,7 @@ public class LayerImpV2 extends LayerImp implements Serializable {
 		}
 	}
 	
-	int zZIndex = 0;
+//	int zZIndex = 0;
 	
 	boolean first = true;
 	
@@ -189,6 +200,7 @@ public class LayerImpV2 extends LayerImp implements Serializable {
 		}
 	}
 	
+	double [][] rss;
 	@Override
 	public void forwardPropagation(double[][] input) {
 		if (enableDropOut()) {
@@ -203,10 +215,23 @@ public class LayerImpV2 extends LayerImp implements Serializable {
 			forwardPropagation4PartialLayer(input);
 		}		
 		if (getNextLayer() == null && costFunction != null) {
-			rs = costFunction.activate();
+			rss = new double[input.length][];
+			for (int i = 0; i < input.length; i++) {				
+				costFunction.setzZIndex(i);
+				rss[i] = costFunction.activate();
+				rs = rss[i];
+			}
 		}
 	}
-	
+		
+	public double[][] getRss() {
+		return rss;
+	}
+
+	public void setRss(double[][] rss) {
+		this.rss = rss;
+	}
+
 	private boolean enableDropOut() {
 		if (aNNCfg != null && aNNCfg.getDropOut() > 0
 				&& getNextLayer() != null && getPreviousLayer() != null) {
@@ -238,20 +263,31 @@ public class LayerImpV2 extends LayerImp implements Serializable {
 				if (aNNCfg.isTesting()) {
 					neuro.forwardPropagation(this.getPreviousLayer().getNeuros(), input);
 					if (!typicalDropout) {
-						neuro.getAas()[zZIndex] = neuro.getAas()[zZIndex]
-							* (1.0 - aNNCfg.getDropOut());
+						double [] aAs = neuro.getAas();
+						for (int j = 0; j < aAs.length; j++) {
+							aAs[j] = aAs[j] * (1.0 - aNNCfg.getDropOut());
+						}						
 					}					
 				} else {
 					double a = NeuroUnitImp.random.nextDouble();
 					if (a < aNNCfg.getDropOut()) {
-						neuro.getAas()[zZIndex] = 0;// no further output
+						double [] aAs = neuro.getAas();
+						for (int j = 0; j < aAs.length; j++) {
+							aAs[j] = 0;
+						}
+//						neuro.getAas()[zZIndex] = 0;// no further output
 						neuro.setDropOut(true);						
 					} else {
 						if (getPreviousLayer() != null) {
 							neuro.forwardPropagation(this.getPreviousLayer().getNeuros(), input);
 							if (typicalDropout) {
-								neuro.getAas()[zZIndex] = neuro.getAas()[zZIndex]
-									/ (1.0 - aNNCfg.getDropOut());
+								double [] aAs = neuro.getAas();
+								for (int j = 0; j < aAs.length; j++) {
+									aAs[j] = aAs[j]
+											/ (1.0 - aNNCfg.getDropOut());
+								}
+//								neuro.getAas()[zZIndex] = neuro.getAas()[zZIndex]
+//									/ (1.0 - aNNCfg.getDropOut());
 							}
 						}						
 						neuro.setDropOut(false); 
@@ -264,8 +300,15 @@ public class LayerImpV2 extends LayerImp implements Serializable {
 	@Override
 	public double getStdError(double[][] result) {
 		if (getNextLayer() == null && costFunction != null) {
-			costFunction.setTarget(result[0]);
-			return costFunction.caculateStdError(); 
+			double err = 0;
+			for (int i = 0; i < result.length; i++) {
+				costFunction.setzZIndex(i);
+				costFunction.setTarget(result[i]);
+				err = err + costFunction.caculateStdError(); 
+			}
+//			costFunction.setTarget(result[0]);
+//			return costFunction.caculateStdError(); 
+			return err;
 		}
 		return super.getStdError(result);
 	}

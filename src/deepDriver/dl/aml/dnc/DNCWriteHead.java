@@ -101,6 +101,10 @@ public class DNCWriteHead {
 		
 		gw.update(cfg.getL(), cfg.getM());
 	}
+	
+	public void prepareEnv() {
+		MathUtil.reset2zero(wWs);
+	}
 
 	public void generateInterfaceParameters(double [] hts) {
 		int t = bptt.t;
@@ -223,7 +227,7 @@ public class DNCWriteHead {
 		double [][] vs = MathUtil.multiple(MathUtil.transpose(new double [][] {wWs[t]}), 
 				new double [][] {vts[t]});
 
-		if (t > 0) {
+		if (t > 0) { 
 			double [][] mt_1 = cfg.memory.memory[t-1];
 			double [][] e = MathUtil.allocateE(mt.length, mt[0].length);
 			double [][] es = MathUtil.multiple(MathUtil.transpose(new double [][] {wWs[t]}), new double [][] {rs});

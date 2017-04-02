@@ -78,11 +78,12 @@ public class NeuroUnitImpV3 extends NeuroUnitImpV2 implements Serializable {
 		this.previousNeuros = previousNeuros;
 		this.parameters = parameters;
 		if (deltaZ == null) {
-				deltaZ = new double[aas.length];
+				
 				if (thetas != null) {
 					deltaThetas = new double[thetas.length];
 				}		 		
 		}
+		deltaZ = new double[aas.length];
 		if (nextNeuros == null) {			
 			for (int i = 0; i < deltaZ.length; i++) {
 				deltaZ[i] = (aas[i] - result[i][position]) * activationFunction.deActivate(zzs[i]);
