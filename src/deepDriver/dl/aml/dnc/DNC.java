@@ -20,6 +20,9 @@ public class DNC {
 	boolean isFlexL = false;
 	long ft = 0;
 	long bt = 0;
+	
+	boolean resetM = false;
+	double mv = 0;
 
 	public void train(ITxtStream is) { 		
 		int allCnt = 0;
@@ -30,6 +33,10 @@ public class DNC {
 			double err = 0;
 			is.reset();			
 			while (is.hasNext()) {
+				if (resetM) {
+					mv = cfg.m;
+					cfg.m = 0;
+				}
 				long t1 = System.currentTimeMillis();
 				is.next();
 				double [][] x = is.getSampleTT();
@@ -82,9 +89,14 @@ public class DNC {
 							"error is "+err/(double)cnt+" ,and "+(double)correctCnt/(double)cnt
 							+", and ft="+ft+", bt="+bt+", ft/(ft + bt)="+(double)ft/(double)(ft + bt));
 //					bptt.summary();
+					ft = 0;
+					bt = 0;
 				}
 				
-				
+				if (resetM) { 
+					cfg.m = mv;
+					resetM = false;
+				}
 				
 			}
 			
@@ -94,10 +106,13 @@ public class DNC {
 					if (lastAvgErr == 0) {						 
 					} else if (allCnt % cfg.ldecayLoop == 0 || (isFlexL && lastAvgErr < avgErr)) { 
 //					} else if (allCnt % cfg.ldecayLoop == 0) {
-						if (cfg.l/2.0 >= cfg.ml) {
+						if (cfg.l >= cfg.ml) {
 							cfg.l = cfg.l/2.0;
 							cfg.m = cfg.m/2.0;
+						} else {
+							cfg.m = 0;//no need m any more
 						}
+						resetM = true;
 					}
 					lastAvgErr = avgErr;
 				}

@@ -672,7 +672,50 @@ public class MathUtil {
 		set(x, tx2);***/
 	}
 	
+	static double pow2PI = Math.pow(2.0 * Math.PI, 0.5);
+	public static double normalDistribution(double x, double u, double sigma) {
+		double r = (x - u);
+		return Math.exp(-r * r/(2.0 * sigma * sigma))
+				/(pow2PI * sigma);
+	}
 	
+	public static double sampleNormalDistribution(double u, double sigma, int length, boolean positiveOnly) {
+		while(true){
+			double t = random.nextDouble();
+			double min = u - length;
+			if (positiveOnly) {
+				if (min < 0) {
+					min = 0;
+				}
+			}
+			double x = t * 2.0 * length + min;
+			double y = pow2PI * sigma * normalDistribution(x, u, sigma);
+			double t1 = random.nextDouble();
+			if (y > t1) {
+				return x;
+			}
+		} 
+	}
+	
+	public static double variance(double [] x, double u) {
+		double sum = 0;
+		for (int i = 0; i < x.length; i++) {
+			sum = sum + (x[i] - u) * (x[i] - u);
+		}
+		sum = sum/(double)x.length;
+		return Math.pow(sum, 0.5);
+	}
+	
+	public static double sampleNormalDistribution(double [] x, boolean positiveOnly) {
+		double u = sum(x)/(double)x.length;
+		double sigma = variance(x, u);
+		int l = (int)(5.0 * sigma);
+		if (l < 1) {
+			l = 1;
+		}
+		return sampleNormalDistribution(u, sigma, l, positiveOnly);
+		
+	}
 	
 
 }

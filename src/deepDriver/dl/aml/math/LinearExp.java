@@ -10,7 +10,10 @@ public class LinearExp implements IExp4Function {
 	double [] deltaPara;
 	double [] deltaPara2;
 	double [] dv;
-	 
+	
+	double db;
+	double db2;
+	double b;
 	
 	protected double min = -1.0;
 	protected double max = 1.0;
@@ -22,7 +25,7 @@ public class LinearExp implements IExp4Function {
 		parameters = new double[length];
 		deltaPara = new double[parameters.length];
 		deltaPara2 = new double[parameters.length];
-		dv = new double[parameters.length];
+		dv = new double[length];
 		
 		/***do we need to comment the xvaier
 		double b = Math.pow(6.0/(double)(length + 
@@ -38,6 +41,8 @@ public class LinearExp implements IExp4Function {
 			parameters[i] = length * random.nextDouble()
 				+ min;
 		} 
+		b = length * random.nextDouble()
+				+ min;
 	}
 	
 	double [] x;
@@ -45,7 +50,7 @@ public class LinearExp implements IExp4Function {
 	
 	public void compute(double [] x) {
 		this.x = x;
-		r = MathUtil.multiple(parameters, x); 
+		r = MathUtil.multiple(parameters, x) + b; 
 	}
 	
 	public double getR() {
@@ -65,6 +70,7 @@ public class LinearExp implements IExp4Function {
 		double [] d = new double[deltaPara.length];
 		MathUtil.difMultiple(dr, d, x);
 		MathUtil.plus2V(d, deltaPara);
+		db = db + dr;
 		return d;
 	}
 	
@@ -72,6 +78,7 @@ public class LinearExp implements IExp4Function {
 		double [] d = new double[deltaPara.length];
 		MathUtil.difMultiple(dr, d, x);
 		MathUtil.plus2V(d, deltaPara);
+		db = db + dr;
 		return d;
 	}
 	
@@ -111,10 +118,15 @@ public class LinearExp implements IExp4Function {
 		for (int i = 0; i < parameters.length; i++) {
 			deltaPara[i] = - l * deltaPara[i] + m * deltaPara2[i];
 			parameters[i] = parameters[i] + deltaPara[i];
+			
+			db = -l * db + m * db2;
+			b = b + db;
 		}		
 		for (int i = 0; i < deltaPara2.length; i++) {
 			deltaPara2[i] = deltaPara[i];
 		}
+		db2 = db;
+		db = 0;
 		MathUtil.reset2zero(deltaPara);
 		MathUtil.reset2zero(dv);
 	}

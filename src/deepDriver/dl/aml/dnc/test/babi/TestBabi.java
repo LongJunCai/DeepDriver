@@ -3,15 +3,12 @@ package deepDriver.dl.aml.dnc.test.babi;
 import java.util.Map;
 
 import deepDriver.dl.aml.ann.ANN;
-import deepDriver.dl.aml.ann.IActivationFunction;
-import deepDriver.dl.aml.ann.imp.LogicsticsActivationFunction;
 import deepDriver.dl.aml.costFunction.SoftMax4ANN;
 import deepDriver.dl.aml.dnc.DNC;
 import deepDriver.dl.aml.dnc.DNCConfigurator;
 import deepDriver.dl.aml.lrate.StepReductionLR;
 import deepDriver.dl.aml.lstm.LSTMConfigurator;
 import deepDriver.dl.aml.lstm.NeuroNetworkArchitecture;
-import deepDriver.dl.aml.lstm.imp.TanhAf;
 import deepDriver.dl.aml.math.MathUtil;
 import deepDriver.dl.aml.string.Dictionary;
 
@@ -27,7 +24,7 @@ public class TestBabi {
 		}
 		
 		int threadNum = 4;
-		int ldecayLoop = 40000;
+		int ldecayLoop = 80000;
 		if (args.length > 1) {
 			threadNum = Integer.parseInt(args[1]);
 		}
@@ -83,11 +80,13 @@ public class TestBabi {
 		
 		NeuroNetworkArchitecture nna = new NeuroNetworkArchitecture();
 
-		nna.setNnArch(new int [] {128, 128});
+		int [] ca = new int [] {64, 64};
+		nna.setNnArch(ca);
 		int rhNum = 2;
 		int memoryNum = 90;
 		int memoryLength = 32; 
-		
+		System.out.println("Controller is "+getString(ca)+", with "+rhNum +" heads.");
+
  		nna.setCostFunction(LSTMConfigurator.SOFT_MAX);
  		cfg.setRequireLastRNNLayer(false);
 // 		cfg.buildArchitecture(babiStream, nna);
@@ -97,7 +96,7 @@ public class TestBabi {
  		cfg.setName("dncController");
 		
 // 		int yLen = rhNum * memoryLength + nna.getNnArch()[nna.getNnArch().length - 1] * 2;
- 		int yLen = rhNum * memoryLength + nna.getNnArch()[nna.getNnArch().length - 1];// * nna.getNnArch().length
+ 		int yLen = rhNum * memoryLength + nna.getNnArch()[nna.getNnArch().length - 1] ;//* nna.getNnArch().length
 // 				+ babiStream.getSampleFeatureNum() + rhNum * memoryLength
  				;
 // 		int yLen = 512;
@@ -112,8 +111,13 @@ public class TestBabi {
 		ann.getaNNCfg().setThreadsNum(cfg.getThreadsNum());
 		ann.setName("dncOutput");
 		ann.setCf(new SoftMax4ANN());
-		ann.buildUp(new int[]{yLen, kLength});	
+		
+		int [] archs = new int[]{yLen, kLength};
+		ann.buildUp(archs);	 
+		
+		System.out.println("Output is "+getString(archs)+" layers archs.");
 		MathUtil.setThreadCnt(1);
+		
 		 
 		DNCConfigurator dcfg = new DNCConfigurator(0.1, 0.1, maxTime, ann, cfg, yLen, rhNum, memoryNum, memoryLength);
 //		dcfg.setL(0.01);
@@ -121,10 +125,20 @@ public class TestBabi {
 		dcfg.setMl(0.0001);
 		dcfg.setLdecayLoop(ldecayLoop);
 		
+		
 		DNC dnc = new DNC(dcfg);
 		dnc.setFlexL(true);
 		dnc.train(babiStream);
 		
+	}
+	
+	public static String getString(int [] archs) {
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < archs.length; i++) {
+			sb.append(archs[i]+":");
+			
+		}
+		return sb.toString();
 	}
 
 }

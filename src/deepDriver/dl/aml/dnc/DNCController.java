@@ -110,7 +110,7 @@ public class DNCController {
 		
 		/****<START>Use the last layer only***/
 		hts[t] = new double[cls[0].getPreCxtAa().length]; 
-		ContextLayer cl1 = cls[0];
+		ContextLayer cl1 = cls[cls.length - 1];
 		for (int j = 0; j < cl1.getPreCxtAa().length; j++) {
 			hts[t][cnt ++] = cl1.getPreCxtAa()[j];
 		}  
