@@ -31,6 +31,12 @@ public class ArtifactNeuroNetworkV2 extends ArtifactNeuroNetwork implements Seri
 	public void setCf(ICostFunction cf) {
 		this.cf = cf;
 	}
+	
+	public ILayer createLayerOnly() {
+		LayerImpV2 layer = new LayerImpV2();
+		layer.setaNNCfg(aNNCfg); 
+		return layer;
+	}
 
 	@Override
 	public ILayer createLayer() {
@@ -76,7 +82,7 @@ public class ArtifactNeuroNetworkV2 extends ArtifactNeuroNetwork implements Seri
 		return mp;
 	}
 	
-	public double getResult(double [] x) {
+	public LayerImpV2 runResult(double [] x) {
 		double [][] nx = new double[][] {x};
 		LayerImpV2 lastLayer = (LayerImpV2) firstLayer;
 		ILayer layer = firstLayer;
@@ -87,6 +93,11 @@ public class ArtifactNeuroNetworkV2 extends ArtifactNeuroNetwork implements Seri
 			lastLayer = (LayerImpV2) layer;
 			layer = layer.getNextLayer();
 		}
+		return lastLayer;
+	}
+	
+	public double getResult(double [] x) {
+		LayerImpV2 lastLayer = runResult(x);
 		if (cf != null && lastLayer.getRs() != null) {
 			return getMaxPos(lastLayer.getRs());
 		} else {
@@ -103,6 +114,19 @@ public class ArtifactNeuroNetworkV2 extends ArtifactNeuroNetwork implements Seri
 
 	public void setaNNCfg(ANNCfg aNNCfg) {
 		this.aNNCfg = aNNCfg;
+	}
+	
+	public double [][] testModel2(InputParameters parameters) {
+		aNNCfg.isTesting = true;
+		debugPrint("Begin to build up the ann for test:");
+		double [][] input = normalizer.retransformParameters(parameters.getInput());		
+		double arr [][] = new double[input.length][];
+		for (int i = 0; i < arr.length; i++) {
+			LayerImpV2 lastLayer = runResult(input[i]);
+			arr[i] = lastLayer.getRs();
+		}
+		aNNCfg.isTesting = false;
+		return arr;
 	}
 
 	public double [] testModel(InputParameters parameters) {

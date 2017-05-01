@@ -30,7 +30,7 @@ public class DNN extends ArtifactNeuroNetworkV2 {
 	public void learnSelf(InputParameters orignalPramameters) {
 		double [][] input = normalizer.transformParameters(orignalPramameters.getInput());
 		int ln = orignalPramameters.getLayerNum();
-		firstLayer = createLayer();
+		firstLayer = createLayerOnly();
 		slLamda = orignalPramameters.getLamda();
 		this.setFirstLayer(firstLayer);
 		debugPrint("Begin to build up the DNN, start to pre-training first");
@@ -121,8 +121,16 @@ public class DNN extends ArtifactNeuroNetworkV2 {
 			cl = cl.getNextLayer();		
 		}
 		return lastLayer;
+	}	
+	
+
+	public double getAcc() {
+		return acc;
 	}
 
+	public void setAcc(double acc) {
+		this.acc = acc;
+	}
 	double acc = 0.1;
 	public void tuneFine(InputParameters parameters) {
 		System.out.println("Prepare for fine tuning.");

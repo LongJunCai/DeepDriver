@@ -165,6 +165,10 @@ public class ArtifactNeuroNetwork implements Serializable {
 		}
 	}
 	
+	public double [][] testModel2(InputParameters parameters) {
+		return null;
+	}
+	
 	public double [] testModel(InputParameters parameters) {
 		ILayer lastLayer = firstLayer;
 		ILayer layer = firstLayer;

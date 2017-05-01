@@ -80,7 +80,7 @@ public class TestBabi {
 		
 		NeuroNetworkArchitecture nna = new NeuroNetworkArchitecture();
 
-		int [] ca = new int [] {64, 64};
+		int [] ca = new int [] {128, 128};
 		nna.setNnArch(ca);
 		int rhNum = 2;
 		int memoryNum = 90;
