@@ -21,7 +21,17 @@ public class InputParameters implements Serializable {
 	int [] neuros;
 	
 	int layerNum = 1;
+	
+	boolean bpFirstLayer = false;
 		
+	public boolean isBpFirstLayer() {
+		return bpFirstLayer;
+	}
+
+	public void setBpFirstLayer(boolean bpFirstLayer) {
+		this.bpFirstLayer = bpFirstLayer;
+	}
+
 	public double getLamda() {
 		return lamda;
 	}

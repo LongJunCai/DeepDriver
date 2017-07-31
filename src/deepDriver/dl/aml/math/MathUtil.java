@@ -717,5 +717,17 @@ public class MathUtil {
 		
 	}
 	
+	public static double[] mergeVector(double [] v1, double [] v2) {
+		double [] v3 = new double[v1.length + v2.length];
+		int cnt = 0;
+		for (int i = 0; i < v1.length; i++) {
+			v3[cnt++] = v1[i];
+		}
+		for (int i = 0; i < v2.length; i++) {
+			v3[cnt++] = v2[i];
+		}
+		return v3;
+	}
+	
 
 }

@@ -102,6 +102,52 @@ public class ArtifactNeuroNetwork implements Serializable {
 		
 	}
 	
+	public double fdBp(double [][] input, int i, double [][] result, InputParameters parameters) {
+		double old = 0;
+		double newValue = -old;
+//		double residual = old;
+//		double precision = 0.00000000000001;
+		ILayer layer = firstLayer;
+		ILayer lastLayer = firstLayer;
+		while (layer != null) {
+			debugPrint("ForwardPropagation "+(i+1)+" on layer "+layer);
+			layer.forwardPropagation(input);
+			lastLayer = layer;
+			layer = layer.getNextLayer();
+		}		
+		layer = lastLayer;
+		newValue = lastLayer.getStdError(result);		
+//		double tmpResidual = newValue - old;	
+//		residual = tmpResidual;			
+		old = newValue;
+//		if(Double.isInfinite(residual) || residual < precision) {	
+//			break;
+//		}
+		while (layer != null && firstLayer != layer) {
+			debugPrint("BackPropagation "+(i+1)+" on layer "+layer);
+			layer.backPropagation(result, parameters);
+			lastLayer = layer;
+			layer = layer.getPreviousLayer();
+		}
+		if (parameters.isBpFirstLayer()) {
+			firstLayer.backPropagation(result, parameters);
+		}		
+		
+		return newValue;
+	}
+	
+	public void updateNk() {
+		//update network
+		ILayer layer = firstLayer;	
+		ILayer lastLayer = null;
+		while (layer != null) {
+			debugPrint("update layer   on layer "+layer);
+			layer.updateNeuros();
+			lastLayer = layer;
+			layer = layer.getNextLayer();
+		}
+	}
+		
 	public double runEpoch(double [][] input, int i, double [][] result, InputParameters parameters) {
 		double old = 0;
 		double newValue = -old;
@@ -129,8 +175,11 @@ public class ArtifactNeuroNetwork implements Serializable {
 			lastLayer = layer;
 			layer = layer.getPreviousLayer();
 		}
+		if (parameters.isBpFirstLayer()) {
+			firstLayer.backPropagation(result, parameters);
+		}		
 		//update network
-		layer = firstLayer;
+		layer = firstLayer;		
 		while (layer != null) {
 			debugPrint("update layer "+(i+1)+" on layer "+layer);
 			layer.updateNeuros();

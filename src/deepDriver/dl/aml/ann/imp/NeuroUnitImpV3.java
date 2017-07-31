@@ -39,6 +39,10 @@ public class NeuroUnitImpV3 extends NeuroUnitImpV2 implements Serializable {
 		this.activationFunction = activationFunction;
 	}
 	
+	public IActivationFunction getActivationFunction() {
+		return this.activationFunction;
+	}
+	
 //	boolean randomize = true;
 	
 //	protected void initTheta() {
@@ -52,12 +56,19 @@ public class NeuroUnitImpV3 extends NeuroUnitImpV2 implements Serializable {
 
 	@Override
 	public void forwardPropagation(List<INeuroUnit> previousNeuros, double [][] input) {
+		this.previousNeuros = previousNeuros;
 		if (thetas == null) {
 			this.thetas = new double[previousNeuros.size() + 1];
 			initTheta();
 		}		
 		this.aas = new double[input.length];
 		zzs = new double[input.length];
+		/**This should be done once**/
+		deltaZ = new double[aas.length];
+		if (deltaThetas == null) {
+			deltaThetas = new double[thetas.length];
+		}
+		
 		for (int i = 0; i < aas.length; i++) {			
 			double z = 0;
 			for (int j = 0; j < previousNeuros.size(); j++) {
@@ -73,16 +84,22 @@ public class NeuroUnitImpV3 extends NeuroUnitImpV2 implements Serializable {
 	List<INeuroUnit> previousNeuros;
 	InputParameters parameters;
 
+	public InputParameters getParameters() {
+		return parameters;
+	}
+
+	public void setParameters(InputParameters parameters) {
+		this.parameters = parameters;
+	}
+
 	@Override
 	public void backPropagation(List<INeuroUnit> previousNeuros, List<INeuroUnit> nextNeuros, double [][] result, InputParameters parameters) {
 		this.previousNeuros = previousNeuros;
 		this.parameters = parameters;
 		if (deltaZ == null) {
-				
-				if (thetas != null) {
-					deltaThetas = new double[thetas.length];
-				}		 		
+			
 		}
+		
 		deltaZ = new double[aas.length];
 		if (nextNeuros == null) {			
 			for (int i = 0; i < deltaZ.length; i++) {
@@ -106,15 +123,16 @@ public class NeuroUnitImpV3 extends NeuroUnitImpV2 implements Serializable {
 		}
 		for (int i = 0; i < thetas.length; i++) {
 			double delta4theta = 0;
+			double l = 1.0;//deltaZ.length;
 			if (i < thetas.length - 1) {
 				for (int j = 0; j < deltaZ.length; j++) {
 					delta4theta = delta4theta + 
-						deltaZ[j] * previousNeuros.get(i).getAaz(j);
+						deltaZ[j] * previousNeuros.get(i).getAaz(j)/l;
 				}
 			} else {
 				for (int j = 0; j < deltaZ.length; j++) {
 					delta4theta = delta4theta + 
-						deltaZ[j];
+						deltaZ[j]/l;
 				}
 			}
 			deltaThetas[i] = - parameters.getAlpha() 

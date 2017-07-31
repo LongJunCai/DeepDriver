@@ -116,10 +116,24 @@ public class ArtifactNeuroNetworkV2 extends ArtifactNeuroNetwork implements Seri
 		this.aNNCfg = aNNCfg;
 	}
 	
+	protected boolean normalize = true;
+	
+	public boolean isNormalize() {
+		return normalize;
+	}
+	
+	public void setNormalize(boolean normalize) {
+		this.normalize = normalize;
+	}
+	
 	public double [][] testModel2(InputParameters parameters) {
 		aNNCfg.isTesting = true;
 		debugPrint("Begin to build up the ann for test:");
-		double [][] input = normalizer.retransformParameters(parameters.getInput());		
+//		double [][] input = normalizer.retransformParameters(parameters.getInput());
+		double [][] input = parameters.getInput();
+		if (normalize) {
+			input = normalizer.transformParameters(parameters.getInput());
+		}	
 		double arr [][] = new double[input.length][];
 		for (int i = 0; i < arr.length; i++) {
 			LayerImpV2 lastLayer = runResult(input[i]);

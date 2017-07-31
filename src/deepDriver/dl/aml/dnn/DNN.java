@@ -27,8 +27,12 @@ public class DNN extends ArtifactNeuroNetworkV2 {
 	int slLoopNum = 50;
 	double slLamda = 0;
 	
+		
 	public void learnSelf(InputParameters orignalPramameters) {
-		double [][] input = normalizer.transformParameters(orignalPramameters.getInput());
+		double [][] input = orignalPramameters.getInput();
+		if (normalize) {
+			input = normalizer.transformParameters(orignalPramameters.getInput());
+		}		
 		int ln = orignalPramameters.getLayerNum();
 		firstLayer = createLayerOnly();
 		slLamda = orignalPramameters.getLamda();

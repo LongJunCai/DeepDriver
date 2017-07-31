@@ -94,6 +94,12 @@ public class MTLCostFunction implements ICostFunction, Serializable {
 				result[j] = target[cnt ++];
 			}
 			
+			/******/
+			if (!tk.checkRule(result)) {
+				continue;
+			}
+			/******/
+			
 			if (Task.CF_SOFTMAX == tk.getCostType()) { 
 				int k = MathUtil.getMaxPos(result);
 				NeuroUnitImp nu = (NeuroUnitImp) tk.getNus()[k];
@@ -118,10 +124,17 @@ public class MTLCostFunction implements ICostFunction, Serializable {
 				result[j] = target[cnt ++];
 			}
 			
+			
 			if (Task.CF_SOFTMAX == tk.getCostType()) { 
 				int k = MathUtil.getMaxPos(result);
 				for (int j = 0; j < tk.getNus().length; j++) {
 					NeuroUnitImp nu = (NeuroUnitImp) tk.getNus()[j];
+					/******/
+					if (!tk.checkRule(result)) {
+						nu.getDeltaZ()[zZIndex] = 0;
+						continue;
+					}
+					/******/
 					if (k == j) {
 						nu.getDeltaZ()[zZIndex] = nu.getAas()[zZIndex] - 1.0;
 					} else {
@@ -132,6 +145,12 @@ public class MTLCostFunction implements ICostFunction, Serializable {
 				NeuroUnitImp nu = (NeuroUnitImp) tk.getNus()[0];
 				double a = nu.getAas()[zZIndex];
 				double t = result[0];
+				/******/
+				if (!tk.checkRule(result)) {
+					nu.getDeltaZ()[zZIndex] = 0;
+					continue;
+				}
+				/******/
 				nu.getDeltaZ()[zZIndex] = (a - t) * MathUtil.difSigmod(nu.getZzs()[zZIndex]);
 			}
 		}

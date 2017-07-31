@@ -15,7 +15,7 @@ public class Task implements Serializable {
 	
 	int neuroLen;
 	int costType;
-	int resultLen;
+	int resultLen; 
 	
 	NeuroUnitImp [] nus;
 	double [] zZs;
@@ -42,6 +42,10 @@ public class Task implements Serializable {
 	}
 	public void setCostType(int costType) {
 		this.costType = costType;
+	}
+	
+	public boolean checkRule(double [] target) {
+		return true;
 	}
 
 //	public int getResultLen() {

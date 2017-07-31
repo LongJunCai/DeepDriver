@@ -34,6 +34,7 @@ public class SparseAutoEncoderNeuro extends NeuroUnitImpV3 {
 		}
 		if (nextNeuros == null) {
 		} else {
+			/*****/
 			if (layer.getPreviousLayer() == null) {
 				return ;
 			}			
