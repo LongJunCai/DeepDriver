@@ -5,6 +5,7 @@ import java.io.Serializable;
 import deepDriver.dl.aml.ann.ILayer;
 import deepDriver.dl.aml.ann.imp.LayerImp;
 import deepDriver.dl.aml.ann.imp.NeuroUnitImp;
+import deepDriver.dl.aml.ann.imp.NeuroUnitImpV3;
 import deepDriver.dl.aml.math.MathUtil;
 
 public class MTLCostFunction implements ICostFunction, Serializable {
@@ -57,6 +58,12 @@ public class MTLCostFunction implements ICostFunction, Serializable {
 			tk.setzZs(new double[tk.getNus().length]);
 			for (int j = 0; j < tk.getNus().length; j++) {
 				tk.getNus()[j] = (NeuroUnitImp) layer.getNeuros().get(cnt ++); 
+				/****GRL****/
+				if (tk.getGrlStatus() != 0) {
+					NeuroUnitImpV3 v3 = (NeuroUnitImpV3) tk.getNus()[j];
+					v3.setGrl(tk.getGrlStatus());					
+				}
+				/****GRL****/
  			}
 			
 			 			
@@ -103,7 +110,15 @@ public class MTLCostFunction implements ICostFunction, Serializable {
 			if (Task.CF_SOFTMAX == tk.getCostType()) { 
 				int k = MathUtil.getMaxPos(result);
 				NeuroUnitImp nu = (NeuroUnitImp) tk.getNus()[k];
-				stdError = stdError + - Math.log(nu.getAas()[zZIndex]);
+//				stdError = stdError + - Math.log(nu.getAas()[zZIndex]);
+				/****GRL****/
+				if (tk.getGrlStatus() != 0) { 
+					stdError = stdError + -Math.abs(tk.getGrlStatus()) * 
+							-Math.log(nu.getAas()[zZIndex]);				
+				} else {
+					stdError = stdError + -Math.log(nu.getAas()[zZIndex]);
+				}
+				/****GRL****/
 			} else if (Task.CF_STD == tk.getCostType()) {
 				NeuroUnitImp nu = (NeuroUnitImp) tk.getNus()[0];
 				double a = nu.getAas()[zZIndex];

@@ -11,7 +11,12 @@ public class Task implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	public static int CF_STD = 1;
-	public static int CF_SOFTMAX = 2;
+	public static int CF_SOFTMAX = 2; 
+	
+//	public static int SS_NORMAL = 0;
+//	public static int SS_GRL = 1; 
+	
+	double grlStatus = 0;
 	
 	int neuroLen;
 	int costType;
@@ -22,6 +27,14 @@ public class Task implements Serializable {
 	
 	String name;	
 	
+	public double getGrlStatus() {
+		return grlStatus;
+	}
+
+	public void setGrlStatus(double grlStatus) {
+		this.grlStatus = grlStatus;
+	}
+
 	public String getName() {
 		return name;
 	}

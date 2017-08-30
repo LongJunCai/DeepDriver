@@ -10,13 +10,23 @@ import deepDriver.dl.aml.ann.InputParameters;
 public class NeuroUnitImpV3 extends NeuroUnitImpV2 implements Serializable {
 	
 	boolean dropOut;
+	double grl = 0;
+	
 
 	public NeuroUnitImpV3(LayerImp layer) {
 		super(layer);
 	}
 
 	private static final long serialVersionUID = -9221602989423182893L;
-		
+			
+	public double isGrl() {
+		return grl;
+	}
+
+	public void setGrl(double grl) {
+		this.grl = grl;
+	}
+
 	public boolean isDropOut() {
 		return dropOut;
 	}
@@ -31,7 +41,13 @@ public class NeuroUnitImpV3 extends NeuroUnitImpV2 implements Serializable {
 		if (dataIndex >= deltaZ.length) {
 			return 0;
 		}
-		return deltaZ[dataIndex] * thetas[previouNeuroIndex];
+		double t = 1.0;
+		/****GRL****/
+		if (grl != 0) {			
+			t = -Math.abs(grl);
+		}
+		/****GRL****/
+		return t * deltaZ[dataIndex] * thetas[previouNeuroIndex];
 	}
 
 	@Override
