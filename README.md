@@ -10,6 +10,7 @@ This is a Deep Learning framework projects written with JAVA, including:
 - add supporting for DNC(Differential Neural Computer) DeepDriver/src/deepDriver/dl/aml/dnc/
 - add MTL(Multiple Task Learning) supporting for ANN/DNN, so it is easy to extend for CNN and other neural network also.
 - add RN(Relation Net) supporting.
+- add GRL supporting.
 
 This framework provides some examples:
 - NLP: Chinese word segmentation
