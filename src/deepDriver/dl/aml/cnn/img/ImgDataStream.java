@@ -28,8 +28,8 @@ public class ImgDataStream implements IDataStream {
 	
 	public void preLoad() {
     	preLoad = true;
-    	for (int i = 0; i < imgLoader.imgs.size(); i++) {
-    		String s = imgLoader.imgs.get(i);
+    	for (int i = 0; i < imgLoader.size(); i++) {
+    		String s = imgLoader.get(i);
     		IDataMatrix dm = constructIDataMatrix(s, imgLoader.header.startsWith(label));
     		dmCache.add(dm);
 		}
@@ -39,7 +39,8 @@ public class ImgDataStream implements IDataStream {
 		if (preLoad && dmCache.size() > 0) {
 			return dmCache.get(id);
 		} else {
-			String s = imgLoader.imgs.get(id);
+//			String s = imgLoader.imgs.get(id);
+			String s = imgLoader.get(id);
 			return constructIDataMatrix(s, imgLoader.header.startsWith(label));
 		}
 	}
@@ -48,7 +49,8 @@ public class ImgDataStream implements IDataStream {
 	@Override
 	public IDataMatrix next() {
 		cnt++;
-		double l = imgLoader.imgs.size();
+//		double l = imgLoader.imgs.size();
+		double l = imgLoader.size();
 		int ri  = (int) (rd.nextDouble() * l);
 		if (ri == l) {//exclusive, so no need to worry about it.
 			ri = ri - 1;
@@ -120,7 +122,8 @@ public class ImgDataStream implements IDataStream {
 
 	@Override
 	public boolean hasNext() {
-		if (cnt <= imgLoader.imgs.size() - 1) {
+//		if (cnt <= imgLoader.imgs.size() - 1) {
+		if (cnt <= imgLoader.size() - 1) {
 			return true;
 		}
 		return false;

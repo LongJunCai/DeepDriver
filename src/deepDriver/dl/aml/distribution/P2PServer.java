@@ -54,6 +54,45 @@ public class P2PServer {
 		return objs;
 	}
 	
+	public Object [] collectObjsAsc() {
+//		distributeCommand(CollectObj);
+		Object [] objs = new Object[clients.size()];
+		CollectAsc [] cas = new CollectAsc[objs.length];
+		for (int i = 0; i < objs.length; i++) {
+			cas[i] = new CollectAsc(i, objs);
+			cas[i].start();
+		}
+		for (int i = 0; i < objs.length; i++) { 
+			try {
+				cas[i].join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		return objs;
+	}
+	
+	class CollectAsc extends Thread {
+		int i;
+		Object [] objs;		
+		public CollectAsc(int i, Object [] objs) {
+			super();
+			this.i = i;
+			this.objs = objs;
+		}
+
+		public void run() {					
+			super.run();
+			ClientVo cv = clients.get(i);
+			try {
+				objs[i] = cv.getOis().readUnshared();
+				response(cv, i, OK);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	static boolean debug = false;
 	public static void debug(String msg) {
 		if (debug) {
@@ -113,6 +152,48 @@ public class P2PServer {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		}
+	}
+	
+	class DistAsc extends Thread {
+		int i;
+		Object Obj;		
+		public DistAsc(int i, Object obj) {
+			super();
+			this.i = i;
+			Obj = obj;
+		}
+
+		public void run() {					
+			super.run();
+			ClientVo cv = P2PServer.this.clients.get(i);
+			try {
+				cv.getOos().writeUnshared(Obj);
+				cv.getOos().flush();
+				cv.getOos().reset();
+				try {
+					P2PServer.this.getResponse(cv, i);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void distributeObjectsAsc(Object obj, Object [] objs) throws Exception { 
+		DistAsc [] th = new DistAsc[clients.size()];
+		for (int i = 0; i < clients.size(); i++) {
+			if (obj == null) {
+				th[i] = new DistAsc(i, objs[i]);	
+			} else {
+				th[i] = new DistAsc(i, obj);	
+			}			
+			th[i].start();
+		}
+		for (int i = 0; i < clients.size(); i++) { 
+			th[i].join();
 		}
 	}
 	

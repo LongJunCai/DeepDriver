@@ -9,9 +9,18 @@ public abstract class Master {
 	public static String CollectErrorCommand = "-c collectError";
 	public static String CollectSubjectCommand = "-c collectSubject";
 	int cnt = 0;
-	public void train() throws Exception {
+	
+	boolean setup = false;
+	public void setup() throws Exception {
 		talkServer.setup(getClientsNum());
 		talkServer.collectState();
+		setup = true;
+	}
+	
+	public void train() throws Exception {
+		if (!setup) {
+			setup();
+		}
 		while (true) {			
 			talkServer.distributeCommand(TaskCommand);			
 			talkServer.distributeObjects(splitTasks());

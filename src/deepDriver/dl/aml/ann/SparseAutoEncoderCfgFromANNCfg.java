@@ -1,6 +1,8 @@
 package deepDriver.dl.aml.ann;
 
-public class SparseAutoEncoderCfgFromANNCfg extends ANNCfg implements ISparseAutoEncoderCfg {
+import java.io.Serializable;
+
+public class SparseAutoEncoderCfgFromANNCfg extends ANNCfg implements ISparseAutoEncoderCfg, Serializable {
 
 	/**
 	 * 

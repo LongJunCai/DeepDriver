@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import deepDriver.dl.aml.ann.imp.LayerImp;
 import deepDriver.dl.aml.ann.imp.LogicsticsActivationFunction;
+import deepDriver.dl.aml.dnn.distribute.DNNMaster;
 
 public class ArtifactNeuroNetwork implements Serializable {
 	
@@ -52,18 +53,20 @@ public class ArtifactNeuroNetwork implements Serializable {
 	public void setUseNormalizer(boolean useNormalizer) {
 		this.useNormalizer = useNormalizer;
 	}
-
-	public void trainModel(InputParameters parameters) {
+	
+	public void createArch(InputParameters parameters) {
 		//1.set value into first layer			
 		double [][] input = parameters.getInput();
 		if (useNormalizer) {
 			input = normalizer.transformParameters(parameters.getInput());
 		}
-		double [][] result = getResults(parameters);
+		
 		IActivationFunction acf = createAcf();
 		firstLayer = createLayer();
 		debugPrint("Begin to build up the ann:");
-		firstLayer.buildup(null, input, acf, false, input[0].length);
+		
+		double [][] tmpInp = new double[][]{input[0]};
+		firstLayer.buildup(null, tmpInp, acf, false, input[0].length);
 		ILayer tlayer = firstLayer;
 		for (int i = 0; i < parameters.getLayerNum(); i++) {
 			ILayer newLayer = createLayer();
@@ -79,6 +82,23 @@ public class ArtifactNeuroNetwork implements Serializable {
 		debugPrint("Complete to build ann");
 		//2.set value into first layer
 		debugPrint("Begin training.");
+	}
+	
+	transient DNNMaster dm = new DNNMaster();
+
+	public void trainModel(InputParameters parameters) {
+		if (firstLayer == null) {
+			createArch(parameters);
+		}
+		
+		double [][] input = parameters.getInput();
+		double [][] result = getResults(parameters);
+		if (dm != null && dm.isSetup()) {
+			System.out.println("Runing in the distribution env.");
+			dm.trainModel(this, parameters, -1.0);
+			return;
+		}
+		System.out.println("Runing in the standalone env.");
 		
 		double error = 0;
 		int errorCnt = 0;

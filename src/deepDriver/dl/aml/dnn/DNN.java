@@ -6,6 +6,7 @@ import deepDriver.dl.aml.ann.ILayer;
 import deepDriver.dl.aml.ann.InputParameters;
 import deepDriver.dl.aml.ann.SparseAutoEncoder;
 import deepDriver.dl.aml.ann.imp.LayerImpV2;
+import deepDriver.dl.aml.dnn.distribute.DNNMaster;
 
 public class DNN extends ArtifactNeuroNetworkV2 {
 	
@@ -38,7 +39,9 @@ public class DNN extends ArtifactNeuroNetworkV2 {
 		slLamda = orignalPramameters.getLamda();
 		this.setFirstLayer(firstLayer);
 		debugPrint("Begin to build up the DNN, start to pre-training first");
-		firstLayer.buildup(null, input, createAcf(), false, input[0].length);
+		
+		double [][] tmpInp = new double[][]{input[0]};
+		firstLayer.buildup(null, tmpInp, createAcf(), false, input[0].length);
 //		ILayer currentLayer = firstLayer;
 		boolean sl4LastLayer = true;
 		if (sl4LastLayer) {
@@ -136,10 +139,23 @@ public class DNN extends ArtifactNeuroNetworkV2 {
 		this.acc = acc;
 	}
 	double acc = 0.1;
+	
+	transient DNNMaster dm = new DNNMaster();
 	public void tuneFine(InputParameters parameters) {
+		
+		if (dm != null && dm.isSetup()) {
+			System.out.println("DNN Runing in the distribution env.");
+			dm.trainModel(this, parameters, acc);
+			return;
+		}
+		System.out.println("DNN Runing in the standalone env.");
+				
 		System.out.println("Prepare for fine tuning.");
-		double [][] input = 
-				normalizer.transformParameters(parameters.getInput());
+		double [][] input = parameters.getInput();
+		if (normalize) {
+			input = normalizer.transformParameters(parameters.getInput());
+		}		
+				
 		double [][] result = getResults(parameters);
 		double error = 0;
 		int errorCnt = 0;

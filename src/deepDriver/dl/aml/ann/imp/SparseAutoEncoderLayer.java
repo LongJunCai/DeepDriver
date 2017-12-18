@@ -1,11 +1,12 @@
 package deepDriver.dl.aml.ann.imp;
 
+import java.io.Serializable;
 import java.util.List;
 
 import deepDriver.dl.aml.ann.INeuroUnit;
 import deepDriver.dl.aml.ann.ISparseAutoEncoderCfg;
 
-public class SparseAutoEncoderLayer extends LayerImpV2 {
+public class SparseAutoEncoderLayer extends LayerImpV2 implements Serializable {
 
 	/**
 	 * 

@@ -26,12 +26,12 @@ public class W2VDataStream implements IDataStream {
 	@Override
 	public IDataMatrix next() {
 		cnt++;
-		double l = imgLoader.imgs.size();
+		double l = imgLoader.getImgs().size();
 		int ri  = (int) (rd.nextDouble() * l);
 		if (ri == l) {//exclusive, so no need to worry about it.
 			ri = ri - 1;
 		}
-		String s = imgLoader.imgs.get(ri);
+		String s = imgLoader.getImgs().get(ri);
 		boolean hasHeader = false;
 		if (imgLoader.header != null) {
 		    hasHeader = imgLoader.header.startsWith(label);
@@ -42,7 +42,7 @@ public class W2VDataStream implements IDataStream {
 	public IDataMatrix next(Object pos) {
 		cnt++;
 		int ri = (Integer) pos;
-		String s = imgLoader.imgs.get(ri);
+		String s = imgLoader.get(ri);
 		return constructIDataMatrix(s, imgLoader.header.startsWith(label));
 	}
 	
@@ -126,7 +126,7 @@ public class W2VDataStream implements IDataStream {
 
 	@Override
 	public boolean hasNext() {
-		if (cnt <= imgLoader.imgs.size() - 1) {
+		if (cnt <= imgLoader.size() - 1) {
 			return true;
 		}
 		return false;
@@ -136,7 +136,7 @@ public class W2VDataStream implements IDataStream {
 		String file = "E://models//cnn//sentiment3.0//cnn-sentiment-training-26000.txt";
 		CsvImgLoader imgLoader = new CsvImgLoader();
 		imgLoader.loadImg(file);
-		int kLength = 3; //类别数
+		int kLength = 3; //绫诲埆鏁�
 		int cnt = 0;
 		W2VDataStream w2vDataStream = new W2VDataStream(imgLoader, kLength, 200);
 		while (w2vDataStream.hasNext()) {

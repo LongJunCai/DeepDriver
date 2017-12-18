@@ -51,5 +51,9 @@ public class VONeuro implements INeuroUnit ,Serializable {
 	@Override
 	public void updateSelf() {		
 	}
+	@Override
+	public double[] getThetas() {
+		return null;
+	}
 
 }

@@ -9,6 +9,8 @@ public interface INeuroUnit {
 //	public int getInputSize();	
 //	public double[] getDeltaZ();
 	
+	public double[] getThetas();
+	
 	public double get4PropagationPreviousDelta(int dataIndex, int previouNeuroIndex);
 	
 	public void setActivationFunction(IActivationFunction activationFunction);

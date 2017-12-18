@@ -23,6 +23,16 @@ public class NeuroUnitImp implements INeuroUnit , Serializable {
 	
 	protected double [] thetas;	
 	protected double [] deltaThetas;
+	
+	
+	public double[] getThetas() {
+		return thetas;
+	}
+
+//	public void setThetas(double[] thetas) {
+//		this.thetas = thetas;
+//	}
+
 	@Override
 	public double get4PropagationPreviousDelta(int dataIndex,
 			int previouNeuroIndex) {		

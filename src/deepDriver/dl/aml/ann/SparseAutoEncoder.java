@@ -1,8 +1,10 @@
 package deepDriver.dl.aml.ann;
 
+import java.io.Serializable;
+
 import deepDriver.dl.aml.ann.imp.SparseAutoEncoderLayer;
 
-public class SparseAutoEncoder extends ArtifactNeuroNetworkV2 {
+public class SparseAutoEncoder extends ArtifactNeuroNetworkV2 implements Serializable {
 
 	/**
 	 * 

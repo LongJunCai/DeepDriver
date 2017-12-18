@@ -9,7 +9,7 @@ import java.util.List;
 
 public class CsvImgLoader {
 	
-	List<String> imgs = new ArrayList<String>();
+	private List<String> imgs = new ArrayList<String>();
 	String header;
 	
 	public boolean isHeader() {
@@ -18,7 +18,24 @@ public class CsvImgLoader {
     public void setHeader(boolean isHeader) {
         this.isHeader = isHeader;
     }
-    boolean isHeader = true;
+    
+    public int size() {
+		return imgs.size();
+	}
+    
+    public String get(int id) {
+		return imgs.get(id);
+	}
+    
+    public List<String> getImgs() {
+		return imgs;
+	}
+	public void setImgs(List<String> imgs) {
+		this.imgs = imgs;
+	}
+
+
+	boolean isHeader = true;
 	public void loadImg(String file) throws Exception {
 		BufferedReader bi = new BufferedReader( new InputStreamReader(new 
 				FileInputStream(new File(file)), "utf-8"));

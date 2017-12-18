@@ -19,7 +19,7 @@ public abstract class Slave {
 			} else if (Master.SubjectCommand.equals(command)) {
 				setSubject(talkClient.receiveObj());
 			} else if (Master.TrainCommand.equals(command)) {
-				//afraid it may be time out...
+			//afraid it may be time out...
 				trainLocal();
 			} else if (Master.CollectSubjectCommand.equals(command)) {
 				talkClient.sendObj(getLocalSubject());
