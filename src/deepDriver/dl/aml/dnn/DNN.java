@@ -1,11 +1,13 @@
 package deepDriver.dl.aml.dnn;
 
 
+import deepDriver.dl.aml.ann.ArtifactNeuroNetwork;
 import deepDriver.dl.aml.ann.ArtifactNeuroNetworkV2;
 import deepDriver.dl.aml.ann.ILayer;
 import deepDriver.dl.aml.ann.InputParameters;
 import deepDriver.dl.aml.ann.SparseAutoEncoder;
 import deepDriver.dl.aml.ann.imp.LayerImpV2;
+import deepDriver.dl.aml.dnn.distribute.ANNMaster;
 import deepDriver.dl.aml.dnn.distribute.DNNMaster;
 
 public class DNN extends ArtifactNeuroNetworkV2 {
@@ -28,6 +30,46 @@ public class DNN extends ArtifactNeuroNetworkV2 {
 	int slLoopNum = 50;
 	double slLamda = 0;
 	
+	DNNMaster dnnMaster = new DNNMaster();	
+	public void distributeTask(InputParameters orignalPramameters) {
+		if (dnnMaster.isSetup()) {
+			try {
+				dnnMaster.distributeTasks(this, orignalPramameters);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}		
+	}
+	
+	public void distExpendLayer() {
+		if (dnnMaster.isSetup()) {
+			try {
+				dnnMaster.expendLayer();
+				} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}		
+	}
+	
+	public void distPreTraining() {
+		if (dnnMaster.isSetup()) {
+			try {
+				dnnMaster.preTraining();
+				} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}		
+	}
+	
+	public void distFineTuning() {
+		if (dnnMaster.isSetup()) {
+			try {
+				dnnMaster.distFineTuning();
+				} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}		
+	}
 		
 	public void learnSelf(InputParameters orignalPramameters) {
 		double [][] input = orignalPramameters.getInput();
@@ -47,7 +89,13 @@ public class DNN extends ArtifactNeuroNetworkV2 {
 		if (sl4LastLayer) {
 		} else {
 			ln = ln - 1;
-		}
+		}		
+		/**add Distribution supporting.***/
+		distributeTask(orignalPramameters);
+		/*****/
+		/**add Distribution supporting.***/
+		distPreTraining();
+		/*****/
 		for (int i = 0; i < ln; i++) {
 			int hiddenNc = input[0].length;
 			if (orignalPramameters.getNeuros() != null) {
@@ -57,13 +105,17 @@ public class DNN extends ArtifactNeuroNetworkV2 {
 			double [][] newInput = caculateHiddenInputs(input);
 			ILayer last= getLastLayer();
 			InputParameters newPramaters = new InputParameters();
-			newPramaters.setInput(newInput);
+			
 			newPramaters.setAlpha(orignalPramameters.getAlpha());
 			newPramaters.setLamda(slLamda);
 			
 			newPramaters.setIterationNum(slLoopNum);
-			int nc = newInput[0].length;
-			
+//			int nc = newInput[0].length;
+			int nc = last.getNeuros().size();
+			if (newInput == null) {
+				newInput = new double[][]{new double[nc]};
+			}
+			newPramaters.setInput(newInput);
 //			SparseAutoEncoderCfgFromANNCfg annCfg4DNN = new SparseAutoEncoderCfgFromANNCfg();
 //			annCfg4DNN.setP(0.05);
 			SparseAutoEncoder sae = new SparseAutoEncoder();
@@ -82,13 +134,17 @@ public class DNN extends ArtifactNeuroNetworkV2 {
 						
 			sae.trainModel(newPramaters);
 			System.out.println("Done for layer "+(i + 1)+" learning.");
-			ILayer newHiddenLayer = sae.getFirstLayer().getNextLayer();		
-			newHiddenLayer.setPos(i+1);
-			last.setNextLayer(newHiddenLayer);
-			newHiddenLayer.setNextLayer(null);
-			newHiddenLayer.setPreviousLayer(last);			
-			LayerImpV2 l2 = (LayerImpV2) newHiddenLayer;
-			l2.setaNNCfg(getaNNCfg());
+//			ILayer newHiddenLayer = sae.getFirstLayer().getNextLayer();		
+//			newHiddenLayer.setPos(i+1);
+//			last.setNextLayer(newHiddenLayer);
+//			newHiddenLayer.setNextLayer(null);
+//			newHiddenLayer.setPreviousLayer(last);			
+//			LayerImpV2 l2 = (LayerImpV2) newHiddenLayer;
+//			l2.setaNNCfg(getaNNCfg());
+			expendLayerFromSAE(sae, i, last);
+			/**add Distribution supporting.***/
+			distExpendLayer();
+			/*****/
 		}
 		if (!sl4LastLayer) {
 			ILayer last= getLastLayer();
@@ -97,11 +153,33 @@ public class DNN extends ArtifactNeuroNetworkV2 {
 			newLayer.buildup(last, input, createAcf(), 
 				true, orignalPramameters.getNeuros()[orignalPramameters.getNeuros().length - 1]);
 		}
-
+		/**add Distribution supporting.***/
+		distFineTuning();
+		/*****/
+	}
+	
+	public void expendLayerFromSAE(ArtifactNeuroNetwork ann, int i, ILayer last) {
+		ILayer newHiddenLayer = ann.getFirstLayer().getNextLayer();		
+		newHiddenLayer.setPos(i+1);
+		last.setNextLayer(newHiddenLayer);
+		newHiddenLayer.setNextLayer(null);
+		newHiddenLayer.setPreviousLayer(last);			
+		LayerImpV2 l2 = (LayerImpV2) newHiddenLayer;
+		l2.setaNNCfg(getaNNCfg());
 	}
 	
 	
-	public double [][] caculateHiddenInputs(double [][] orginalInput) {		
+	public double [][] caculateHiddenInputs(double [][] orginalInput) {	
+		/**add Distribution supporting.***/
+		if (dnnMaster.isSetup()) {
+			try {
+				dnnMaster.caculateHiddenInputs();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+		/*****/
 		double [][] newInput = new double[orginalInput.length][];
 		for (int i = 0; i < newInput.length; i++) {
 			double [][] x = new double[][]{orginalInput[i]};
@@ -140,7 +218,7 @@ public class DNN extends ArtifactNeuroNetworkV2 {
 	}
 	double acc = 0.1;
 	
-	transient DNNMaster dm = new DNNMaster();
+	transient ANNMaster dm = new ANNMaster();
 	public void tuneFine(InputParameters parameters) {
 		
 		if (dm != null && dm.isSetup()) {

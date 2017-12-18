@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import deepDriver.dl.aml.ann.imp.LayerImp;
 import deepDriver.dl.aml.ann.imp.LogicsticsActivationFunction;
-import deepDriver.dl.aml.dnn.distribute.DNNMaster;
+import deepDriver.dl.aml.dnn.distribute.ANNMaster;
 
 public class ArtifactNeuroNetwork implements Serializable {
 	
@@ -84,7 +84,7 @@ public class ArtifactNeuroNetwork implements Serializable {
 		debugPrint("Begin training.");
 	}
 	
-	transient DNNMaster dm = new DNNMaster();
+	transient ANNMaster dm = new ANNMaster();
 
 	public void trainModel(InputParameters parameters) {
 		if (firstLayer == null) {

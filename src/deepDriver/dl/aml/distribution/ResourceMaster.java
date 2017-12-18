@@ -32,19 +32,30 @@ public class ResourceMaster {
 	}
 	
 	Object [] errs;
+	public void distributeCommand(String command) throws Exception {
+		talkServer.distributeCommand(command); 
+	}
 	
-	public Object [] run(Object [] tasks, Object cm) throws Exception {
+	public void distributeTasks(Object [] tasks) throws Exception {
 		if (tasks != null) {
 			talkServer.distributeCommand(TaskCommand);
 //			talkServer.distributeObjects(tasks);
 			talkServer.distributeObjectsAsc(null, tasks);
-		}		
+		}
+	}
+	
+	public void distributeSubject(Object cm) throws Exception {
 		if (cm != null) {
 			talkServer.distributeCommand(SubjectCommand); 
 //			Fs.writeObj2FileWithTs("D:\\6.workspace\\ANN\\ANN.cfg", cm);
 //			talkServer.distributeObject(cm);
 			talkServer.distributeObjectsAsc(cm, null);
-		}		
+		}
+	}
+	
+	public Object [] run(Object [] tasks, Object cm) throws Exception {
+		distributeTasks(tasks);		
+		distributeSubject(cm);		
 		 
 		talkServer.distributeCommand(TrainCommand);
 		talkServer.distributeCommand(CollectSubjectCommand);

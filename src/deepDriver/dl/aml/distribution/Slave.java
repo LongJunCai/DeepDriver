@@ -25,9 +25,15 @@ public abstract class Slave {
 				talkClient.sendObj(getLocalSubject());
 			} else if (Master.CollectErrorCommand.equals(command)) {				
 				talkClient.sendObj(getError());
-			} 
+			} else {
+				handleOthers(command);
+			}
 			currentCommand = command;
 		}
+	}
+	
+	public void handleOthers(String command) throws Exception {
+		
 	}
 	
 	public abstract void setTask(Object obj) throws Exception;

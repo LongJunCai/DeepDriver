@@ -7,38 +7,25 @@ import deepDriver.dl.aml.distribution.Error;
 import deepDriver.dl.aml.distribution.Slave;
 import deepDriver.dl.aml.dnn.DNN;
 
-public class DNNSlave extends Slave {
+public class ANNSlave extends Slave {
 	
 	InputParameters parameters;
-	InputParameters preIp;
 	ArtifactNeuroNetwork ann;
 	
-	final static int preTraining = 1;
-	final static int normal = 0;
-	int state = normal;
-	
-	double [][] newInput;
+	double [][] input;
 	@Override
 	public void setTask(Object obj) throws Exception {
-		System.out.println("batch size is: "+mb);		
-		if (preTraining == state) {
-			preIp = (InputParameters) obj;
+		System.out.println("batch size is: "+mb);
+		if (obj instanceof String) {
+			String ss = (String) obj;
+			if (DNNMaster.Task_caculateHiddenInputs.equalsIgnoreCase(ss)) {
+				if (dnn != null) {
+					input = dnn.caculateHiddenInputs(parameters.getInput());
+				}
+			}			
 		} else {
-			parameters = (InputParameters) obj; 
-		}
-	}
-	
-	public void handleOthers(String command) throws Exception {
-		if (DNNMaster.Task_caculateHiddenInputs.equals(command)) {
-			newInput = dnn.caculateHiddenInputs(parameters.getInput());
-		} else if (DNNMaster.Task_ExpendLayer.equals(command)) {
-//			newInput = dnn.caculateHiddenInputs(parameters.getInput());
-			dnn.expendLayerFromSAE(ann, getLayerNum(), dnn.getLastLayer());			
-		} else if (DNNMaster.Task_Pre_Training.equals(command)) {
-			state = preTraining;
-		} else if (DNNMaster.Task_FineTuning.equals(command)) {
-			state = normal;
-		} 
+			parameters = (InputParameters) obj;
+		}		
 	}
 	
 //	double [][] wWs1;
@@ -60,10 +47,6 @@ public class DNNSlave extends Slave {
 //		ann.trainModel(parameters);		
 		double [][] input = parameters.getInput();
 		double [][] result = ann.getResults(parameters);
-		if (state == preTraining) {//in this case, it is running in the pre-training mode.
-			input = newInput;
-			result = newInput;
-		}
 		err = 0; 
 		for (int i = 0; i < mb; i++) {	
 			if (pos > input.length - 1) {
