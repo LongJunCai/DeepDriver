@@ -21,7 +21,7 @@ public interface INeuroUnit {
 	
 	public void backPropagation(List<INeuroUnit> previousNeuros, List<INeuroUnit> nextNeuros, double [][] finalResult, InputParameters parameters);
 	
-	public void buildup(double [][] input, int position);
+	public void buildup(List<INeuroUnit> previousNeuros, double [][] input, int position);
 	
 	public void updateSelf();
 }

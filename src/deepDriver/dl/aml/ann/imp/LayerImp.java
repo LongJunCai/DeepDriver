@@ -107,7 +107,7 @@ public class LayerImp implements ILayer , Serializable {
 			for (int i = 0; i < neuroCount; i++) {
 //				NeuroUnitImp neuroUnitImp = new NeuroUnitImp();
 				NeuroUnitImp neuroUnitImp = new NeuroUnitImpV2(this);
-				neuroUnitImp.buildup(input, i);
+				neuroUnitImp.buildup(previousLayer.getNeuros(), input, i);
 				neuroUnitImp.setActivationFunction(acf);
 				neuros.add(neuroUnitImp); 
 			}			

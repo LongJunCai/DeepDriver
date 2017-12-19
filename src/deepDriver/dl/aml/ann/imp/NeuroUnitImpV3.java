@@ -201,8 +201,23 @@ public class NeuroUnitImpV3 extends NeuroUnitImpV2 implements Serializable {
 
 //	int position;
 	@Override
-	public void buildup(double[][] input, int position) {
+	public void buildup(List<INeuroUnit> previousNeuros, double[][] input, int position) {
 		this.position = position;
+		//It is risky to init the thetas here, if the input is very long.
+		if (previousNeuros == null) {
+			return;
+		}
+		if (thetas == null) {
+			this.thetas = new double[previousNeuros.size() + 1];
+			initTheta();
+		}		
+		this.aas = new double[input.length];
+		zzs = new double[input.length];
+		/**This should be done once**/
+		deltaZ = new double[aas.length];
+		if (deltaThetas == null) {
+			deltaThetas = new double[thetas.length];
+		}
 	}
 	
 //	double lamda = 0.00001;

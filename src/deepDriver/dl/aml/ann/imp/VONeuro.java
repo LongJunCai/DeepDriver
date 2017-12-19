@@ -45,7 +45,7 @@ public class VONeuro implements INeuroUnit ,Serializable {
 			double[][] finalResult, InputParameters parameters) {
 	}
 	@Override
-	public void buildup(double[][] input, int position) {
+	public void buildup(List<INeuroUnit> previousNeuros, double[][] input, int position) {
 		
 	}
 	@Override

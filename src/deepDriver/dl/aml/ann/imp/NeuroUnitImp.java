@@ -157,7 +157,7 @@ public class NeuroUnitImp implements INeuroUnit , Serializable {
 
 	protected int position;
 	@Override
-	public void buildup(double[][] input, int position) {
+	public void buildup(List<INeuroUnit> previousNeuros, double[][] input, int position) {
 		this.position = position;
 	}
 	

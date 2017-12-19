@@ -49,7 +49,7 @@ public class LayerImpV2 extends LayerImp implements Serializable {
 					vONeuro.setZzs(new double[input.length]);
 					vONeuro.setDeltaZ(new double[input.length]);
 					vONeuro.setActivationFunction(new FlatAcf());
-					vONeuro.buildup(input, j);
+					vONeuro.buildup(null, input, j);
 				} 
 				NeuroUnitImp vONeuro = (NeuroUnitImp) getNeuros().get(j);
 				if (vONeuro.getAas().length != input.length) {
@@ -330,7 +330,7 @@ public class LayerImpV2 extends LayerImp implements Serializable {
 		} else {					//input[0].length	
 			for (int i = 0; i < neuroCount; i++) {
 				NeuroUnitImp neuroUnitImp = createNeuroUnitImp();
-				neuroUnitImp.buildup(input, i);
+				neuroUnitImp.buildup(previousLayer.getNeuros(), input, i);
 				neuroUnitImp.setActivationFunction(acf);
 				getNeuros().add(neuroUnitImp); 
 			}			
