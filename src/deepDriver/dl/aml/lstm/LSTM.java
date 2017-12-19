@@ -83,6 +83,7 @@ public class LSTM {
 					+ ", and change rate is: " + changRate);
 			
 			save2File(cnt % 10 +"");
+//			testModel(qsi);
 			
 			long t1 = System.currentTimeMillis();
 			System.out.println(cfg.name + " costed: " + (t1 - st));
@@ -102,7 +103,7 @@ public class LSTM {
 	
 	long currentTimestamp = System.currentTimeMillis();
 	
-	private void save2File(String middleName) {
+	public void save2File(String middleName) {
 		String sf = System.getProperty("user.dir");		
 		File dir = new File(sf, "data");
 		dir.mkdirs();		
