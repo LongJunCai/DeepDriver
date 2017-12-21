@@ -145,6 +145,17 @@ public class ImgDataStream implements IDataStream {
 		}
 		System.out.println("sum: "+imgDataStream.sum+", "+cnt * 28 * 28);
 	}
+
+	@Override
+	public IDataStream[] splitStream(int segments) { 
+		return null;
+	}
+
+	@Override
+	public int splitCnt(int segments) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
 	
 	

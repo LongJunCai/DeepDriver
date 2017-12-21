@@ -1,12 +1,20 @@
 package deepDriver.dl.aml.cnn.img;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import deepDriver.dl.aml.cnn.DataMatrix;
 import deepDriver.dl.aml.cnn.IDataMatrix;
 import deepDriver.dl.aml.cnn.IDataStream;
 
-public class W2VDataStream implements IDataStream {
+public class W2VDataStream implements IDataStream, Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	CsvImgLoader imgLoader;
 	int cnt;
@@ -60,7 +68,17 @@ public class W2VDataStream implements IDataStream {
         this.fixedRow = fixedRow;
     }
 
-    public IDataMatrix constructIDataMatrix(String s, boolean h) {
+    int tOffset = 1;//-1 by default
+    
+    public int gettOffset() {
+		return tOffset;
+	}
+
+	public void settOffset(int tOffset) {
+		this.tOffset = tOffset;
+	}
+
+	public IDataMatrix constructIDataMatrix(String s, boolean h) {
 		DataMatrix dataMatrix = new DataMatrix();
 		String [] arr = s.split(splitter);
 		double [] ta = new double[tLength];
@@ -68,7 +86,7 @@ public class W2VDataStream implements IDataStream {
 		int ml = 0;
 		if (h) {
 			int t = Integer.parseInt(arr[cnt ++]);
-			ta[t - 1] = 1;
+			ta[t + tOffset] = 1;
 //			ml = (int) Math.sqrt(arr.length - 1);
 			dataMatrix.setTarget(ta);
 		} else {
@@ -147,6 +165,36 @@ public class W2VDataStream implements IDataStream {
 			}
 		}
 		System.out.println("sum: "+", "+ cnt );
+	}
+
+	@Override
+	public IDataStream[] splitStream(int segments) { 
+		IDataStream [] iss = new IDataStream[segments];
+		List<String> list = imgLoader.getImgs();
+		int len = list.size()/segments;
+		for (int i = 0; i < segments; i++) {
+			CsvImgLoader nci = new CsvImgLoader();
+			nci.setHeader(imgLoader.isHeader());
+			nci.header = imgLoader.header;
+			List<String> al = new ArrayList<String>();
+			int tlen = len;
+			if (i == segments - 1) {
+				tlen = list.size() - (segments - 1) * len;
+			} 
+			int st = i * len;
+			for (int j = 0; j < tlen; j++) {
+				al.add(list.get(j + st));
+			}
+			nci.setImgs(al);
+			iss[i] = new W2VDataStream(nci, tLength, rLength);
+		}
+		
+		return iss;
+	}
+
+	@Override
+	public int splitCnt(int segments) { 
+		return imgLoader.getImgs().size()/segments;		  
 	}
 	
 	

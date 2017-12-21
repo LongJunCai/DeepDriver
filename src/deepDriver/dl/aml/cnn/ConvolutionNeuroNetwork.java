@@ -1,17 +1,30 @@
 package deepDriver.dl.aml.cnn;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.List;
 
+import deepDriver.dl.aml.cnn.distribution.CNNMaster;
 import deepDriver.dl.aml.cnn.test.SingleResult;
 import deepDriver.dl.aml.distribution.Fs;
 import deepDriver.dl.aml.lrate.BoldDriverLearningRateManager;
 
-public class ConvolutionNeuroNetwork {
+public class ConvolutionNeuroNetwork implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	CNNConfigurator cfg;
 	
-	
+	public CNNConfigurator getCfg() {
+		return cfg;
+	}
+
+	public void setCfg(CNNConfigurator cfg) {
+		this.cfg = cfg;
+	}
+
 	public boolean isDebug() {
 		return debug;
 	}
@@ -84,10 +97,22 @@ public class ConvolutionNeuroNetwork {
 	
 	boolean debug = false;
 	
+	CNNMaster cm = new CNNMaster();
 	public void train(IDataStream is, IDataStream tis) throws Exception {
 //		lrm.setErrSize(3); 
 //		lrm.setFlatThreshold(0.05);
-//		lrm.setDecreaseRate(0.1);
+//		lrm.setDecreaseRate(0.1);		
+		/*
+		 * 
+		 * **/
+		if (cm.isSetup()) {
+			cm.trainModel(is, tis, this);
+			System.out.println("CNN is running in the Distribution env.");
+			return;
+		}
+		/*
+		 * 
+		 * **/
 		if (cNNBP == null) {
 			cNNBP = createCNNBP();
 		}
@@ -231,8 +256,14 @@ public class ConvolutionNeuroNetwork {
 	}
 	
 	
-	
-	
+	public CNNBP getcNNBP() {
+		return cNNBP;
+	}
+
+	public void setcNNBP(CNNBP cNNBP) {
+		this.cNNBP = cNNBP;
+	}
+
 	public SingleResult predict(IDataStream tis) 
 	{
 	    SingleResult singleResult = new SingleResult();

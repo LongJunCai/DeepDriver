@@ -95,5 +95,16 @@ public class MnistDataStream implements IDataStream {
 		dataMatrix.setMatrix(m);
 		return dataMatrix;
 	}
+
+	@Override
+	public IDataStream[] splitStream(int segments) { 
+		return null;
+	}
+
+	@Override
+	public int splitCnt(int segments) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
 }

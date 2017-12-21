@@ -211,10 +211,14 @@ public class NeuroUnitImpV3 extends NeuroUnitImpV2 implements Serializable {
 			this.thetas = new double[previousNeuros.size() + 1];
 			initTheta();
 		}		
-		this.aas = new double[input.length];
-		zzs = new double[input.length];
-		/**This should be done once**/
-		deltaZ = new double[aas.length];
+		if (input != null) {
+			this.aas = new double[input.length];
+			zzs = new double[input.length];
+			/**This should be done once**/		
+			deltaZ = new double[aas.length];
+		}
+		
+		/**This should be done once**/		
 		if (deltaThetas == null) {
 			deltaThetas = new double[thetas.length];
 		}

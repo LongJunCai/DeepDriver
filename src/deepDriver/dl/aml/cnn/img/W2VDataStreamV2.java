@@ -180,6 +180,17 @@ public class W2VDataStreamV2 implements IDataStream {
 		}
 		System.out.println("sum: "+", "+ cnt );
 	}
+
+	@Override
+	public IDataStream[] splitStream(int segments) { 
+		return null;
+	}
+
+	@Override
+	public int splitCnt(int segments) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
 	
 	

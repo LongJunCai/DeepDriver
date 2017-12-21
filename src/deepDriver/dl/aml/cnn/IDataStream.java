@@ -1,6 +1,8 @@
 package deepDriver.dl.aml.cnn;
 
-public interface IDataStream {
+import java.io.Serializable;
+
+public interface IDataStream extends Serializable {
 	
 	public IDataMatrix next();
 	
@@ -9,4 +11,8 @@ public interface IDataStream {
 	public boolean hasNext();
 	
 	public boolean reset();
+	
+	public IDataStream [] splitStream(int segments);
+	
+	public int splitCnt(int segments);
 }

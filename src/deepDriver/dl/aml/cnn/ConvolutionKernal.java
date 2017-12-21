@@ -14,7 +14,7 @@ public class ConvolutionKernal implements IConvolutionKernal, Serializable {
 	
 	double [][] detalwWs;
 	double deltab;
-	transient boolean [][] initDeltaZzs;
+	boolean [][] initDeltaZzs;
 	boolean initB;
 	
 	

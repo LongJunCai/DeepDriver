@@ -98,6 +98,14 @@ public class CNNConfigurator implements Serializable {
 
 	public void setLayers(ICNNLayer[] layers) {
 		this.layers = layers;
+	}
+
+	public double getAcc() {
+		return acc;
+	}
+
+	public void setAcc(double acc) {
+		this.acc = acc;
 	}	
 
 }

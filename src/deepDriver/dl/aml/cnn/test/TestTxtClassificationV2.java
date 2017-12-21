@@ -13,6 +13,9 @@ import deepDriver.dl.aml.cnn.LeakyReLU;
 import deepDriver.dl.aml.cnn.img.CsvImgLoader;
 import deepDriver.dl.aml.cnn.img.ImgDataStream;
 import deepDriver.dl.aml.cnn.img.W2VDataStream;
+import deepDriver.dl.aml.distribution.DistributionEnvCfg;
+import deepDriver.dl.aml.distribution.P2PServer;
+import deepDriver.dl.aml.distribution.ResourceMaster;
 
 public class TestTxtClassificationV2 {
 	
@@ -28,10 +31,14 @@ public class TestTxtClassificationV2 {
 		trainingDs.setFixedRow(fixedRow);
 		
 		System.out.println("Load testing file from "+ tfile);
-        CsvImgLoader tw2vLoader = new CsvImgLoader();
-        tw2vLoader.loadImg(tfile);
-        W2VDataStream testDs = new W2VDataStream(tw2vLoader, kLength, 200);
-        testDs.setFixedRow(fixedRow);
+		W2VDataStream testDs = null;
+		if (tfile != null) {
+			CsvImgLoader tw2vLoader = new CsvImgLoader();
+			tw2vLoader.loadImg(tfile);
+			testDs = new W2VDataStream(tw2vLoader, kLength, 200);
+			testDs.setFixedRow(fixedRow);
+		}
+       
         
 		CNNConfigurator cnnCfg = new CNNConfigurator(); 
 		cnnCfg.setL(0.001);
@@ -142,9 +149,19 @@ public class TestTxtClassificationV2 {
 	
 	public static void main(String[] args) throws Exception 
 	{
+		
+		DistributionEnvCfg.getCfg().set(P2PServer.KEY_SRV_PORT, 8034);
+//		DistributionEnvCfg.getCfg().set(P2PServer.KEY_SRV_HOST, "127.0.0.1");
+		ResourceMaster rm = ResourceMaster.getInstance();
+		if (args != null && args.length > 2) {
+			rm.setup(Integer.parseInt(args[0]));
+		} else {
+			rm.setup(4);
+		}
+		
 	    TestTxtClassificationV2 testTxtClassification = new TestTxtClassificationV2();
 
-        String sf = "E:\\models\\CNN\\";
+        String sf = "D:\\yk.workspace\\p.NLP";
 
         File fsf = new File(sf);
         if (!fsf.exists()) {            
@@ -153,7 +170,8 @@ public class TestTxtClassificationV2 {
         File dir = new File(sf, "sentiment3.0");
         dir.mkdirs();
 
-        testTxtClassification.train(dir.getAbsolutePath()+"\\test2.csv", dir.getAbsolutePath()+"\\test2.csv");
+        testTxtClassification.train(dir.getAbsolutePath()+"\\vectors-train-33300-20171205-seg.txt", 
+        		null);
         
 //        testTxtClassification.test(dir.getAbsolutePath()+"\\cnnCfg_hwr-dropout0.12-400.m",
 //                dir.getAbsolutePath()+"\\train-new-2.csv", 

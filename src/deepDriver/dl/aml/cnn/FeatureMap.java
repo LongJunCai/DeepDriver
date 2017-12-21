@@ -19,7 +19,7 @@ public class FeatureMap implements IFeatureMap, Serializable {
 	ICNNLayer currentLayer;
 	
 //	static transient Random random = new Random(System.currentTimeMillis());
-	transient Random random = RandomFactory.getRandom();
+	Random random = RandomFactory.getRandom();
 	
 	int ckRows;
 	int ckColumns;

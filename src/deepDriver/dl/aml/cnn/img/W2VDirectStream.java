@@ -53,4 +53,15 @@ public class W2VDirectStream implements IDataStream {
 		return null;
 	}
 
+	@Override
+	public IDataStream[] splitStream(int segments) { 
+		return null;
+	}
+
+	@Override
+	public int splitCnt(int segments) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

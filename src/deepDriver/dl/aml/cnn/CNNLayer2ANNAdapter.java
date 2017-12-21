@@ -84,7 +84,10 @@ public class CNNLayer2ANNAdapter implements ICNNLayer, Serializable {
 	public ICNNLayer getPreviousLayer() {
 		return previousLayer;
 	}
-	
-	
-
+	public LayerImpV2 getLayerImpV2() {
+		return layerImpV2;
+	}
+	public void setLayerImpV2(LayerImpV2 layerImpV2) {
+		this.layerImpV2 = layerImpV2;
+	} 
 }

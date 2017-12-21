@@ -1,10 +1,15 @@
 package deepDriver.dl.aml.lrate;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BoldDriverLearningRateManager implements LearningRateManager {
+public class BoldDriverLearningRateManager implements LearningRateManager, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	double increaseRate = 1.05;
 	double decreaseRate = 2.0/3.0;
 	
