@@ -1,4 +1,4 @@
-package deepDriver.dl.aml.cnn.distribution;
+package deepDriver.dl.aml.lstm.distribution;
 
 import deepDriver.dl.aml.cnn.CNNParaMerger;
 import deepDriver.dl.aml.cnn.ConvolutionNeuroNetwork;
@@ -7,7 +7,7 @@ import deepDriver.dl.aml.cnn.IDataStream;
 import deepDriver.dl.aml.distribution.Error;
 import deepDriver.dl.aml.distribution.Slave;
 
-public class CNNSlave extends Slave {
+public class LSTMSlave extends Slave {
 	
 	ConvolutionNeuroNetwork cnn;
 	static int mb = 1024;

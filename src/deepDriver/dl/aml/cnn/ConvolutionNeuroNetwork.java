@@ -185,6 +185,10 @@ public class ConvolutionNeuroNetwork implements Serializable {
 		this.cfg = (CNNConfigurator) Fs.readObjFromFile(file);
 	}
 	
+	public void readCfg(CNNConfigurator cfg) throws Exception {
+		this.cfg = cfg;
+	}
+	
 	
 	public boolean check(double [] ta, double [] tb) {
 		if (getMaxPos(ta) == getMaxPos(tb)) {
