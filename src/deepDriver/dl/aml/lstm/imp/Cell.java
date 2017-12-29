@@ -12,11 +12,16 @@ public class Cell extends RNNNeuroVo implements ICell, Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	transient double [] sc;	
-	transient double [] deltaSc;
+//	transient double [] sc;	
+//	transient double [] deltaSc;
+//	
+//	transient double [] cZz;
+//	transient double [] deltaC;	
+	double [] sc;	
+	double [] deltaSc;
 	
-	transient double [] cZz;
-	transient double [] deltaC;	
+	double [] cZz;
+	double [] deltaC;	
 
 	public Cell(int t, boolean inHidenLayer, int previousNNN, int layerNN, int blockNN, int nextLayerNN,
 			LayerCfg lc) {

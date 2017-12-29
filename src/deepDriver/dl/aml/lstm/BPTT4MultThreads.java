@@ -7,6 +7,10 @@ import deepDriver.dl.aml.lstm.imp.Block;
 
 public class BPTT4MultThreads extends BPTT {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	ThreadParallel threadParallel;
 
 	public BPTT4MultThreads(LSTMConfigurator cfg) {

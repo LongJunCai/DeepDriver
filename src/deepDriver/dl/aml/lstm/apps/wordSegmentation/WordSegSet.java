@@ -5,12 +5,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WordSegSet {
+public class WordSegSet implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	List<WordSegment> scentences = new ArrayList<WordSegment>();
 	
@@ -18,6 +24,31 @@ public class WordSegSet {
 	Map<Integer, String> intMap = new HashMap<Integer, String>();
 	
 	Map<String, Integer> cntMap = new HashMap<String, Integer>();
+	
+	public Map<String, Integer> getStrMap() {
+		return strMap;
+	}
+
+	public void setStrMap(Map<String, Integer> strMap) {
+		this.strMap = strMap;
+	}
+
+	public Map<Integer, String> getIntMap() {
+		return intMap;
+	}
+
+	public void setIntMap(Map<Integer, String> intMap) {
+		this.intMap = intMap;
+	}
+
+	public Map<String, Integer> getCntMap() {
+		return cntMap;
+	}
+
+	public void setCntMap(Map<String, Integer> cntMap) {
+		this.cntMap = cntMap;
+	}
+
 	boolean useParser = false;
 	int wordNum = 0;
 	int maxLength = 40;

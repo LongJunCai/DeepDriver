@@ -26,7 +26,8 @@ public class RNNNeuroVo implements IRNNNeuroVo, Serializable {
 	double [] deltaWwas;
 	double [] ldWwas;
 	
-	transient SimpleNeuroVo [] neuroVos;
+//	transient SimpleNeuroVo [] neuroVos;
+	SimpleNeuroVo [] neuroVos;
 	int t;
 	boolean inHidenLayer;
 	int previousNNN;

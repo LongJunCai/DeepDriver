@@ -1,6 +1,5 @@
 package deepDriver.dl.aml.lstm;
 
-
 public interface IStream {
 	
 	public void reset();
@@ -22,5 +21,9 @@ public interface IStream {
 	public Object getPos();
 	
 	public void next(Object pos);
+
+	public IStream[] splitStream(int cnt);
+
+	public int splitCnt(int cnt);
 	
 }

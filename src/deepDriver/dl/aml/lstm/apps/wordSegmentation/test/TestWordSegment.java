@@ -1,5 +1,8 @@
 package deepDriver.dl.aml.lstm.apps.wordSegmentation.test;
 
+import deepDriver.dl.aml.distribution.DistributionEnvCfg;
+import deepDriver.dl.aml.distribution.P2PServer;
+import deepDriver.dl.aml.distribution.ResourceMaster;
 import deepDriver.dl.aml.lrate.StepReductionLR;
 import deepDriver.dl.aml.lstm.LSTM;
 import deepDriver.dl.aml.lstm.LSTMConfigurator;
@@ -14,6 +17,16 @@ public class TestWordSegment {
 	static int testA = 2;
 	
 	public static void main(String[] args) throws Exception {
+		
+		DistributionEnvCfg.getCfg().set(P2PServer.KEY_SRV_PORT, 8034);
+//		DistributionEnvCfg.getCfg().set(P2PServer.KEY_SRV_HOST, "127.0.0.1");
+		ResourceMaster rm = ResourceMaster.getInstance();
+		if (args != null && args.length > 2) {
+			rm.setup(Integer.parseInt(args[0]));
+		} else {
+			rm.setup(4);
+		}
+		
 		WordSegSet wss = new WordSegSet();
 		wss.loadWordSegSet("D:\\6.workspace\\p.NLP\\train.conll");
 		

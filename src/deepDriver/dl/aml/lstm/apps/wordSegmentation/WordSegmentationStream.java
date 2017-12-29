@@ -1,12 +1,18 @@
 package deepDriver.dl.aml.lstm.apps.wordSegmentation;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import deepDriver.dl.aml.lstm.IStream;
 
-public class WordSegmentationStream implements IStream {
+public class WordSegmentationStream implements IStream, Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	WordSegSet wss;	
 	int segmentType = 4;
@@ -132,6 +138,40 @@ public class WordSegmentationStream implements IStream {
 			}
 		}
 		
+	}
+
+	@Override
+	public IStream[] splitStream(int cnt) { 
+		WordSegmentationStream [] iss = new WordSegmentationStream[cnt];
+		int slen =(int)((double)(wss.getScentences().size())/(double)cnt);
+		List<WordSegment> wslist = wss.getScentences();
+		for (int i = 0; i < iss.length; i++) {
+			WordSegSet wss1 = new WordSegSet();
+			wss1.setCntMap(wss.getCntMap());
+			wss1.setIntMap(wss.getIntMap());
+			wss1.setStrMap(wss.getStrMap());
+			wss1.setCnt(wss.getCnt());
+//			List<WordSegment> wslist1 = wss1.getScentences();
+			List<WordSegment> al = new ArrayList<WordSegment>();
+			int l = slen;
+			int s = i * slen;
+			if (i == iss.length - 1) {
+				l = wss.getScentences().size() - i * slen;
+			}
+			for (int j = 0; j < l; j++) {
+				al.add(wslist.get(s + j));
+			}
+			wss1.setScentences(al);
+			iss[i] = new WordSegmentationStream(wss1);
+		}
+		
+		return iss;
+	}
+
+	@Override
+	public int splitCnt(int cnt) {
+		int slen =(int)((double)(wss.getScentences().size())/(double)cnt);
+		return slen;
 	}
 
 }

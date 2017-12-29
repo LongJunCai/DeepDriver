@@ -1,28 +1,27 @@
 package deepDriver.dl.aml.lstm.distribution;
 
-import deepDriver.dl.aml.cnn.CNNParaMerger;
-import deepDriver.dl.aml.cnn.ConvolutionNeuroNetwork;
-import deepDriver.dl.aml.cnn.IDataMatrix;
-import deepDriver.dl.aml.cnn.IDataStream;
 import deepDriver.dl.aml.distribution.Error;
 import deepDriver.dl.aml.distribution.Slave;
+import deepDriver.dl.aml.lstm.IStream;
+import deepDriver.dl.aml.lstm.LSTM;
+import deepDriver.dl.aml.lstm.LSTMWwArrayTranslator;
 
 public class LSTMSlave extends Slave {
 	
-	ConvolutionNeuroNetwork cnn;
+	LSTM lstm;
 	static int mb = 1024;
-	IDataStream is;
+	IStream is;
 	@Override
 	public void setTask(Object obj) throws Exception {
-		is = (IDataStream) obj;
+		is = (IStream) obj;
 	}
 
 	double err = 0;
 	Error error = new Error();
 	@Override
 	public void trainLocal() throws Exception {
-		if (cnn.getcNNBP() == null) {
-			cnn.setcNNBP(cnn.createCNNBP()); 
+		if (lstm.getbPTT() == null) {
+			lstm.setbPTT(lstm.createBPTT()); 
 		}
 		
 		err = 0;
@@ -30,12 +29,10 @@ public class LSTMSlave extends Slave {
 			if (is.hasNext()) {
 				is.reset();
 			}
-			IDataMatrix dm = is.next();
-			if (dm == null) {
-				continue;
-			}
-			cnn.getcNNBP().runTrainEpich(new IDataMatrix[] { dm }, dm.getTarget());
-			err = err + cnn.getcNNBP().getStdError();
+			is.next(); 
+			err = err + lstm.runEpich(is.getSampleTT(), is.getTarget());
+//			cnn.getcNNBP().runTrainEpich(new IDataMatrix[] { dm }, dm.getTarget());
+//			err = err + cnn.getcNNBP().getStdError();
 			
 		}
 	}
@@ -48,23 +45,24 @@ public class LSTMSlave extends Slave {
 
 	@Override
 	public void setSubject(Object obj) {
-		if (obj instanceof ConvolutionNeuroNetwork) {
-			cnn = (ConvolutionNeuroNetwork) obj;
+		if (obj instanceof LSTM) {
+			lstm = (LSTM) obj;
 		} else {
 			swWs = (double [][]) obj;
-			cnnMerger.merge(cnn, wWs, true);
+//			cnnMerger.merge(cnn, swWs, true);
+			translator.update(lstm.getCfg(), swWs, true);
 		}	
 	}
 	
-	CNNParaMerger cnnMerger = new CNNParaMerger();
+	LSTMWwArrayTranslator translator = new LSTMWwArrayTranslator();
 	double [][] wWs;
 	double [][] swWs;
 	@Override
 	public Object getLocalSubject() {
 		if (wWs == null) {			
 		}
-		wWs = new double[cnn.getCfg().getLayers().length][];
-		cnnMerger.merge(cnn, wWs, false);
+		wWs = new double[lstm.getCfg().getLayers().length][];
+		translator.update(lstm.getCfg(), wWs, false);
 		return wWs;
 	}
 

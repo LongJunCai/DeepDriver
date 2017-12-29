@@ -1,7 +1,13 @@
 package deepDriver.dl.aml.lstm;
 
-public class GradientNormalizer implements IRNNLayerVisitor {
+import java.io.Serializable;
+
+public class GradientNormalizer implements IRNNLayerVisitor, Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	int CaculateNorm = 1;
 	int NormGradient = 2;
 	int currentState = CaculateNorm;

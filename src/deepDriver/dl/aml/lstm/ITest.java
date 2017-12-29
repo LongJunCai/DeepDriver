@@ -1,6 +1,8 @@
 package deepDriver.dl.aml.lstm;
 
-public interface ITest {
+import java.io.Serializable;
+
+public interface ITest extends Serializable {
 	
 	public void test() throws Exception;
 

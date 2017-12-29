@@ -52,7 +52,7 @@ public class CNNSlave extends Slave {
 			cnn = (ConvolutionNeuroNetwork) obj;
 		} else {
 			swWs = (double [][]) obj;
-			cnnMerger.merge(cnn, wWs, true);
+			cnnMerger.merge(cnn, swWs, true);
 		}	
 	}
 	

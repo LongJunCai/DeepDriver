@@ -1,6 +1,7 @@
 package deepDriver.dl.aml.lstm;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Random;
 
@@ -8,9 +9,15 @@ import deepDriver.dl.aml.distribution.Fs;
 import deepDriver.dl.aml.lstm.beamSearch.BeamLayer;
 import deepDriver.dl.aml.lstm.beamSearch.BeamNode;
 import deepDriver.dl.aml.lstm.beamSearch.BeamSearch;
+import deepDriver.dl.aml.lstm.distribution.LSTMMaster;
 
-public class LSTM {
+public class LSTM implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	LSTMConfigurator cfg;
 	public void setCfg(LSTMConfigurator cfg) {
 		this.cfg = cfg;
@@ -19,6 +26,11 @@ public class LSTM {
 		}		
 	}
 	
+	
+	public LSTMConfigurator getCfg() {
+		return cfg;
+	}
+
 	public void rebuild(LSTMConfigurator cfg) {
 		this.cfg = cfg; 
 		this.bPTT = createBPTT();
@@ -32,6 +44,14 @@ public class LSTM {
 	IStream is;
 	
 	ITest phaseTest;	
+
+	public BPTT getbPTT() {
+		return bPTT;
+	}
+	
+	public void setbPTT(BPTT bPTT) {
+		this.bPTT = bPTT;
+	}
 
 	public ITest getPhaseTest() {
 		return phaseTest;
@@ -47,7 +67,18 @@ public class LSTM {
 		trainModel(is, false);
 	}
 
+	LSTMMaster lstmMaster = null;
 	public void trainModel(IStream is, boolean skip) {
+		if (lstmMaster == null) {
+			lstmMaster = new LSTMMaster();
+		}
+		if (lstmMaster.isSetup()) {
+			lstmMaster.trainModel(is, null, this);
+			System.out.println("LSTM is running in the distribution env.");
+			return;
+		}
+		System.out.println("LSTM is running in the standalone env.");
+		
 		double lastError = 0;		
 		this.is = is;		
 		bPTT = createBPTT();
@@ -68,7 +99,7 @@ public class LSTM {
 				break;
 			}
 			System.out.println(cfg.name + " the " + (cnt + 1) + " round starts:");
-			double error = runEpich();
+			double error = runEpich(is);
 			if (cnt > 0 && error > lastError) {
 				if (isM) {
 					cfg.m = cfg.m / 3.0 * 2.0;
@@ -145,7 +176,8 @@ public class LSTM {
 	}
 	
 	public double trainModelWithBatchSize(IStream is) {
-		if (this.is != is) {				
+		if (this.is != is) {	
+//		if (is != null) {
 			this.is = is;		
 			bPTT = createBPTT();					
 			is.reset();
@@ -185,7 +217,7 @@ public class LSTM {
 	double lastError = 0;
 	boolean isM = false; 
 	public double trainModelWithBatchSize2(IStream is) {
-		if (this.is != is) {				
+		if (is != this.is) {				
 			this.is = is;		
 			bPTT = createBPTT();			
 			long st = System.currentTimeMillis();
@@ -273,7 +305,7 @@ public class LSTM {
 		this.bPTT.setDzZs4TopLayer(dzZs4TopLayer);
 	}
 	
-	public double runEpich() {
+	public double runEpich(IStream is) {
 		double error = 0;
 		int cnt = 0;
 		is.reset();
@@ -318,7 +350,15 @@ public class LSTM {
 	}
 
 	BPTT bPTT = null;
-	Object lockObj = new Object();
+	class Lock implements Serializable {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+	}
+	Object lockObj = new Lock();
 
 	public double runEpich(double[][] sample, double[][] targets) {
 		if (cfg.preCxtProvider != null) {

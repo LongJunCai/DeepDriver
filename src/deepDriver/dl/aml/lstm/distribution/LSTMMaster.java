@@ -2,11 +2,11 @@ package deepDriver.dl.aml.lstm.distribution;
 
 import java.io.Serializable;
 
-import deepDriver.dl.aml.cnn.CNNParaMerger;
-import deepDriver.dl.aml.cnn.ConvolutionNeuroNetwork;
-import deepDriver.dl.aml.cnn.IDataStream;
 import deepDriver.dl.aml.distribution.Error;
 import deepDriver.dl.aml.distribution.ResourceMaster;
+import deepDriver.dl.aml.lstm.IStream;
+import deepDriver.dl.aml.lstm.LSTM;
+import deepDriver.dl.aml.lstm.LSTMWwArrayTranslator;
 
 public class LSTMMaster implements Serializable {
 	
@@ -19,15 +19,15 @@ public class LSTMMaster implements Serializable {
 		return ResourceMaster.getInstance().isSetup();
 	}
 	
-	public void trainModel(IDataStream is, IDataStream tis, ConvolutionNeuroNetwork cnn) {
+	public void trainModel(IStream is, IStream tis, LSTM lstm) {
 		ResourceMaster rm = ResourceMaster.getInstance();
 		int cnt = rm.getClientsNum();
-		IDataStream [] ids = is.splitStream(cnt); 
+		IStream [] ids = is.splitStream(cnt); 
 		int nilen = is.splitCnt(cnt);
 		double [][] wWs = null;
 		double err = 0;
 		boolean firstDist = true;		
-		double acc = cnn.getCfg().getAcc();
+		double acc = lstm.getCfg().getAccuracy();
 		int i = 0;
 		int loop = 0;
 		while (firstDist || err > acc) {
@@ -37,7 +37,7 @@ public class LSTMMaster implements Serializable {
 				Object[] objs = null;
 				try {
 					if (firstDist) {
-						objs = rm.run(ids, cnn);
+						objs = rm.run(ids, lstm);
 						firstDist = false;
 					} else {
 						objs = rm.run(null, wWs);
@@ -65,9 +65,10 @@ public class LSTMMaster implements Serializable {
 				break;				
 			}
 			System.out.println("Iteration "+(i++)+", error is " + err/(double)(nilen * cnt));
-			cnnMerger.merge(cnn, wWs, true);
+//			cnnMerger.merge(lstm, wWs, true);
+			translator.update(lstm.getCfg(), wWs, true);
 			try {
-				cnn.saveCfg2File(cnn.getCfg().getName() + "-"+ loop, cnn.getCfg());
+				lstm.save2File(lstm.getCfg().getName() + "-"+ loop);
 			} catch (Exception e) { 
 				e.printStackTrace();
 			} 
@@ -76,7 +77,7 @@ public class LSTMMaster implements Serializable {
 		
 	}
 	
-	CNNParaMerger cnnMerger = new CNNParaMerger();	
+	LSTMWwArrayTranslator translator = new LSTMWwArrayTranslator();
 	public void copy2Matrix(double [][] source, double [][] copy2, double len) {
 		for (int i = 0; i < copy2.length; i++) {
 			if (source[i] == null) {

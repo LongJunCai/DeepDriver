@@ -165,4 +165,16 @@ public class WordSegWindowStream implements IStream {
 		
 	}
 
+	@Override
+	public IStream[] splitStream(int cnt) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int splitCnt(int cnt) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

@@ -1,5 +1,6 @@
 package deepDriver.dl.aml.lstm;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -11,8 +12,12 @@ import deepDriver.dl.aml.ann.imp.LogicsticsActivationFunction;
 import deepDriver.dl.aml.lstm.imp.Block;
 import deepDriver.dl.aml.lstm.imp.TanhAf;
 
-public class BPTT implements IBPTT {
+public class BPTT implements IBPTT,Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	LSTMConfigurator cfg;	
 	int firstLstmPos = 1;
 	

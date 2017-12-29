@@ -1,6 +1,12 @@
 package deepDriver.dl.aml.lstm.apps.wordSegmentation;
 
-public class WordSegment {
+import java.io.Serializable;
+
+public class WordSegment implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	String [] words; 
 	int [] wordsInt;
 	

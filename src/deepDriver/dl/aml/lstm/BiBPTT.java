@@ -2,6 +2,11 @@ package deepDriver.dl.aml.lstm;
 
 public class BiBPTT extends BPTT4MultThreads { 
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	//assume all the lstm layers are BiLstmLayer
 	public BiBPTT(LSTMConfigurator cfg) {
 		super(cfg);
