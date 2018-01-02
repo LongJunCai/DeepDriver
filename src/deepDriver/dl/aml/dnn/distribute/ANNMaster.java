@@ -4,8 +4,10 @@ import java.io.Serializable;
 
 import deepDriver.dl.aml.ann.ArtifactNeuroNetwork;
 import deepDriver.dl.aml.ann.InputParameters;
+import deepDriver.dl.aml.common.distribution.CommonSlave;
 import deepDriver.dl.aml.distribution.Error;
 import deepDriver.dl.aml.distribution.ResourceMaster;
+import deepDriver.dl.aml.lstm.distribution.LSTMSlave;
 
 public class ANNMaster implements Serializable {
 	
@@ -27,6 +29,14 @@ public class ANNMaster implements Serializable {
 		double [][] wWs = null;
 		double err = 0;
 		boolean firstDist = true;
+		
+		try {
+			System.out.println("Distribute model name");
+			rm.distributeCommand(CommonSlave.CMODEL_SLAVE+"="+ANNSlave.class.getName());
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		
 		for (int i = 0; i < parameters.getIterationNum(); i++) {
 			err = 0;			
 			for (int k = 0; k < nilen/DNNSlave.mb + 1; k++) {

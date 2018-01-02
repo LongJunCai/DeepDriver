@@ -3,6 +3,8 @@ package deepDriver.dl.aml.dnn.distribute;
 import java.io.Serializable;
 
 import deepDriver.dl.aml.ann.InputParameters;
+import deepDriver.dl.aml.cnn.distribution.CNNSlave;
+import deepDriver.dl.aml.common.distribution.CommonSlave;
 import deepDriver.dl.aml.distribution.ResourceMaster;
 import deepDriver.dl.aml.dnn.DNN;
 
@@ -13,7 +15,17 @@ public class DNNMaster implements Serializable {
 	public static String  Task_FineTuning = "Task_FineTuning";
 	
 	public boolean isSetup() {
-		return ResourceMaster.getInstance().isSetup();
+		ResourceMaster rm = ResourceMaster.getInstance();
+		boolean setup = ResourceMaster.getInstance().isSetup();
+		if (setup) {
+			try {
+				System.out.println("Distribute model name");
+				rm.distributeCommand(CommonSlave.CMODEL_SLAVE+"="+DNNSlave.class.getName());
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		}
+		return setup;
 	}
 	
 	private static final long serialVersionUID = 1L;

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import deepDriver.dl.aml.cnn.CNNParaMerger;
 import deepDriver.dl.aml.cnn.ConvolutionNeuroNetwork;
 import deepDriver.dl.aml.cnn.IDataStream;
+import deepDriver.dl.aml.common.distribution.CommonSlave;
 import deepDriver.dl.aml.distribution.Error;
 import deepDriver.dl.aml.distribution.ResourceMaster;
 
@@ -30,6 +31,12 @@ public class CNNMaster implements Serializable {
 		double acc = cnn.getCfg().getAcc();
 		int i = 0;
 		int loop = 0;
+		try {
+			System.out.println("Distribute model name");
+			rm.distributeCommand(CommonSlave.CMODEL_SLAVE+"="+CNNSlave.class.getName());
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 		while (firstDist || err > acc) {
 			err = 0;			
 			for (int k = 0; k < nilen/CNNSlave.mb + 1; k++) {

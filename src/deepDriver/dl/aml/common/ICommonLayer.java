@@ -1,5 +1,12 @@
 package deepDriver.dl.aml.common;
 
-public interface ICommonLayer {
+import deepDriver.dl.aml.costFunction.ICostFunction;
 
+public interface ICommonLayer {
+	
+	public void setICostFunction(ICostFunction cf);
+	
+	public ICostFunction getICostFunction();
+	
+	
 }

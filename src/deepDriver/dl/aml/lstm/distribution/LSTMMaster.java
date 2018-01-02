@@ -2,6 +2,7 @@ package deepDriver.dl.aml.lstm.distribution;
 
 import java.io.Serializable;
 
+import deepDriver.dl.aml.common.distribution.CommonSlave;
 import deepDriver.dl.aml.distribution.Error;
 import deepDriver.dl.aml.distribution.ResourceMaster;
 import deepDriver.dl.aml.lstm.IStream;
@@ -30,6 +31,12 @@ public class LSTMMaster implements Serializable {
 		double acc = lstm.getCfg().getAccuracy();
 		int i = 0;
 		int loop = 0;
+		try {
+			System.out.println("Distribute model name");
+			rm.distributeCommand(CommonSlave.CMODEL_SLAVE+"="+LSTMSlave.class.getName());
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 		while (firstDist || err > acc) {
 			err = 0;			
 			for (int k = 0; k < nilen/LSTMSlave.mb + 1; k++) {
