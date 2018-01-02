@@ -47,7 +47,7 @@ public class ImgDataStream implements IDataStream {
 	
 	Random  rd = new Random(System.currentTimeMillis());
 	@Override
-	public IDataMatrix next() {
+	public IDataMatrix [] next() {
 		cnt++;
 //		double l = imgLoader.imgs.size();
 		double l = imgLoader.size();
@@ -57,13 +57,13 @@ public class ImgDataStream implements IDataStream {
 		}
 //		String s = imgLoader.imgs.get(ri);
 //		return constructIDataMatrix(s, imgLoader.header.startsWith(label));
-		return getIDataMatrix(ri);
+		return new IDataMatrix [] {getIDataMatrix(ri)};
 	}
 	
-	public IDataMatrix next(Object pos) {
+	public IDataMatrix [] next(Object pos) {
 		cnt++;
 		int ri  = (Integer) pos;
-		return getIDataMatrix(ri);
+		return new IDataMatrix [] {getIDataMatrix(ri)};
 	}
 	
 	double sum;

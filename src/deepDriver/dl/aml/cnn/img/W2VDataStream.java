@@ -32,7 +32,7 @@ public class W2VDataStream implements IDataStream, Serializable {
 	Random  rd = new Random(System.currentTimeMillis());
 	
 	@Override
-	public IDataMatrix next() {
+	public IDataMatrix [] next() {
 		cnt++;
 		double l = imgLoader.getImgs().size();
 		int ri  = (int) (rd.nextDouble() * l);
@@ -44,14 +44,14 @@ public class W2VDataStream implements IDataStream, Serializable {
 		if (imgLoader.header != null) {
 		    hasHeader = imgLoader.header.startsWith(label);
         }
-		return constructIDataMatrix(s, hasHeader);
+		return new IDataMatrix [] {constructIDataMatrix(s, hasHeader)};
 	}
 	
-	public IDataMatrix next(Object pos) {
+	public IDataMatrix [] next(Object pos) {
 		cnt++;
 		int ri = (Integer) pos;
 		String s = imgLoader.get(ri);
-		return constructIDataMatrix(s, imgLoader.header.startsWith(label));
+		return new IDataMatrix [] {constructIDataMatrix(s, imgLoader.header.startsWith(label))};
 	}
 	
 	int rLength;

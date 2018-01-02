@@ -124,14 +124,14 @@ public class ConvolutionNeuroNetwork implements Serializable {
 			int cnt = 0;
 			int correctCnt = 0;
 			while (is.hasNext()) {				
-				IDataMatrix dm = is.next();
+				IDataMatrix [] dm = is.next();
 				if (dm == null) {
                     continue;
                 }
-				cNNBP.runTrainEpich(new IDataMatrix[]{dm}, dm.getTarget());
+				cNNBP.runTrainEpich(dm, dm[MatrixTargetIndex].getTarget());//this is strongly assumption.
 				error = error + cNNBP.getStdError();
 				double [] results = cNNBP.getResult();
-				if (check(results, dm.getTarget())) {
+				if (check(results, dm[MatrixTargetIndex].getTarget())) {
 					correctCnt ++;				
 				}
 				cnt ++;
@@ -219,6 +219,7 @@ public class ConvolutionNeuroNetwork implements Serializable {
 		
 	}
 	
+	public static int MatrixTargetIndex = 0; 
 	 
 	public void test(IDataStream tis) {
 		if (tis == null) {
@@ -233,19 +234,19 @@ public class ConvolutionNeuroNetwork implements Serializable {
 		int correctCnt = 0;
 		boolean verify = false;
 		while (tis.hasNext()) {				
-			IDataMatrix dm = tis.next();
+			IDataMatrix [] dm = tis.next();
 			if (dm == null) {
                 continue;
             }
-			double [] targets = cNNBP.test(new IDataMatrix[]{dm});
+			double [] targets = cNNBP.test(dm);
 			allCnt ++;
 			
 		//
-			dm.setResult(getMaxPos(targets));
+			dm[MatrixTargetIndex].setResult(getMaxPos(targets));
 		//	System.out.println((int)dm.getResult());
 		//
 			
-			if (dm.getTarget() != null && check(targets, dm.getTarget())) {
+			if (dm[MatrixTargetIndex].getTarget() != null && check(targets, dm[MatrixTargetIndex].getTarget())) {
 			    verify = true;
 				correctCnt ++;				
 			}
@@ -281,8 +282,8 @@ public class ConvolutionNeuroNetwork implements Serializable {
             cNNBP = createCNNBP();
         }
 	    tis.reset();
-	    IDataMatrix dm = tis.next();
-	    double [] targets = cNNBP.test(new IDataMatrix[]{dm});
+	    IDataMatrix [] dm = tis.next();
+	    double [] targets = cNNBP.test(dm);
 	    int label = getMaxPos(targets);
 	    double prob = targets[label];
 	    singleResult.setLabel(label);

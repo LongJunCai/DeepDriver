@@ -5,6 +5,7 @@ import java.util.List;
 
 
 import deepDriver.dl.aml.ann.InputParameters;
+import deepDriver.dl.aml.cnn.ConvolutionNeuroNetwork;
 import deepDriver.dl.aml.cnn.IDataMatrix;
 import deepDriver.dl.aml.cnn.IDataStream;
 
@@ -14,9 +15,9 @@ public class StreamAdapter {
 		List<double []> inputList = new ArrayList<double[]>();
 		List<double []> resultList = new ArrayList<double []>();
 		while (is.hasNext()) {
-			IDataMatrix dm = is.next(); 
-			inputList.add(matrix2Vector(dm.getMatrix()));
-			resultList.add(dm.getTarget());
+			IDataMatrix [] dm = is.next(); 
+			inputList.add(matrix2Vector(dm[ConvolutionNeuroNetwork.MatrixTargetIndex].getMatrix()));
+			resultList.add(dm[ConvolutionNeuroNetwork.MatrixTargetIndex].getTarget());
 		}
 		double [][] in = new double[inputList.size()][];
 		double [][] ta = new double[inputList.size()][];

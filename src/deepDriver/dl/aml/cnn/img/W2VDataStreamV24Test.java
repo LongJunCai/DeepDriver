@@ -8,8 +8,8 @@ public class W2VDataStreamV24Test extends W2VDataStreamV2 {
         super(imgLoader, tLength, rLength);
     }
 
-    public IDataMatrix next() {
-        return getIDataMatrix(cnt++);
+    public IDataMatrix [] next() {
+        return new IDataMatrix [] {getIDataMatrix(cnt++)};
     }
     
 

@@ -30,11 +30,11 @@ public class CNNSlave extends Slave {
 			if (is.hasNext()) {
 				is.reset();
 			}
-			IDataMatrix dm = is.next();
+			IDataMatrix [] dm = is.next();
 			if (dm == null) {
 				continue;
 			}
-			cnn.getcNNBP().runTrainEpich(new IDataMatrix[] { dm }, dm.getTarget());
+			cnn.getcNNBP().runTrainEpich(dm, dm[ConvolutionNeuroNetwork.MatrixTargetIndex].getTarget());
 			err = err + cnn.getcNNBP().getStdError();
 			
 		}

@@ -64,7 +64,7 @@ public class W2VDataStreamV2 implements IDataStream {
 	}
 
     @Override
-	public IDataMatrix next() {
+	public IDataMatrix [] next() {
 		cnt++;
 		double l = imgLoader.size();
 		double segment = l;
@@ -80,13 +80,13 @@ public class W2VDataStreamV2 implements IDataStream {
 		}
 //		String s = imgLoader.imgs.get(ri);
 //		return constructIDataMatrix(s, imgLoader.header.startsWith(label));
-		return getIDataMatrix(ri);
+		return new IDataMatrix [] {getIDataMatrix(ri)};
 	}
     
-    public IDataMatrix next(Object pos) {
+    public IDataMatrix [] next(Object pos) {
 		cnt++;
 		int ri  = (Integer) pos;
-		return getIDataMatrix(ri);
+		return new IDataMatrix [] {getIDataMatrix(ri)};
 	}
 	
 	int rLength;

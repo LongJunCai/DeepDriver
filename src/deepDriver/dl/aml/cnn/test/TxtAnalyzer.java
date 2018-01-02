@@ -2,7 +2,7 @@ package deepDriver.dl.aml.cnn.test;
 
 import java.io.File;
 
-
+import deepDriver.dl.aml.cnn.ConvolutionNeuroNetwork;
 import deepDriver.dl.aml.cnn.IDataMatrix;
 import deepDriver.dl.aml.cnn.img.CsvImgLoader;
 import deepDriver.dl.aml.cnn.img.W2VDataStream;
@@ -31,11 +31,11 @@ public class TxtAnalyzer {
 		double max = 0;
 		double min = 0;
 		while (trainingDs.hasNext()) {
-			IDataMatrix dm = trainingDs.next();
+			IDataMatrix [] dm = trainingDs.next();
 			if (dm == null) {
 				continue;
 			}
-			double [][] m = dm.getMatrix();
+			double [][] m = dm[ConvolutionNeuroNetwork.MatrixTargetIndex].getMatrix();
 			for (int i = 0; i < m.length; i++) {
 				for (int j = 0; j < m[i].length; j++) {
 					if (dataMetrics[j] == null) {

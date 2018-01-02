@@ -21,7 +21,7 @@ public class W2VDirectStream implements IDataStream {
     double min = -1;
     double max = 1;
 
-    public IDataMatrix next() {
+    public IDataMatrix [] next() {
         cnt ++;
         double [][] ndata = new double[data.length][];
         DataMatrix dataMatrix = new DataMatrix();
@@ -34,7 +34,7 @@ public class W2VDirectStream implements IDataStream {
                         (max - min) + min;
             }
         }
-        return dataMatrix;
+        return new IDataMatrix [] {dataMatrix};
     }
 
     @Override
@@ -49,7 +49,7 @@ public class W2VDirectStream implements IDataStream {
     }
 
 	@Override
-	public IDataMatrix next(Object pos) {
+	public IDataMatrix [] next(Object pos) {
 		return null;
 	}
 

@@ -32,21 +32,21 @@ public class MnistDataStream implements IDataStream {
 
 	Random  rd = new Random(System.currentTimeMillis());
 	@Override
-	public IDataMatrix next() {
+	public IDataMatrix [] next() {
 		cnt++;
 		double l = (double) size;
 		int ri  = (int) (rd.nextDouble() * l);
 		if (ri == l) {//exclusive, so no need to worry about it.
 			ri = ri - 1;
 		}
-		return getIDataMatrix(ri,type);
+		return new IDataMatrix [] {getIDataMatrix(ri,type)};
 	}
 
 	@Override
-	public IDataMatrix next(Object pos) {
+	public IDataMatrix [] next(Object pos) {
 		cnt++;
 		int id  = (Integer) pos;
-		return getIDataMatrix(id, type);
+		return new IDataMatrix [] {getIDataMatrix(id, type)};
 	}
 
 	@Override

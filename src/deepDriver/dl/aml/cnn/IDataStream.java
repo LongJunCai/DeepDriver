@@ -4,9 +4,9 @@ import java.io.Serializable;
 
 public interface IDataStream extends Serializable {
 	
-	public IDataMatrix next();
+	public IDataMatrix [] next();
 	
-	public IDataMatrix next(Object pos);
+	public IDataMatrix [] next(Object pos);
 	
 	public boolean hasNext();
 	

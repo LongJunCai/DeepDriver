@@ -4,6 +4,7 @@ import java.io.File;
 
 
 import deepDriver.dl.aml.cnn.CNNConfigurator;
+import deepDriver.dl.aml.cnn.ConvolutionNeuroNetwork;
 import deepDriver.dl.aml.cnn.IDataMatrix;
 import deepDriver.dl.aml.cnn.IDataStream;
 import deepDriver.dl.aml.distribution.Fs;
@@ -47,7 +48,7 @@ public class CNN2LSTMTeacher {
 		while (ais.hasNext()) {
 			ais.next();
 			Object pos = ais.getPos();
-			IDataMatrix dm = cnnIs.next(pos);
+			IDataMatrix [] dm = cnnIs.next(pos);
 			cnt++;
 			double m = lstmCfg.getM();
 			if (lstmCfg.getLr() != null) {
@@ -59,7 +60,7 @@ public class CNN2LSTMTeacher {
 				}				
 			}			
 			error = error + cNN2LSTMBPTT.runEpich(ais.getSampleTT(), 
-					ais.getTarget(), new IDataMatrix [] {dm}, dm.getTarget());
+					ais.getTarget(), dm, dm[ConvolutionNeuroNetwork.MatrixTargetIndex].getTarget());
 			lstmCfg.setM(m);
 			double avgErr = error/(double)cnt;
 			if (cnt % 200 == 0) {
