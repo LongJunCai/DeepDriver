@@ -23,20 +23,28 @@ public class CNNMaster implements Serializable {
 	public void trainModel(IDataStream is, IDataStream tis, ConvolutionNeuroNetwork cnn) {
 		ResourceMaster rm = ResourceMaster.getInstance();
 		int cnt = rm.getClientsNum();
-		IDataStream [] ids = is.splitStream(cnt); 
-		int nilen = is.splitCnt(cnt);
+		IDataStream [] ids = null;
+		/***
+		ids = is.splitStream(cnt); 
+		int nilen = is.splitCnt(cnt);*/
+		DataStreamDistUtil du = new DataStreamDistUtil();
+		try {
+			System.out.println("Distribute model name");
+			rm.distributeCommand(CommonSlave.CMODEL_SLAVE+"="+CNNSlave.class.getName());
+				
+			du.distributeDs(is, cnt);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}			
+		int nilen = (int) ((double)du.getCnt()/(double)cnt);
+		
 		double [][] wWs = null;
 		double err = 0;
 		boolean firstDist = true;		
 		double acc = cnn.getCfg().getAcc();
 		int i = 0;
 		int loop = 0;
-		try {
-			System.out.println("Distribute model name");
-			rm.distributeCommand(CommonSlave.CMODEL_SLAVE+"="+CNNSlave.class.getName());
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+		
 		while (firstDist || err > acc) {
 			err = 0;			
 			for (int k = 0; k < nilen/CNNSlave.mb + 1; k++) {

@@ -65,7 +65,7 @@ public class ANNMaster implements Serializable {
 					copy2Matrix(dd1, wWs, objs.length);
 				}
 			}
-			if (err < acc) {
+			if (err/(double)(cnt) < acc) {
 				System.out.println("Training is stopped early.");
 				break;				
 			}

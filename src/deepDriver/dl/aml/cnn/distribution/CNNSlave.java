@@ -1,9 +1,12 @@
 package deepDriver.dl.aml.cnn.distribution;
 
 import deepDriver.dl.aml.cnn.CNNParaMerger;
+import deepDriver.dl.aml.cnn.CacheAbleDataStream;
 import deepDriver.dl.aml.cnn.ConvolutionNeuroNetwork;
 import deepDriver.dl.aml.cnn.IDataMatrix;
 import deepDriver.dl.aml.cnn.IDataStream;
+import deepDriver.dl.aml.common.distribution.Linkable;
+import deepDriver.dl.aml.common.distribution.LinkableDataStream;
 import deepDriver.dl.aml.distribution.Error;
 import deepDriver.dl.aml.distribution.Slave;
 
@@ -14,7 +17,12 @@ public class CNNSlave extends Slave {
 	IDataStream is;
 	@Override
 	public void setTask(Object obj) throws Exception {
-		is = (IDataStream) obj;
+		if (obj instanceof Linkable) {
+			Linkable root = (Linkable) obj;	
+			is = new LinkableDataStream((CacheAbleDataStream) root);
+		} else if (obj instanceof IDataStream) {
+			is = (IDataStream) obj;			
+		} 		
 	}
 
 	double err = 0;
@@ -27,14 +35,20 @@ public class CNNSlave extends Slave {
 		
 		err = 0;
 		for (int i = 0; i < mb; i++) {
-			if (is.hasNext()) {
+			if (!is.hasNext()) {
 				is.reset();
 			}
 			IDataMatrix [] dm = is.next();
 			if (dm == null) {
 				continue;
 			}
-			cnn.getcNNBP().runTrainEpich(dm, dm[ConvolutionNeuroNetwork.MatrixTargetIndex].getTarget());
+			if (dm.length <= ConvolutionNeuroNetwork.MatrixTargetIndex
+					|| dm[ConvolutionNeuroNetwork.MatrixTargetIndex] == null) {
+				System.out.println(i+" is null");
+				continue;
+			} 
+			double [] ta = dm[ConvolutionNeuroNetwork.MatrixTargetIndex].getTarget();
+			cnn.getcNNBP().runTrainEpich(dm, ta);
 			err = err + cnn.getcNNBP().getStdError();
 			
 		}

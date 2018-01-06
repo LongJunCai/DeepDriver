@@ -26,7 +26,7 @@ public class LSTMSlave extends Slave {
 		
 		err = 0;
 		for (int i = 0; i < mb; i++) {
-			if (is.hasNext()) {
+			if (!is.hasNext()) {
 				is.reset();
 			}
 			is.next(); 

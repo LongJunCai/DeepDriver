@@ -5,14 +5,38 @@ import deepDriver.dl.aml.distribution.Slave;
 
 public class CommonSlave extends Slave {
 	public static String CMODEL_SLAVE = "-CMODEL_SLAVE";
+	public static String CTASKPIECE = "-CTASKPIECE";
+	
 	Slave ms = null;
+	Linkable root;
+	Linkable current;
 	public void handleOthers(String command) throws Exception {
 		if (command.startsWith(CMODEL_SLAVE)) {
 			String clazz = command.substring(CMODEL_SLAVE.length() + 1); 
 			System.out.println("Prepare to run "+clazz);
 			ms = (Slave) Class.forName(clazz).newInstance();
+		} else if (command.startsWith(CTASKPIECE)) {
+//			String clazz = command.substring(CTASKPIECE.length() + 1); 
+//			System.out.println("Prepare to run "+clazz);
+			Object obj = talkClient.receiveObj();
+			if (obj instanceof String) {
+				System.out.println("WTf: "+obj);
+			}
+			Linkable linkable1 = (Linkable) obj;
+			if (root == null) {
+				root = linkable1;
+				current = root;
+				if (ms != null) {
+					ms.setTask(root);
+				}
+			} else {
+				current.setNext(linkable1);
+				current = linkable1;
+			}
 		} else {
-			ms.handleOthers(command);
+			if (ms != null) {
+				ms.handleOthers(command);
+			}			
 		}
 	}
 

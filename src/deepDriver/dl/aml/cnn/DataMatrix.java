@@ -3,6 +3,10 @@ package deepDriver.dl.aml.cnn;
 
 public class DataMatrix implements IDataMatrix {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	double [] target;
 	double result;
 

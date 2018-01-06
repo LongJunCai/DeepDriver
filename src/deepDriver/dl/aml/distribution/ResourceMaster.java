@@ -35,6 +35,9 @@ public class ResourceMaster {
 	public void distributeCommand(String command) throws Exception {
 		talkServer.distributeCommand(command); 
 	}
+	public void distributeObjects(Object [] objs) throws Exception {
+		talkServer.distributeObjectsAsc(null, objs); 
+	}
 	
 	public void distributeTasks(Object [] tasks) throws Exception {
 		if (tasks != null) {

@@ -34,7 +34,7 @@ public abstract class Slave {
 	
 	public void handleOthers(String command) throws Exception {
 		
-	}
+	}	
 	
 	public abstract void setTask(Object obj) throws Exception;
 	

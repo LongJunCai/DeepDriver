@@ -1,6 +1,8 @@
 package deepDriver.dl.aml.cnn;
 
-public interface IDataMatrix {
+import java.io.Serializable;
+
+public interface IDataMatrix extends Serializable {
 	
 	public double[][] getMatrix();
 

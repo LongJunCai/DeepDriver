@@ -10,6 +10,10 @@ import deepDriver.dl.aml.cnn.IDataStream;
 
 public class W2VDataStreamV2 implements IDataStream {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	CsvImgLoader imgLoader;
 	int cnt;
 	
