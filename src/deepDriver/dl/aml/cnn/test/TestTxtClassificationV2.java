@@ -2,20 +2,15 @@ package deepDriver.dl.aml.cnn.test;
 
 import java.io.File;
 
-
 import deepDriver.dl.aml.ann.ANNCfg;
 import deepDriver.dl.aml.cnn.CNNArchitecture;
 import deepDriver.dl.aml.cnn.CNNConfigurator;
 import deepDriver.dl.aml.cnn.ConvolutionNeuroNetwork;
-import deepDriver.dl.aml.cnn.IDataStream;
 import deepDriver.dl.aml.cnn.LayerConfigurator;
 import deepDriver.dl.aml.cnn.LeakyReLU;
 import deepDriver.dl.aml.cnn.img.CsvImgLoader;
-import deepDriver.dl.aml.cnn.img.ImgDataStream;
 import deepDriver.dl.aml.cnn.img.W2VDataStream;
-import deepDriver.dl.aml.distribution.DistributionEnvCfg;
-import deepDriver.dl.aml.distribution.P2PServer;
-import deepDriver.dl.aml.distribution.ResourceMaster;
+import deepDriver.dl.aml.cnn.img.W2VDataStreamV2;
 
 public class TestTxtClassificationV2 {
 	
@@ -27,16 +22,16 @@ public class TestTxtClassificationV2 {
 		System.out.println("Load training file from "+file);
 		CsvImgLoader w2vLoader = new CsvImgLoader();
 		w2vLoader.loadImg(file);
-		W2VDataStream trainingDs = new W2VDataStream(w2vLoader, kLength, 200);
-		trainingDs.setFixedRow(fixedRow);
+		W2VDataStreamV2 trainingDs = new W2VDataStreamV2(w2vLoader, kLength, 200);
+//		trainingDs.setFixedRow(fixedRow);
 		
 		System.out.println("Load testing file from "+ tfile);
-		W2VDataStream testDs = null;
+		W2VDataStreamV2 testDs = null;
 		if (tfile != null) {
 			CsvImgLoader tw2vLoader = new CsvImgLoader();
 			tw2vLoader.loadImg(tfile);
-			testDs = new W2VDataStream(tw2vLoader, kLength, 200);
-			testDs.setFixedRow(fixedRow);
+			testDs = new W2VDataStreamV2(tw2vLoader, kLength, 200);
+//			testDs.setFixedRow(fixedRow);
 		}
        
         

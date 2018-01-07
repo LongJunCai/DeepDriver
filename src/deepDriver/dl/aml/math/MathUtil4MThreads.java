@@ -27,12 +27,12 @@ public class MathUtil4MThreads implements IMathFunction {
 	}
 
 	@Override
-	public double[][] transpose(double[][] x) {
+	public double[][] transpose(final double[][] x) {
 		if (threadCnt == 1) {
 			return MathUtilBase.transpose(x);
 		}
 		
-		double [][] t = new double[x[0].length][];
+		final double [][] t = new double[x[0].length][];
 		tp.runMutipleThreads(t.length, new PartialCallback() {
 			
 			@Override
@@ -52,7 +52,7 @@ public class MathUtil4MThreads implements IMathFunction {
 	}
 
 	@Override
-	public void minus(double[][] x, double[][] y, double[][] r) {
+	public void minus(final double[][] x, final double[][] y, final double[][] r) {
 		if (threadCnt == 1) {
 			MathUtilBase.minus(x, y, r);
 			return;
@@ -75,7 +75,7 @@ public class MathUtil4MThreads implements IMathFunction {
 	}
 
 	@Override
-	public void multipleByElements(double[][] x, double[][] y, double[][] r) {
+	public void multipleByElements(final double[][] x, final double[][] y, final double[][] r) {
 		if (threadCnt == 1) {
 			MathUtilBase.multipleByElements(x, y, r);
 			return;
@@ -97,7 +97,7 @@ public class MathUtil4MThreads implements IMathFunction {
 	}
 
 	@Override
-	public void difMultipleByElements(double[][] dx, double[][] y, double[][] r) {
+	public void difMultipleByElements(final double[][] dx, final double[][] y, final double[][] r) {
 		if (threadCnt == 1) {
 			MathUtilBase.difMultipleByElements(dx, y, r);
 			return;
@@ -119,7 +119,7 @@ public class MathUtil4MThreads implements IMathFunction {
 	}
 
 	@Override
-	public void plus(double[][] x, double xp, double[][] y, double yp, double[][] r) {
+	public void plus(final double[][] x, final double xp, final double[][] y, final double yp, final double[][] r) {
 		if (threadCnt == 1) {
 			MathUtilBase.plus(x, xp, y, yp, r);
 			return;
@@ -150,7 +150,7 @@ public class MathUtil4MThreads implements IMathFunction {
 	}
 
 	@Override
-	public void set(double[][] x, double[][] y) {
+	public void set(final double[][] x, final double[][] y) {
 		if (threadCnt == 1) {
 			MathUtilBase.set(x, y);
 			return;
@@ -187,12 +187,12 @@ public class MathUtil4MThreads implements IMathFunction {
 	}
 
 	@Override
-	public double[][] multipleV(double[][] x, double[] y) {
+	public double[][] multipleV(final double[][] x, final double[] y) {
 		if (threadCnt == 1) {			
 			return MathUtilBase.multipleV(x, y);
 		}
 		
-		double[][] result = new double[x.length][];
+		final double[][] result = new double[x.length][];
 		tp.runMutipleThreads(result.length, new PartialCallback() {			 
 			public void runPartial(int offset, int runLen) {
 				multipleVPartial(result, x, y, offset, runLen);	
@@ -213,12 +213,12 @@ public class MathUtil4MThreads implements IMathFunction {
 	}
 
 	@Override
-	public double[][] multiple(double[][] x, double[][] y) {
+	public double[][] multiple(final double[][] x, final double[][] y) {
 		if (threadCnt == 1) {			
 			return MathUtilBase.multiple(x, y);
 		}
 		
-		double[][] result = new double[x.length][];
+		final double[][] result = new double[x.length][];
 		tp.runMutipleThreads(result.length, new PartialCallback() {			 
 			public void runPartial(int offset, int runLen) {
 				multiplePartial(result, x, y, offset, runLen);	
@@ -238,12 +238,12 @@ public class MathUtil4MThreads implements IMathFunction {
 	}
 
 	@Override
-	public double[][] difMultipleX(double[][] dr, double[][] y) {
+	public double[][] difMultipleX(final double[][] dr, final double[][] y) {
 		if (threadCnt == 1) {			
 			return MathUtilBase.difMultipleX(dr, y);
 		}
 		
-		double [][] dm = new double[dr.length][];
+		final double [][] dm = new double[dr.length][];
 		tp.runMutipleThreads(dm.length, new PartialCallback() {			 
 			public void runPartial(int offset, int runLen) {
 				difMultipleXPartial(dm, dr, y, offset, runLen);	
@@ -305,12 +305,12 @@ public class MathUtil4MThreads implements IMathFunction {
 	}
 
 	@Override
-	public double[][] difMultipleY(double[][] dr, double[][] x) {
+	public double[][] difMultipleY(final double[][] dr, final double[][] x) {
 		if (threadCnt == 1) {			
 			return MathUtilBase.difMultipleY(dr, x);
 		}
 		
-		double [][] dm = new double[x[0].length][];
+		final double [][] dm = new double[x[0].length][];
 		tp.runMutipleThreads(dm.length, new PartialCallback() {			 
 			public void runPartial(int offset, int runLen) {
 				difMultipleYPartial(dm, dr, x, offset, runLen);	

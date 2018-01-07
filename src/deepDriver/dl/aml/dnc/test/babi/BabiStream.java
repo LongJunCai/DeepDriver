@@ -88,7 +88,7 @@ public class BabiStream implements ITxtStream {
 	Paragraph root;
 	Paragraph pa = null;
 	
-	List<Paragraph> pas = new ArrayList<>();
+	List<Paragraph> pas = new ArrayList<Paragraph>();
 	boolean shuffle = false;
 	
 	public void constructParagraph() {

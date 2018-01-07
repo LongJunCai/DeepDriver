@@ -96,6 +96,15 @@ public class W2VDataStreamV2 implements IDataStream {
 	int rLength;
 	
 	int wordsNum = 1;
+	int tOffset = 1;//-1 by default
+    
+    public int gettOffset() {
+		return tOffset;
+	}
+
+	public void settOffset(int tOffset) {
+		this.tOffset = tOffset;
+	}
 	
 	public IDataMatrix constructIDataMatrix(String s, boolean h) {
 		DataMatrix dataMatrix = new DataMatrix();
@@ -106,7 +115,7 @@ public class W2VDataStreamV2 implements IDataStream {
 		int aLength = 0; 
 		if (h) {
 			int t = Integer.parseInt(arr[cnt ++]);
-			ta[t - 1] = 1;
+			ta[t + tOffset] = 1;
 //			ml = (int) Math.sqrt(arr.length - 1);
 			dataMatrix.setTarget(ta);
 			aLength = arr.length - 1;

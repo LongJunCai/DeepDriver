@@ -245,7 +245,7 @@ public class DNCBPTT {
 		cfg.writeHead.generateInterfaceParameters(hts);
 	}
 	
-	public void generateInterfaceParameters3(double [] hts) {
+	public void generateInterfaceParameters3(final double [] hts) {
 		Thread [] ts = new Thread[cfg.readHeads.length];
 		for (int i = 0; i < cfg.readHeads.length; i++) {
 			final int id = i;

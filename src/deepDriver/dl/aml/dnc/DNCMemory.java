@@ -381,7 +381,7 @@ public class DNCMemory {
 		}
 	}
 	
-	public void backInitLinkages(int t, double [] wt) {
+	public void backInitLinkages(final int t, final double [] wt) {
 		tp.runMutipleThreads(dlinkages[t].length, new PartialCallback() {
 			public void runPartial(int offset, int runLen) {
 				backPartialInitLinkages(t, wt, offset, runLen);	
@@ -476,7 +476,7 @@ public class DNCMemory {
 		}
 	}
 	
-	public void initLinkages(int t, double [] pt_1, double [] wt) {
+	public void initLinkages(final int t, final double [] pt_1, final double [] wt) {
 		tp.runMutipleThreads(linkages[t].length, new PartialCallback() {
 			public void runPartial(int offset, int runLen) {
 				initPartialLinkages(t, pt_1, wt, offset, runLen);	
