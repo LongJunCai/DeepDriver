@@ -18,6 +18,7 @@ public class TestWordSegment {
 	
 	public static void main(String[] args) throws Exception {
 		
+		/*Run under**/
 		DistributionEnvCfg.getCfg().set(P2PServer.KEY_SRV_PORT, 8034);
 //		DistributionEnvCfg.getCfg().set(P2PServer.KEY_SRV_HOST, "127.0.0.1");
 		ResourceMaster rm = ResourceMaster.getInstance();

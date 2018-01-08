@@ -24,19 +24,26 @@ public class CNNMaster implements Serializable {
 		ResourceMaster rm = ResourceMaster.getInstance();
 		int cnt = rm.getClientsNum();
 		IDataStream [] ids = null;
-		/***
+		/****/
 		ids = is.splitStream(cnt); 
-		int nilen = is.splitCnt(cnt);*/
+		int nilen = is.splitCnt(cnt);
 		DataStreamDistUtil du = new DataStreamDistUtil();
 		try {
 			System.out.println("Distribute model name");
 			rm.distributeCommand(CommonSlave.CMODEL_SLAVE+"="+CNNSlave.class.getName());
-				
-			du.distributeDs(is, cnt);
 		} catch (Exception e1) {
 			e1.printStackTrace();
-		}			
-		int nilen = (int) ((double)du.getCnt()/(double)cnt);
+		}		
+		
+		if (ids == null) {
+			try {
+				du.distributeDs(is, cnt);
+			} catch (Exception e) { 
+				e.printStackTrace();
+			}
+			nilen = (int) ((double)du.getCnt()/(double)cnt);
+		}
+		
 		
 		double [][] wWs = null;
 		double err = 0;

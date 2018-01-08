@@ -25,6 +25,10 @@ public class ResourceMaster {
 //	}
 
 	public void setup(int clientsNum) throws Exception {
+		if (setup) {
+			System.out.println("Talk server is running already, no need to run again.");
+			return;
+		}
 		this.clientsNum = clientsNum;
 		talkServer.setup(clientsNum);
 		talkServer.collectState();
