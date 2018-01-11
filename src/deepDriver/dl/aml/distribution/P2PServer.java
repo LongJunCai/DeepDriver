@@ -133,9 +133,13 @@ public class P2PServer {
 //		info("start to send command "+command);
 		for (int i = 0; i < clients.size(); i++) {
 			ClientVo cv = clients.get(i);
-			cv.getOos().writeUnshared(command);
-			cv.getOos().flush();
-			getResponse(cv, i);
+			try {
+				cv.getOos().writeUnshared(command);
+				cv.getOos().flush();
+				getResponse(cv, i);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		debug("finished.");
 	}

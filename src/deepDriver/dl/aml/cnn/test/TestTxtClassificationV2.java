@@ -11,6 +11,9 @@ import deepDriver.dl.aml.cnn.LeakyReLU;
 import deepDriver.dl.aml.cnn.img.CsvImgLoader;
 import deepDriver.dl.aml.cnn.img.W2VDataStream;
 import deepDriver.dl.aml.cnn.img.W2VDataStreamV2;
+import deepDriver.dl.aml.distribution.DistributionEnvCfg;
+import deepDriver.dl.aml.distribution.P2PServer;
+import deepDriver.dl.aml.distribution.ResourceMaster;
 
 public class TestTxtClassificationV2 {
 	
@@ -145,14 +148,14 @@ public class TestTxtClassificationV2 {
 	public static void main(String[] args) throws Exception 
 	{
 		
-//		DistributionEnvCfg.getCfg().set(P2PServer.KEY_SRV_PORT, 8034);
-////		DistributionEnvCfg.getCfg().set(P2PServer.KEY_SRV_HOST, "127.0.0.1");
-//		ResourceMaster rm = ResourceMaster.getInstance();
-//		if (args != null && args.length > 2) {
-//			rm.setup(Integer.parseInt(args[0]));
-//		} else {
-//			rm.setup(4);
-//		}
+		DistributionEnvCfg.getCfg().set(P2PServer.KEY_SRV_PORT, 8034);
+//		DistributionEnvCfg.getCfg().set(P2PServer.KEY_SRV_HOST, "127.0.0.1");
+		ResourceMaster rm = ResourceMaster.getInstance();
+		if (args != null && args.length > 2) {
+			rm.setup(Integer.parseInt(args[0]));
+		} else {
+			rm.setup(4);
+		}
 		
 	    TestTxtClassificationV2 testTxtClassification = new TestTxtClassificationV2();
 
