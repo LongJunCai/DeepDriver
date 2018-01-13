@@ -5,8 +5,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class P2PClient extends P2PBase {
-	String master = "127.0.0.1";
-	int sport = P2PServer.sport;
+	
 	public void setup() {
 		try {
 			int port = DistributionEnvCfg.getCfg().getInt(P2PServer.KEY_SRV_PORT);

@@ -34,7 +34,7 @@ public class NegtiveSampling {
 				String [] ts = s.getTarget();
 				runEpich(ws, ts);
 			}		
-			if (i % 100 == 0) {
+			if (i % 1 == 0) {
 				save2File(i+"", "w2v", w2v);
 			}
 		}

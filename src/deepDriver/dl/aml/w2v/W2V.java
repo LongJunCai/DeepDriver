@@ -99,6 +99,8 @@ public class W2V implements Serializable {
 	public void summary() {
 		System.out.println("There are "+wordSegCnt+" unique words, " +
 				"and there are "+allRepeatCnt+" words used.");
+		System.out.println("There are "+keyCntPairs.size()+" words to be trained, " +
+				"and there are "+negRepeatCnt+" times used.");
 	}
 	
 	boolean debug;

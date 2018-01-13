@@ -49,6 +49,7 @@ public class P2PServer {
 				response(cv, i, OK);
 			} catch (Exception e) {
 				e.printStackTrace();
+				rebuildConnection(cv, e);
 			}
 		}
 		return objs;
@@ -89,6 +90,7 @@ public class P2PServer {
 				response(cv, i, OK);
 			} catch (Exception e) {
 				e.printStackTrace();
+				rebuildConnection(cv, e);
 			}
 		}
 	}
@@ -139,6 +141,7 @@ public class P2PServer {
 				getResponse(cv, i);
 			} catch (Exception e) {
 				e.printStackTrace();
+				rebuildConnection(cv, e);
 			}
 		}
 		debug("finished.");
@@ -155,6 +158,7 @@ public class P2PServer {
 				getResponse(cv, i);				
 			} catch (IOException e) {
 				e.printStackTrace();
+				rebuildConnection(cv, e);
 			}
 		}
 	}
@@ -182,6 +186,7 @@ public class P2PServer {
 				}				
 			} catch (IOException e) {
 				e.printStackTrace();
+				rebuildConnection(cv, e);
 			}
 		}
 	}
@@ -213,14 +218,43 @@ public class P2PServer {
 				getResponse(cv, i);
 			} catch (IOException e) {
 				e.printStackTrace();
+				rebuildConnection(cv, e);
 			}
 		}
 	}
 	
-	public void rebuildConnection(ClientVo cv) throws Exception {
-		cv.oos.close();
-		cv.ois.close();
-		
+	boolean rebuild = true;
+	
+	public void rebuildConnection(ClientVo cv, Exception e) {
+		if (e instanceof IOException) {
+			
+		}
+		rebuildConnection(cv);
+	}
+	
+	public void rebuildConnection(ClientVo cv) {
+		if (!rebuild) {
+			return;
+		}
+		//run into block mode.
+		try {
+			cv.oos.close();
+			cv.ois.close();
+			cv.socket.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+		System.out.println("Rebuild socket..");
+		try {
+			Socket socket = server.accept();
+			System.out.println(socket.getSoTimeout());
+			socket.setKeepAlive(true);
+			socket.setSoTimeout(1000 * 60 * 60);
+			cv.setSocket(socket);
+			cv.rebuild();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void close() throws Exception {
@@ -289,8 +323,13 @@ public class P2PServer {
 	public void collectState() throws Exception { 
 		for (int i = 0; i < clients.size(); i++) {
 			ClientVo cv = clients.get(i); 
-			getResponse(cv, i);
-			debug("Client "+i+" is ready.");
+			try {				
+				getResponse(cv, i);
+				debug("Client "+i+" is ready.");
+			} catch (Exception e) {
+				e.printStackTrace();
+				rebuildConnection(cv, e);
+			}			
 		}
 		
 	}

@@ -4,9 +4,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 public class P2PBase {
 
+	String master = "127.0.0.1";
+	int sport = P2PServer.sport;
+	
 	Socket socket;
 	ObjectOutputStream oos;
 	ObjectInputStream ois;	
@@ -41,8 +45,41 @@ public class P2PBase {
 			return obj;
 		} catch (Exception e) { 
 			e.printStackTrace();
+			rebuild(e);
 		}
 		return null;
+	}
+	
+	int retryTime = 5;
+	
+	public void rebuild(Exception ex) {
+		try {
+			ois.close();
+			oos.close();
+			socket.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		for (int i = 0; i < retryTime; i++) {
+			try {
+				socket = new Socket(master, sport);
+				socket.setKeepAlive(true);
+				socket.setSoTimeout(1000 * 60 * 60);
+				oos = new ObjectOutputStream(socket.getOutputStream());
+				ois = new ObjectInputStream(socket.getInputStream());
+				break;
+			} catch (IOException e) {
+				e.printStackTrace();
+				try {
+					Thread.sleep(5 * 1000);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+			}			
+		}
+		
+		
 	}
 	
 	public String receiveCommand() throws ClassNotFoundException {
@@ -52,6 +89,7 @@ public class P2PBase {
 			return cmd;
 		} catch (IOException e) { 
 			e.printStackTrace();
+			rebuild(e);
 		}
 		return null;
 	}
@@ -81,6 +119,7 @@ public class P2PBase {
 			getResponse();
 		} catch (Exception e) { 
 			e.printStackTrace();
+			rebuild(e);
 		}
 	}
 	

@@ -16,14 +16,17 @@ public class CNNParaMerger implements ICNNLayerVisitor, Serializable {
 	int layerIndex;
 	double [][] wWs;
 	boolean copy2CNN;
+	int cnt = 0;
 	public void merge(ConvolutionNeuroNetwork cnn, double [][] wWs, boolean copy2CNN) {
 		CNNConfigurator cfg = cnn.getCfg();
 		this.wWs = wWs;
 		this.copy2CNN = copy2CNN;
+		cnt = 0;
 		for (int i = 0; i < cfg.getLayers().length; i++) {
 			layerIndex = i;
 			cfg.getLayers()[i].accept(this);
 		}
+		System.out.println("Para num is "+cnt);
 	}
 	
 	public boolean useVisitFractalBlock(CNNLayer layer) {
@@ -84,6 +87,7 @@ public class CNNParaMerger implements ICNNLayerVisitor, Serializable {
 			}			
 			size = size + 3;			
 		}
+		cnt = cnt + size;
 		wWs[layerIndex] = new double[size];
 	}
 	
@@ -201,6 +205,7 @@ public class CNNParaMerger implements ICNNLayerVisitor, Serializable {
 			}
 			size = size + 3;
 		} 	
+		cnt = cnt + size;
 		wWs[layerIndex] = new double[size];
 	}
 	
@@ -224,7 +229,8 @@ public class CNNParaMerger implements ICNNLayerVisitor, Serializable {
 		if (list.get(0).getThetas() == null) {
 			return;
 		}
-		int size = list.size() * list.get(0).getThetas().length ;		
+		int size = list.size() * list.get(0).getThetas().length ;	
+		cnt = cnt + size;
 		wWs[layerIndex] = new double[size];
 	}
 
