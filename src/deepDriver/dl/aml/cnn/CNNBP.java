@@ -464,6 +464,15 @@ public class CNNBP implements ICNNBP {
 		resetPreviousFlagMatrix(layer);
 		IFeatureMap [] fms = layer.getFeatureMaps();
 		IFeatureMap [] fmsInLastLayer = layer.getPreviousLayer().getFeatureMaps();
+		/***Use blas to speed up***/
+		if (useBlas()) {
+			if (this.blasbp == null) {
+				blasbp = new BlasCNNBpVisitor(this);
+			}
+			blasbp.visitPoolingLayer(layer);
+			return;
+		}
+		/***Use blas to speed up***/
 		visitPartialPoolingLayer(fms, fmsInLastLayer);
 	}
 	

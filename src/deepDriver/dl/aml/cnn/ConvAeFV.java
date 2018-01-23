@@ -23,7 +23,7 @@ public class ConvAeFV extends CNNForwardVisitor implements IConvAutoEncoderLayer
 				reconstructConv(layer.getLc(), (ConvolutionKernal)cks[j], 
 						(FeatureMap)fms[i], (FeatureMap)ffm, j == 0);
 			}
-			activateZzs(fms[i]);
+			CNNUtils.activateZzs(bp, fms[i]);
 		}
 	}
 	
@@ -67,7 +67,7 @@ public class ConvAeFV extends CNNForwardVisitor implements IConvAutoEncoderLayer
 				//<adapt to ck>				
 				reconstructPooling(ssk, fms[i].getzZs(), ffm, j == 0, fms[i].getAcf());
 			}
-			activateZzs(fms[i]);
+			CNNUtils.activateZzs(bp, fms[i]);
 		}		
 	}
 	

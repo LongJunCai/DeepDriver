@@ -138,25 +138,7 @@ public class CNNForwardVisitor implements ICNNLayerVisitor {
 			visitCNNLayer(block);
 		}		
 	}	
-		
-	public void activateZzs(IFeatureMap t2fm) {
-//		if (bp.useBN(t2fm)) {
-//			batchNorm(t2fm);
-//		}		
-		for (int i = 0; i < t2fm.getFeatures().length; i++) {
-			for (int j = 0; j < t2fm.getFeatures()[i].length; j++) {
-				//use global 
-//				if (!bp.useBN(t2fm) && bp.useGlobalWeight) {
-				if (bp.useGlobalWeight) {
-					t2fm.getzZs()[i][j] = t2fm.getzZs()[i][j] + t2fm.getbB();
-				}				
-				t2fm.getFeatures()[i][j] = t2fm.getAcf().activate(
-						t2fm.getzZs()[i][j]);
-			}
-		}
-	}	
-	
-	
+			
 	
 	public void convolution(LayerConfigurator lc, ConvolutionKernal ck, double [][] ffms, FeatureMap t2fm, boolean begin) {
 		for (int i = 0; i < t2fm.getFeatures().length; i++) {
@@ -188,6 +170,16 @@ public class CNNForwardVisitor implements ICNNLayerVisitor {
 	public void visitPoolingLayer(SamplingLayer layer) {
 		IFeatureMap [] fms = layer.getFeatureMaps();
 		IFeatureMap [] fmsInLastLayer = layer.getPreviousLayer().getFeatureMaps();
+		/***Use blas to speed up***/
+		if (bp.useBlas()) {
+			if (this.blasFd == null) {
+				blasFd = new BlasCNNFdVisitor(bp);
+				MathUtil.setThreadCnt(bp.cfg.getThreadsNum());
+			}
+			blasFd.visitPoolingLayer(layer);
+			return;
+		}
+		/***Use blas to speed up***/
 		visitPartialPoolingLayer(fms, fmsInLastLayer, layer);
 	}
 	
@@ -225,7 +217,7 @@ public class CNNForwardVisitor implements ICNNLayerVisitor {
 				//<adapt to ck>				
 				sampling(ssk, ffm.getFeatures(), fms[i], j == 0, fms[i].getAcf());
 			}
-			activateZzs(fms[i]);
+			CNNUtils.activateZzs(bp, fms[i]);
 		}
 	}
 	

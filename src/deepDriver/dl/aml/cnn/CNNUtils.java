@@ -106,6 +106,23 @@ public class CNNUtils {
 		}
 	}	
 	
+	public static void activateZzs(CNNBP bp, IFeatureMap t2fm) {
+//		if (bp.useBN(t2fm)) {
+//			batchNorm(t2fm);
+//		}		
+		for (int i = 0; i < t2fm.getFeatures().length; i++) {
+			for (int j = 0; j < t2fm.getFeatures()[i].length; j++) {
+				//use global 
+//				if (!bp.useBN(t2fm) && bp.useGlobalWeight) {
+				if (bp.useGlobalWeight) {
+					t2fm.getzZs()[i][j] = t2fm.getzZs()[i][j] + t2fm.getbB();
+				}				
+				t2fm.getFeatures()[i][j] = t2fm.getAcf().activate(
+						t2fm.getzZs()[i][j]);
+			}
+		}
+	}	
+	
 	public static void batchNorm(IFeatureMap t2fm) {
 		double sum = 0;
 		double [][] z = t2fm.getzZs();

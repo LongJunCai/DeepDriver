@@ -38,13 +38,22 @@ public class CNNLayer implements ICNNLayer, Serializable {
 	double [][] preM = null;
 	int [][][] preIds = null;
 	double [][] ckM = null;
+	int [][][] ckIds = null;
 	double [][] outM = null;
 	int [][][] outIds = null;
 	
 	double [][] dpreM = null;
 	double [][] dckM = null;
 	double [][] doutM = null;	
-	
+		
+	public int[][][] getCkIds() {
+		return ckIds;
+	}
+
+	public void setCkIds(int[][][] ckIds) {
+		this.ckIds = ckIds;
+	}
+
 	public int[][][] getPreIds() {
 		return preIds;
 	}
