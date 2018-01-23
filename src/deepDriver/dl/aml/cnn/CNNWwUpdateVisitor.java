@@ -7,6 +7,7 @@ public class CNNWwUpdateVisitor implements ICNNLayerVisitor {
 	
 	CNNBP bp;
 
+	BlasCNNWwUpdateVisitor blasup;
 	@Override
 	public void visitCNNLayer(CNNLayer layer) {
 		/***visit block
@@ -18,6 +19,15 @@ public class CNNWwUpdateVisitor implements ICNNLayerVisitor {
 		}
 		/***visit block
 		 * **/
+		/***Use blas to speed up***/
+		if (bp.useBlas()) {
+			if (this.blasup == null) {
+				blasup = new BlasCNNWwUpdateVisitor(bp);
+			}
+			blasup.visitCNNLayer(layer);
+			return;
+		}
+		/***Use blas to speed up***/
 		IFeatureMap [] fms = layer.getFeatureMaps();
 		visitPartialCNNLayer(fms);
 	}

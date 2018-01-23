@@ -13,7 +13,7 @@ import deepDriver.dl.aml.distribution.Slave;
 public class CNNSlave extends Slave {
 	
 	ConvolutionNeuroNetwork cnn;
-	static int mb = 512;
+	static int mb = 64;
 	IDataStream is;
 	@Override
 	public void setTask(Object obj) throws Exception {

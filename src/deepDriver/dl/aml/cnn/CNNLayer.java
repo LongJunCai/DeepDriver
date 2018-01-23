@@ -35,6 +35,80 @@ public class CNNLayer implements ICNNLayer, Serializable {
 		}
 	}
 	
+	double [][] preM = null;
+	int [][][] preIds = null;
+	double [][] ckM = null;
+	double [][] outM = null;
+	int [][][] outIds = null;
+	
+	double [][] dpreM = null;
+	double [][] dckM = null;
+	double [][] doutM = null;	
+	
+	public int[][][] getPreIds() {
+		return preIds;
+	}
+
+	public void setPreIds(int[][][] preIds) {
+		this.preIds = preIds;
+	}
+
+	public int[][][] getOutIds() {
+		return outIds;
+	}
+
+	public void setOutIds(int[][][] outIds) {
+		this.outIds = outIds;
+	}
+
+	public double[][] getPreM() {
+		return preM;
+	}
+
+	public void setPreM(double[][] preM) {
+		this.preM = preM;
+	}
+
+	public double[][] getCkM() {
+		return ckM;
+	}
+
+	public void setCkM(double[][] ckM) {
+		this.ckM = ckM;
+	}
+
+	public double[][] getOutM() {
+		return outM;
+	}
+
+	public void setOutM(double[][] outM) {
+		this.outM = outM;
+	}
+
+	public double[][] getDpreM() {
+		return dpreM;
+	}
+
+	public void setDpreM(double[][] dpreM) {
+		this.dpreM = dpreM;
+	}
+
+	public double[][] getDckM() {
+		return dckM;
+	}
+
+	public void setDckM(double[][] dckM) {
+		this.dckM = dckM;
+	}
+
+	public double[][] getDoutM() {
+		return doutM;
+	}
+
+	public void setDoutM(double[][] doutM) {
+		this.doutM = doutM;
+	}
+
 	public LayerConfigurator getLc() {
 		return lc;
 	}

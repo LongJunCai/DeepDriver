@@ -88,10 +88,40 @@ public class TestMatrix {
 	public static void main(String[] args) {
 //		testSum();
 //		testMultiple();
-		testDifMultipleX();
+//		testDifMultipleX();
 //		testDifMultipleY();
 //		testMultipleV();
 //		testSort();
+		mt();
+	}
+	
+	
+	public static void mt() {
+		int l = 300;
+		double [][] a = new double[l][];
+		for (int i = 0; i < a.length; i++) {
+			a[i] = new double[l];
+			for (int j = 0; j < a[i].length; j++) {
+				a[i][j] = i * j;
+			}
+		}
+		
+		double [][] b = new double[l][];
+		for (int i = 0; i < b.length; i++) {
+			b[i] = new double[l];
+			for (int j = 0; j < b[i].length; j++) {
+				b[i][j] = i * j;
+			}
+		}
+		double t = System.currentTimeMillis();
+		MathUtil.setThreadCnt(1);
+		double [][] c = MathUtil.multiple(a, b);
+		System.out.println(System.currentTimeMillis() - t);
+		/**		
+		Array2DRowRealMatrix m = new Array2DRowRealMatrix(a);
+		Array2DRowRealMatrix m2 = m.multiply(new Array2DRowRealMatrix(b));
+		
+		*41983.0**/
 	}
 
 }

@@ -64,7 +64,7 @@ public class ConvAeBP extends CNNBP implements IConvAutoEncoderLayerVisitor {
 				bpReconstructedConv(layer.getLc(), (ConvolutionKernal) cks[j], 
 						fms[i], ffm, j == 0);
 			}
-			deActivateGlobal(fms[i]);
+			CNNUtils.deActivateGlobal(this, fms[i]);
 		}
 	
 	}
@@ -116,7 +116,7 @@ public class ConvAeBP extends CNNBP implements IConvAutoEncoderLayerVisitor {
 				IFeatureMap ffm = fmsInLastLayer[ssk.fmapOfPreviousLayer];
 				bpReconstructedSampling(ssk, fms[i], ffm, fms[i].getAcf(), j == 0);
 			}
-			deActivateGlobal(fms[i]);
+			CNNUtils.deActivateGlobal(this, fms[i]);
 		}
 	
 	}

@@ -25,6 +25,10 @@ public class CNNBP implements ICNNBP {
 		wWUpv.bp = this;
 	}
 	
+	public boolean useBlas() {
+		return true;
+	}
+	
 	
 	public double getStdError() {
 		return stdError;
@@ -109,6 +113,7 @@ public class CNNBP implements ICNNBP {
 	
 //	boolean useBN = false;
 
+	BlasCNNBpVisitor blasbp;
 	@Override
 	public void visitCNNLayer(CNNLayer layer) {
 		/***visit block
@@ -127,6 +132,16 @@ public class CNNBP implements ICNNBP {
 		resetPreviousFlagMatrix(layer);
 		IFeatureMap [] fms = layer.getFeatureMaps();		
 		IFeatureMap[] fmsOfPrevious = previousLayer.getFeatureMaps();
+		
+		/***Use blas to speed up***/
+		if (useBlas()) {
+			if (this.blasbp == null) {
+				blasbp = new BlasCNNBpVisitor(this);
+			}
+			blasbp.visitCNNLayer(layer);
+			return;
+		}
+		/***Use blas to speed up***/
 //		visitPartialCNNLayer(fms, fmsOfPrevious, layer, previousLayer);
 		visitPartialCNNLayer2(fms, fmsOfPrevious, layer, previousLayer);
 	}
@@ -169,12 +184,12 @@ public class CNNBP implements ICNNBP {
 				ck.initB = false;
 				resetFlagMatrix(ck.getInitDeltaZzs());
 			}
-			if (useBN(fms[i])) {
-				batchNorm(fms[i]);
+			if (CNNUtils.useBN(cfg, fms[i])) {
+				CNNUtils.batchNorm(fms[i]);
 			} else {
-				deActiveDZzs(fms[i]);
+				CNNUtils.deActiveDZzs(fms[i]);
 			}
-			deActivateGlobal(fms[i]);
+			CNNUtils.deActivateGlobal(this, fms[i]);
 		}		
 	}
 	
@@ -228,87 +243,21 @@ public class CNNBP implements ICNNBP {
 			}
 		}
 		for (int i = offset; i < offset + length; i++) {
-			if (useBN(fms[i])) {
-				batchNorm(fms[i]);
+			if (CNNUtils.useBN(cfg, fms[i])) {
+				CNNUtils.batchNorm(fms[i]);
 			}			
 			IConvolutionKernal[] cks = fms[i].getKernals();
 			for (int j = 0; j < cks.length; j++) {
 				IFeatureMap ffm = fmsOfPrevious[cks[j].getFmapOfPreviousLayer()];
 				bpConvolution(previousLayer.getLc(), (ConvolutionKernal) cks[j], ffm, fms[i], 
-						!useBN(fms[i]) && j == 0);
+						!CNNUtils.useBN(cfg, fms[i]) && j == 0);
 			}
-			deActivateGlobal(fms[i]);
+//			deActivateGlobal(fms[i]);
+			CNNUtils.deActivateGlobal(this, fms[i]);
 		}
 	}
 	
-	public boolean useBN(IFeatureMap t2fm) {
-		if (cfg.isUseBN()) {
-			if (t2fm.getFeatures().length * t2fm.getFeatures()[0].length > 1) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public void deActiveDZzs(IFeatureMap t2fm) {
-		double [][] dy = t2fm.getDeltaZzs();
-		for (int i = 0; i < dy.length; i++) {
-			for (int j = 0; j < dy[i].length; j++) {
-				t2fm.getDeltaZzs()[i][j] = t2fm.getDeltaZzs()[i][j]
-						* t2fm.getAcf().deActivate(t2fm.getzZs()[i][j]);
-			}
-		}
-	}
-	
-	public void batchNorm(IFeatureMap t2fm) {
-		double [][] y = t2fm.getzZs();
-		double [][] xi = t2fm.getoZzs();
-		double [][] dy = t2fm.getDeltaZzs();
 		
-		double [][] dxm = new double[y.length][y[0].length];
-		double [][] dxi = new double[xi.length][xi[0].length]; 
-		double dvar = 0;
-		double du = 0;
-		double dgamma = 0;
-		double dbeta = 0;
-		
-		double du1 = 0;
-		double du2 = 0;
-		double pq = (double)(y.length * y[0].length);
-		for (int i = 0; i < dy.length; i++) {
-			for (int j = 0; j < dy[i].length; j++) {
-				t2fm.getDeltaZzs()[i][j] = t2fm.getDeltaZzs()[i][j]
-						* t2fm.getAcf().deActivate(t2fm.getzZs()[i][j]);
-				
-				dxm[i][j] = dy[i][j] * t2fm.getGema();
-				dvar = dvar + dxm[i][j] * (xi[i][j] - t2fm.getU()) 
-						* (-0.5) * Math.pow((t2fm.getVar2() + t2fm.getE()), -1.5);
-				du1 = du1 - dxm[i][j]/Math.sqrt(t2fm.getVar2() + t2fm.getE());
-				du2 = du2 - 2 * (xi[i][j] - t2fm.getU());
-				
-				double xm = (xi[i][j] - t2fm.getU())/Math.sqrt(t2fm.getVar2() + t2fm.getE());
-				if (i == 0 && j == 0) {
-					dgamma = cfg.getM() * t2fm.getDgamma() - cfg.getL() * dy[i][j] * xm;
-					dbeta = cfg.getM() * t2fm.getDbeta() - cfg.getL() * dy[i][j];
-				} else {
-					dgamma = dgamma - cfg.getL() * dy[i][j] *  xm;
-					dbeta = dbeta - cfg.getL() * dy[i][j];
-				}				
-			}
-		}
-		du = du1 + dvar * du2/pq;
-		t2fm.setDgamma(dgamma);
-		t2fm.setDbeta(dbeta);
-		
-		for (int i = 0; i < dxi.length; i++) {
-			for (int j = 0; j < dxi[0].length; j++) {
-				dxi[i][j] = dxm[i][j]/Math.sqrt(t2fm.getVar2() + t2fm.getE())
-						+ dvar * 2 * (xi[i][j] - t2fm.getU())/pq + du/pq;
-				dy[i][j] = dxi[i][j];
-			}
-		}
-	}
-	
 	public void visitResNetLayer(FractalBlock block) {
 		FractalBlock [] blocks = block.getFbs();
 		IFeatureMap [] fms = block.getFeatureMaps();
@@ -361,26 +310,7 @@ public class CNNBP implements ICNNBP {
 		}		
 	}
 	
-	public void deActivateGlobal(IFeatureMap fm) {
-		if (useBN(fm) || !useGlobalWeight) {
-			return;
-		} 
-		double [][] dzZ = fm.getDeltaZzs();
-		fm.setInitBb(false);
-		for (int i = 0; i < dzZ.length; i++) {
-			for (int j = 0; j < dzZ[i].length; j++) {
-				if (!fm.isInitBb()) {
-					fm.setInitBb(true);
-					fm.setDeltaBb(fm.getDeltaBb() * cfg.getM()
-							- cfg.getL() * dzZ[i][j]);
-				} else {
-					fm.setDeltaBb(fm.getDeltaBb()
-							- cfg.getL() * dzZ[i][j]);
-				}				
-			}
-		}
-	}
-	
+		
 	public Object getConvObjs(Object [][] objs, int r, int c, LayerConfigurator lc) {
 		int padding = lc.getPadding();
 		int mr = r - padding;
@@ -551,7 +481,8 @@ public class CNNBP implements ICNNBP {
 				IFeatureMap ffm = fmsInLastLayer[ssk.fmapOfPreviousLayer];
 				bpSampling(ssk, ffm, fms[i], fms[i].getAcf(), j == 0);
 			}
-			deActivateGlobal(fms[i]);
+//			deActivateGlobal(fms[i]);
+			CNNUtils.deActivateGlobal(this, fms[i]);
 		}
 	}
 	

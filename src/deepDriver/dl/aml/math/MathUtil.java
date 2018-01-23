@@ -94,6 +94,14 @@ public class MathUtil {
 		}
 	}
 	
+	public static int [][][] allocateInt(int r, int c, int k) { 
+		int [][][] m = new int[r][c][k];
+		for (int i = 0; i < m.length; i++) {
+			m[i] = allocateInt(c, k);
+		}
+		return m;
+	}
+	
 	public static int [][] allocateInt(int r, int c) { 
 		int [][] m = new int[r][c];
 		for (int i = 0; i < m.length; i++) {

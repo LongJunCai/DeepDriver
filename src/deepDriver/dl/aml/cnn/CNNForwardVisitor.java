@@ -4,10 +4,12 @@ package deepDriver.dl.aml.cnn;
 import deepDriver.dl.aml.ann.IActivationFunction;
 import deepDriver.dl.aml.distribution.modelParallel.PartialCallback;
 import deepDriver.dl.aml.distribution.modelParallel.ThreadParallel;
+import deepDriver.dl.aml.math.MathUtil;
 
 public class CNNForwardVisitor implements ICNNLayerVisitor {
 
 	protected CNNBP bp;
+	BlasCNNFdVisitor blasFd;
 	@Override
 	public void visitCNNLayer(CNNLayer layer) {
 		/***visit block
@@ -31,7 +33,17 @@ public class CNNForwardVisitor implements ICNNLayerVisitor {
 //					}
 //				}
 			}
-		} else {			
+		} else {
+			/***Use blas to speed up***/
+			if (bp.useBlas()) {
+				if (this.blasFd == null) {
+					blasFd = new BlasCNNFdVisitor(bp);
+					MathUtil.setThreadCnt(bp.cfg.getThreadsNum());
+				}
+				blasFd.visitCNNLayer(layer);
+				return;
+			}
+			/***Use blas to speed up***/
 			IFeatureMap [] fmsInLastLayer = layer.getPreviousLayer().getFeatureMaps();			
 			visitPartialCNNLayer(fms, fmsInLastLayer, layer);
 		}
@@ -67,7 +79,7 @@ public class CNNForwardVisitor implements ICNNLayerVisitor {
 					IFeatureMap ffm = fmsInLastLayer[cks[j].getFmapOfPreviousLayer()];
 					convolution(layer.getPreviousLayer().getLc(), (ConvolutionKernal)cks[j], ffm.getFeatures(), (FeatureMap)fms[i], j == 0);
 				}
-				activateConvZzs(fms[i]);
+				CNNUtils.activateConvZzs(bp, bp.cfg, fms[i]);
 			}
 	}
 	
@@ -126,23 +138,7 @@ public class CNNForwardVisitor implements ICNNLayerVisitor {
 			visitCNNLayer(block);
 		}		
 	}	
-	
-	public void activateConvZzs(IFeatureMap t2fm) {
-		if (bp.useBN(t2fm)) {
-			batchNorm(t2fm);
-		}		
-		for (int i = 0; i < t2fm.getFeatures().length; i++) {
-			for (int j = 0; j < t2fm.getFeatures()[i].length; j++) {
-				//use global 
-				if (!bp.useBN(t2fm) && bp.useGlobalWeight) {
-					t2fm.getzZs()[i][j] = t2fm.getzZs()[i][j] + t2fm.getbB();
-				}				
-				t2fm.getFeatures()[i][j] = t2fm.getAcf().activate(
-						t2fm.getzZs()[i][j]);
-			}
-		}
-	}	
-	
+		
 	public void activateZzs(IFeatureMap t2fm) {
 //		if (bp.useBN(t2fm)) {
 //			batchNorm(t2fm);
@@ -160,38 +156,7 @@ public class CNNForwardVisitor implements ICNNLayerVisitor {
 		}
 	}	
 	
-	public void batchNorm(IFeatureMap t2fm) {
-		double sum = 0;
-		double [][] z = t2fm.getzZs();
-		for (int i = 0; i < z.length; i++) {
-			for (int j = 0; j < z[i].length; j++) {
-				sum = sum + z[i][j];
-			}
-		}
-		double pq = (double)(z.length * z[0].length);
-		t2fm.setU(sum/pq);
-		sum = 0;
-		for (int i = 0; i < z.length; i++) {
-			for (int j = 0; j < z[i].length; j++) {
-				double a = (z[i][j] - t2fm.getU());
-				sum = sum + a * a;
-			}
-		}
-		t2fm.setVar2(sum/pq);
-		
-		for (int i = 0; i < z.length; i++) {
-			for (int j = 0; j < z[i].length; j++) { 
-				t2fm.getoZzs()[i][j] = z[i][j];
-				double y = t2fm.getBeta() + t2fm.getGema() * 
-						(z[i][j] - t2fm.getU())/Math.sqrt(t2fm.getVar2() + t2fm.getE()) ;						
-				z[i][j] = y;
-			}
-		}
-		
-		t2fm.setSumU(t2fm.getSumU() + t2fm.getU());
-		t2fm.setSumVar2(t2fm.getSumVar2() + t2fm.getVar2());
-		t2fm.setSamplesCnt(t2fm.getSamplesCnt() + 1);
-	}
+	
 	
 	public void convolution(LayerConfigurator lc, ConvolutionKernal ck, double [][] ffms, FeatureMap t2fm, boolean begin) {
 		for (int i = 0; i < t2fm.getFeatures().length; i++) {
