@@ -25,8 +25,21 @@ public class CNNBP implements ICNNBP {
 		wWUpv.bp = this;
 	}
 	
+	boolean checkBlas = false;
+	boolean useBlas = true;
+	
 	public boolean useBlas() {
-		return true;
+		if (!checkBlas) {
+			checkBlas = true;
+			for (int i = 0; i < cfg.getLayers().length; i++) {
+				layerIndex = i;
+				if (cfg.getLayers()[layerIndex].getLc().getCks() != null) {
+					useBlas = false;
+				}
+			}
+		}
+		
+		return useBlas;
 	}
 	
 	
