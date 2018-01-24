@@ -29,6 +29,9 @@ public class CNNBP implements ICNNBP {
 	boolean useBlas = true;
 	
 	public boolean useBlas() {
+		if (!cfg.isUseblas()) {
+			return false;
+		}
 		if (!checkBlas) {
 			checkBlas = true;
 			for (int i = 0; i < cfg.getLayers().length; i++) {
@@ -55,11 +58,24 @@ public class CNNBP implements ICNNBP {
 
 	double stdError = 0;
 
+	
 	public double runTrainEpich(IDataMatrix [] dataMatrix, double [] target) {
 		this.target = target;
+		annBp = 0;
+		cnnBp = 0;
+		poolingBp = 0;
+		long t = System.currentTimeMillis();
 		fwd4(dataMatrix);
+//		System.out.println("fwd:"+(System.currentTimeMillis() - t));
+		t = System.currentTimeMillis();
 		bp();
+//		System.out.println("bp:"+(System.currentTimeMillis() - t));
+//		System.out.println("annbp:"+annBp);
+//		System.out.println("cnnBp:"+cnnBp);
+//		System.out.println("poolingBp:"+poolingBp);
+		t = System.currentTimeMillis();
 		updateWws();
+//		System.out.println("update:"+(System.currentTimeMillis() - t));
 		return stdError;
 	}
 	
@@ -126,9 +142,13 @@ public class CNNBP implements ICNNBP {
 	
 //	boolean useBN = false;
 
+	long cnnBp = 0;
+	long annBp = 0;
+	long poolingBp = 0;
 	BlasCNNBpVisitor blasbp;
 	@Override
 	public void visitCNNLayer(CNNLayer layer) {
+		long t = System.currentTimeMillis();
 		/***visit block
 		 * **/
 		if (useVisitFractalBlock(layer)) {
@@ -152,11 +172,13 @@ public class CNNBP implements ICNNBP {
 				blasbp = new BlasCNNBpVisitor(this);
 			}
 			blasbp.visitCNNLayer(layer);
+			cnnBp = cnnBp + System.currentTimeMillis() - t;
 			return;
 		}
 		/***Use blas to speed up***/
 //		visitPartialCNNLayer(fms, fmsOfPrevious, layer, previousLayer);
 		visitPartialCNNLayer2(fms, fmsOfPrevious, layer, previousLayer);
+		cnnBp = cnnBp + System.currentTimeMillis() - t;
 	}
 	
 	ThreadParallel threadParallel = new ThreadParallel();
@@ -435,7 +457,7 @@ public class CNNBP implements ICNNBP {
 									- cfg.getL() * t2fm.getDeltaZzs()[i][j] * fz;
 						}
 						if (Math.abs(ck.detalwWs[k][k2]) > 10000) {
-							System.out.println("Gradient exploding...");
+							System.out.println("Conv gradient exploding...");
 						}
 					}
 				}				
@@ -461,19 +483,21 @@ public class CNNBP implements ICNNBP {
 
 	@Override
 	public void visitPoolingLayer(SamplingLayer layer) {
+		long t = System.currentTimeMillis();
 		resetPreviousFlagMatrix(layer);
 		IFeatureMap [] fms = layer.getFeatureMaps();
 		IFeatureMap [] fmsInLastLayer = layer.getPreviousLayer().getFeatureMaps();
-		/***Use blas to speed up***/
+		/***Use blas to speed up
 		if (useBlas()) {
 			if (this.blasbp == null) {
 				blasbp = new BlasCNNBpVisitor(this);
 			}
 			blasbp.visitPoolingLayer(layer);
 			return;
-		}
+		}***/
 		/***Use blas to speed up***/
 		visitPartialPoolingLayer(fms, fmsInLastLayer);
+		poolingBp = poolingBp + System.currentTimeMillis() - t;
 	}
 	
 	public void visitPartialPoolingLayer(final IFeatureMap [] fms, final IFeatureMap [] fmsInLastLayer) {
@@ -576,6 +600,7 @@ public class CNNBP implements ICNNBP {
 	InputParameters inparams = new InputParameters();
 	@Override
 	public void visitANNLayer(CNNLayer2ANNAdapter layer) {
+		long t = System.currentTimeMillis();
 		inparams.setAlpha(cfg.getL());
 		inparams.setLamda(0);
 		inparams.setM(cfg.getM());
@@ -606,6 +631,8 @@ public class CNNBP implements ICNNBP {
 				}
 			}
 		}
+		
+		annBp = annBp + System.currentTimeMillis() - t;
 	}
 
 	

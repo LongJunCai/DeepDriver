@@ -191,6 +191,14 @@ public class MathUtilBase {
 		return dv1;
 	}
 	
+	public static float multiple(float [] v1, float [] v2) { 
+		float v = 0;
+		for (int i = 0; i < v1.length; i++) {
+			v = v + v1[i] * v2[i]; 
+		}
+		return v;
+	}
+	
 	public static double multiple(double [] v1, double [] v2) { 
 		double v = 0;
 		for (int i = 0; i < v1.length; i++) {
@@ -325,6 +333,17 @@ public class MathUtilBase {
 		return 1.0/(1.0+Math.exp(-x));
 	}
 	
+	public static float [][] transpose(float [][] x) {
+		float [][] t = new float[x[0].length][];
+		for (int i = 0; i < t.length; i++) {
+			t[i] = new float[x.length];
+			for (int j = 0; j < t[i].length; j++) {
+				t[i][j] = x[j][i];
+			}
+		}
+		return t;
+	}
+	
 	public static double [][] transpose(double [][] x) {
 		double [][] t = new double[x[0].length][];
 		for (int i = 0; i < t.length; i++) {
@@ -368,6 +387,23 @@ public class MathUtilBase {
 		for (int i = 0; i < x.length; i++) { 
 			for (int j = 0; j < x[i].length; j++) {
 				r[i][j] = xp * x[i][j] + yp * y[i][j];
+			}
+		} 
+	}	
+	
+	public static void plus(float [][] x, float xp, float [][] y, float yp, float [][] r) { 
+		for (int i = 0; i < x.length; i++) { 
+			for (int j = 0; j < x[i].length; j++) {
+				r[i][j] = xp * x[i][j] + yp * y[i][j];
+			}
+		} 
+	}
+	
+	
+	public static void plus(float [][] x, float [][] y, float yp, float [][] r) { 
+		for (int i = 0; i < x.length; i++) { 
+			for (int j = 0; j < x[i].length; j++) {
+				r[i][j] = x[i][j] + yp * y[i][j];
 			}
 		} 
 	}
@@ -416,10 +452,29 @@ public class MathUtilBase {
 	}
 	
 	public static double[][] multiple(double [][] x, double [][] y) {
-		double [][] t = transpose(y);
 		double[][] result = new double[x.length][];
+		return multiple(x, y, result);
+	}
+	
+	public static float[][] multiple(float [][] x, float [][] y, float [][] result) {
+		float [][] t = transpose(y);		
 		for (int i = 0; i < result.length; i++) {
-			result[i] = new double[t.length];
+			if (result[i] == null) {
+				result[i] = new float[t.length];
+			}			
+			for (int j = 0; j < result[i].length; j++) {
+				result[i][j] = multiple(x[i], t[j]);
+			}
+		}
+		return result;
+	}
+	
+	public static double[][] multiple(double [][] x, double [][] y, double [][] result) {
+		double [][] t = transpose(y);		
+		for (int i = 0; i < result.length; i++) {
+			if (result[i] == null) {
+				result[i] = new double[t.length];
+			}			
 			for (int j = 0; j < result[i].length; j++) {
 				result[i][j] = multiple(x[i], t[j]);
 			}
@@ -432,10 +487,29 @@ public class MathUtilBase {
 	 * 
 	 * ***/
 	public static double[][] difMultipleX(double [][] dr, double [][] y) {
-		//dr ith row, y jth row
 		double [][] dm = new double[dr.length][];
+		return difMultipleX(dr, y, dm);
+	}
+	
+	public static float[][] difMultipleX(float [][] dr, float [][] y, float [][] dm) {
+		//dr ith row, y jth row		
 		for (int i = 0; i < dm.length; i++) {
-			dm[i] = new double[y.length];
+			if (dm[i] == null) {
+				dm[i] = new float[y.length];
+			}			
+			for (int j = 0; j < dm[i].length; j++) {
+				dm[i][j] = multiple(dr[i] , y[j]);
+			}
+		}
+		return dm;
+	}
+	
+	public static double[][] difMultipleX(double [][] dr, double [][] y, double [][] dm) {
+		//dr ith row, y jth row		
+		for (int i = 0; i < dm.length; i++) {
+			if (dm[i] == null) {
+				dm[i] = new double[y.length];
+			}			
 			for (int j = 0; j < dm[i].length; j++) {
 				dm[i][j] = multiple(dr[i] , y[j]);
 			}
@@ -467,13 +541,37 @@ public class MathUtilBase {
 	}
 	
 	public static double[][] difMultipleY(double [][] dr, double [][] x) {
+		double [][] dm = new double[x[0].length][];
+		return difMultipleY(dr, x, dm);
+	}
+	
+	public static float[][] difMultipleY(float [][] dr, float [][] x, float [][] dm) {
+		//dr jth column, x ith column
+		float [][] drt = transpose(dr);
+		float [][] xt = transpose(x);
+		
+		for (int i = 0; i < dm.length; i++) {
+			if (dm[i] == null) {
+				dm[i] = new float[dr[0].length];
+			}
+			
+			for (int j = 0; j < dm[i].length; j++) {
+				dm[i][j] = multiple(drt[j] , xt[i]);
+			}
+		}
+		return dm;
+	}
+	
+	public static double[][] difMultipleY(double [][] dr, double [][] x, double [][] dm) {
 		//dr jth column, x ith column
 		double [][] drt = transpose(dr);
 		double [][] xt = transpose(x);
 		
-		double [][] dm = new double[x[0].length][];
 		for (int i = 0; i < dm.length; i++) {
-			dm[i] = new double[dr[0].length];
+			if (dm[i] == null) {
+				dm[i] = new double[dr[0].length];
+			}
+			
 			for (int j = 0; j < dm[i].length; j++) {
 				dm[i][j] = multiple(drt[j] , xt[i]);
 			}

@@ -215,7 +215,11 @@ public interface IMathFunction {
 	
 	public void plus(double [][] x, double xp, double [][] y, double yp, double [][] r);
 	
+	public void plus(final float[][] x, final float xp, final float[][] y, final float yp, final float[][] r);
+	
 	public void plus(double [][] x, double [][] y, double yp, double [][] r);
+	
+	public void plus(float [][] x, float [][] y, float yp, float [][] r);
 	
 	public void set(double [][] x, double [][] y);
 	
@@ -225,7 +229,15 @@ public interface IMathFunction {
 	
 	public double[][] multiple(double [][] x, double [][] y); 
 	
+	public double[][] multiple(double [][] x, double [][] y, double [][] r); 
+	
+	public float[][] multiple(float [][] x, float [][] y, float [][] r); 
+	
 	public double[][] difMultipleX(double [][] dr, double [][] y);
+	
+	public double[][] difMultipleX(double [][] dr, double [][] y, double [][] dx);
+	
+	public float[][] difMultipleX(float[][] dr, float[][] y, float[][] dx);
 	
 	public double[][] difMultipleX(double [][] dr, double [] y);
 	
@@ -236,6 +248,10 @@ public interface IMathFunction {
 	public double[][] difMultipleY(double []dr, double [][] x);
 	
 	public double[][] difMultipleY(double [][] dr, double [][] x);
+	
+	public double[][] difMultipleY(double [][] dr, double [][] x, double [][] dy);
+	
+	public float[][] difMultipleY(float [][] dr, float [][] x, float [][] dy);
 	
 //	public void difSimplex(double [][] x, double [][] xSum, double [][] dx);
 //	

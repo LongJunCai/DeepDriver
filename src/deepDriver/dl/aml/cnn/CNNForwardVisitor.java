@@ -170,7 +170,7 @@ public class CNNForwardVisitor implements ICNNLayerVisitor {
 	public void visitPoolingLayer(SamplingLayer layer) {
 		IFeatureMap [] fms = layer.getFeatureMaps();
 		IFeatureMap [] fmsInLastLayer = layer.getPreviousLayer().getFeatureMaps();
-		/***Use blas to speed up***/
+		/***Use blas to speed up
 		if (bp.useBlas()) {
 			if (this.blasFd == null) {
 				blasFd = new BlasCNNFdVisitor(bp);
@@ -178,7 +178,7 @@ public class CNNForwardVisitor implements ICNNLayerVisitor {
 			}
 			blasFd.visitPoolingLayer(layer);
 			return;
-		}
+		}***/
 		/***Use blas to speed up***/
 		visitPartialPoolingLayer(fms, fmsInLastLayer, layer);
 	}

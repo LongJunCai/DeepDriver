@@ -165,6 +165,8 @@ public class TestResNet {
 		ca.addLayerCfg(lc8);
 		lc8.setaNNCfg(aNNCfg);
 		
+		cnnCfg.setUseblas(true);
+		
 		cnnCfg.setPoolingType(CNNConfigurator.MAX_POOLING_TYPE);
 		FractalNet fnn = new FractalNet();
 		fnn.setDebug(true);

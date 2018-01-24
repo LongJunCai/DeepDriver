@@ -35,17 +35,26 @@ public class CNNLayer implements ICNNLayer, Serializable {
 		}
 	}
 	
-	double [][] preM = null;
+	float [][] preM = null;
 	int [][][] preIds = null;
-	double [][] ckM = null;
+	float [][] ckM = null;
 	int [][][] ckIds = null;
-	double [][] outM = null;
+	float [][] outM = null;
 	int [][][] outIds = null;
 	
-	double [][] dpreM = null;
-	double [][] dckM = null;
-	double [][] doutM = null;	
+	float [][] dpreM = null;
+	float [][] dckM = null;
+	float [][] dckM4Tmp = null;
+	float [][] doutM = null;	
 		
+	public float[][] getDckM4Tmp() {
+		return dckM4Tmp;
+	}
+
+	public void setDckM4Tmp(float[][] dckM4Tmp) {
+		this.dckM4Tmp = dckM4Tmp;
+	}
+
 	public int[][][] getCkIds() {
 		return ckIds;
 	}
@@ -70,51 +79,51 @@ public class CNNLayer implements ICNNLayer, Serializable {
 		this.outIds = outIds;
 	}
 
-	public double[][] getPreM() {
+	public float[][] getPreM() {
 		return preM;
 	}
 
-	public void setPreM(double[][] preM) {
+	public void setPreM(float[][] preM) {
 		this.preM = preM;
 	}
 
-	public double[][] getCkM() {
+	public float[][] getCkM() {
 		return ckM;
 	}
 
-	public void setCkM(double[][] ckM) {
+	public void setCkM(float[][] ckM) {
 		this.ckM = ckM;
 	}
 
-	public double[][] getOutM() {
+	public float[][] getOutM() {
 		return outM;
 	}
 
-	public void setOutM(double[][] outM) {
+	public void setOutM(float[][] outM) {
 		this.outM = outM;
 	}
 
-	public double[][] getDpreM() {
+	public float[][] getDpreM() {
 		return dpreM;
 	}
 
-	public void setDpreM(double[][] dpreM) {
+	public void setDpreM(float[][] dpreM) {
 		this.dpreM = dpreM;
 	}
 
-	public double[][] getDckM() {
+	public float[][] getDckM() {
 		return dckM;
 	}
 
-	public void setDckM(double[][] dckM) {
+	public void setDckM(float[][] dckM) {
 		this.dckM = dckM;
 	}
 
-	public double[][] getDoutM() {
+	public float[][] getDoutM() {
 		return doutM;
 	}
 
-	public void setDoutM(double[][] doutM) {
+	public void setDoutM(float[][] doutM) {
 		this.doutM = doutM;
 	}
 

@@ -29,19 +29,23 @@ public class BlasCNNFdVisitor implements ICNNLayerVisitor {
 			int rows = (padding + fll.length - ckw + 1) * (padding + fll[0].length - ckh + 1);
 			int cols = ckw * ckh * fmsInLastLayer.length;
 			//assume all the previous fms are the same size
-			layer.setPreM(MathUtil.allocate(rows, cols));
-			layer.setDpreM(MathUtil.allocate(rows, cols));
+			layer.setPreM(MathUtil.allocateFloat(rows, cols));
+			layer.setDpreM(MathUtil.allocateFloat(rows, cols));
 			layer.setPreIds(MathUtil.allocateInt(rows, cols, psize));
 			//assume all the ck are the same size.
-			layer.setCkM(MathUtil.allocate(ckw * ckh * fmsInLastLayer.length, fms.length));
-			layer.setDckM(MathUtil.allocate(ckw * ckh * fmsInLastLayer.length, fms.length));
+			layer.setCkM(MathUtil.allocateFloat(ckw * ckh * fmsInLastLayer.length, fms.length));
+			layer.setDckM(MathUtil.allocateFloat(ckw * ckh * fmsInLastLayer.length, fms.length));
+			layer.setDckM4Tmp(MathUtil.allocateFloat(ckw * ckh * fmsInLastLayer.length, fms.length));
+			layer.setCkIds(MathUtil.allocateInt(ckw * ckh * fmsInLastLayer.length, fms.length, psize));
+			
 			//assume all the fms are the same size.
 			double [][] ff = fms[0].getFeatures();
-//			layer.setOutM(MathUtil.allocate(ff.length * ff[0].length, fms.length));
-			layer.setDoutM(MathUtil.allocate(ff.length * ff[0].length, fms.length));
+			layer.setOutM(MathUtil.allocateFloat(ff.length * ff[0].length, fms.length));
+			layer.setDoutM(MathUtil.allocateFloat(ff.length * ff[0].length, fms.length));
 			layer.setOutIds(MathUtil.allocateInt(ff.length * ff[0].length, fms.length, psize));
 			//copy CKs
-			double [][] ckm = layer.getCkM();
+			float [][] ckm = layer.getCkM();
+			int [][][] ckid = layer.getCkIds();
 			int ick = 0;
 			for (int i = 0; i < fms.length; i++) {
 				IConvolutionKernal [] cks1 = fms[i].getKernals();
@@ -51,7 +55,11 @@ public class BlasCNNFdVisitor implements ICNNLayerVisitor {
 					double [][] wWs = ck.wWs;
 					for (int k = 0; k < wWs.length; k++) {
 						for (int k2 = 0; k2 < wWs.length; k2++) {
-							ckm[ick++][i] = wWs[k][k2];//assuming the fully ck is sorted.
+							ckm[ick][i] = (float) wWs[k][k2];//assuming the fully ck is sorted.
+							ckid[ick][i][0] = j;
+							ckid[ick][i][1] = k;
+							ckid[ick][i][2] = k2;
+							ick++;
 						}
 					}
 				}
@@ -65,7 +73,7 @@ public class BlasCNNFdVisitor implements ICNNLayerVisitor {
 				int pd = layer.getPreviousLayer().getLc().getPadding();
 				int r = -1;
 				for (int j = -pd; j < pfs.length - ckw + 1 + pd; j++) {					
-					for (int j2 = -pd; j2 < pfs[j].length - ckh + 1 + pd; j2++) {	
+					for (int j2 = -pd; j2 < pfs[0].length - ckh + 1 + pd; j2++) {	
 						r++;
 						int c = 0;
 						for (int k = 0; k < ckw; k++) {
@@ -75,7 +83,7 @@ public class BlasCNNFdVisitor implements ICNNLayerVisitor {
 								if (nr < 0 || nr > pfs.length - 1) {
 									nr = -1; 
 									nc = -1;
-								} else if (nc < 0 || nc > pfs[j].length - 1) {
+								} else if (nc < 0 || nc > pfs[0].length - 1) {
 									nr = -1; 
 									nc = -1;
 								} 
@@ -104,7 +112,7 @@ public class BlasCNNFdVisitor implements ICNNLayerVisitor {
 			}
 		}
 		//copy preM
-		double [][] preM = layer.getPreM();
+		float [][] preM = layer.getPreM();
 		int [][][] preMIds = layer.getPreIds();
 		for (int i = 0; i < preM.length; i++) {
 			for (int j = 0; j < preM[i].length; j++) {
@@ -114,18 +122,29 @@ public class BlasCNNFdVisitor implements ICNNLayerVisitor {
 				if (r < 0 || c < 0) {
 					preM[i][j] = 0;
 				} else {
-					preM[i][j] = fmsInLastLayer[pt[2]].getFeatures()[r][c];		
+					preM[i][j] = (float) fmsInLastLayer[pt[2]].getFeatures()[r][c];		
 				}						
 			}
 		}
 				
-		//caculate outM 
-		double [][] ckm = layer.getCkM();
-		layer.setOutM(MathUtil.multiple(preM, ckm));
-		
+		//copy ckm
+		float [][] ckm = layer.getCkM();
+		int [][][] ckid = layer.getCkIds();
+		for (int i = 0; i < ckm.length; i++) {
+			for (int j = 0; j < ckm[i].length; j++) {
+				int[] pt = ckid[i][j];
+				IConvolutionKernal [] cks1 = fms[j].getKernals();
+				ConvolutionKernal ck = (ConvolutionKernal)cks1[pt[0]];
+				ckm[i][j] = (float) ck.wWs[pt[1]][pt[2]];
+			}
+		}
+//		layer.setOutM();
+		long t = System.currentTimeMillis();
+		MathUtil.multiple(preM, ckm, layer.getOutM());
+//		System.out.println("fd mo.."	+ ""+(System.currentTimeMillis() - t));
 		//copy back2 fms;
 		int [][][] oIds = layer.getOutIds();
-		double [][] outM = layer.getOutM();
+		float [][] outM = layer.getOutM();
 		for (int i = 0; i < outM.length; i++) {
 			for (int j = 0; j < outM[i].length; j++) {
 				double [][] pfs = fms[j].getzZs();
@@ -145,33 +164,48 @@ public class BlasCNNFdVisitor implements ICNNLayerVisitor {
 		IFeatureMap [] fmsInLastLayer = layer.getPreviousLayer().getFeatureMaps();	
 		double [][] fll = fmsInLastLayer[0].getFeatures();
 		SubSamplingKernal cks = (SubSamplingKernal) fms[0].getKernals()[0];
-		int padding = 2 * layer.getPreviousLayer().getLc().getPadding(); 
+		int padding = 0;//2 * layer.getPreviousLayer().getLc().getPadding(); 
 		int ckw = cks.ckRows;
 		int ckh = cks.ckColumns;
 		int psize = 3;
 		if (layer.getPreM() == null) {					
 			//assume it is well designed, the length is same size as chw and ckh
-			int rows = ((padding + fll.length)/ckw) * ((padding + fll[0].length)/ckh);
+			int r1 = ((padding + fll.length)/ckw);
+			if (r1 * ckw < (padding + fll.length)) {
+				r1 = r1 + 1;
+			}
+			int c1 = ((padding + fll[0].length)/ckh);
+			if (c1 * ckh < (padding + fll[0].length)) {
+				c1 = c1 + 1;
+			}
+			int rows =  r1 * c1;
 			int cols = ckw * ckh * fmsInLastLayer.length;
 			//assume all the previous fms are the same size
-			layer.setPreM(MathUtil.allocate(rows, cols));
-			layer.setDpreM(MathUtil.allocate(rows, cols));
+			layer.setPreM(MathUtil.allocateFloat(rows, cols));
+			layer.setDpreM(MathUtil.allocateFloat(rows, cols));
 			layer.setPreIds(MathUtil.allocateInt(rows, cols, psize));
 			//assume all the ck are the same size.
-			layer.setCkM(MathUtil.allocate(ckw * ckh * fmsInLastLayer.length, fms.length));
-			layer.setDckM(MathUtil.allocate(ckw * ckh * fmsInLastLayer.length, fms.length));
+			int ckNum = fms[0].getKernals().length;
+			layer.setCkM(MathUtil.allocateFloat(ckw * ckh * fmsInLastLayer.length, fms.length));
+			layer.setDckM(MathUtil.allocateFloat(ckw * ckh * fmsInLastLayer.length, fms.length));
+			layer.setDckM4Tmp(MathUtil.allocateFloat(ckw * ckh * fmsInLastLayer.length, fms.length));
 			layer.setCkIds(MathUtil.allocateInt(ckw * ckh * fmsInLastLayer.length, fms.length, psize));
 			//assume all the fms are the same size.
 			double [][] ff = fms[0].getFeatures();
-//			layer.setOutM(MathUtil.allocate(ff.length * ff[0].length, fms.length));
-			layer.setDoutM(MathUtil.allocate(ff.length * ff[0].length, fms.length));
+			layer.setOutM(MathUtil.allocateFloat(ff.length * ff[0].length, fms.length));
+			layer.setDoutM(MathUtil.allocateFloat(ff.length * ff[0].length, fms.length));
 			layer.setOutIds(MathUtil.allocateInt(ff.length * ff[0].length, fms.length, psize));
 			//copy CKs			
 			int [][][] ckIds = layer.getCkIds();
+			for (int i = 0; i < ckIds.length; i++) {
+				for (int j = 0; j < ckIds[i].length; j++) {
+					ckIds[i][j][0] = -1;
+				}
+			}
 			int ick = 0;
 			for (int i = 0; i < fms.length; i++) {
 				IConvolutionKernal [] cks1 = fms[i].getKernals();
-				ick = 0;
+				ick = i * ckw * ckh;//because it is not the fully connected!
 				for (int j = 0; j < cks1.length; j++) {
 					SubSamplingKernal ck = (SubSamplingKernal)cks1[j];
 					double wW = ck.wW;
@@ -188,7 +222,7 @@ public class BlasCNNFdVisitor implements ICNNLayerVisitor {
 			int [][][] preMIds = layer.getPreIds();
 			for (int i = 0; i < fmsInLastLayer.length; i++) {
 				double [][] pfs = fmsInLastLayer[i].getFeatures();
-				int pd = 2 * layer.getPreviousLayer().getLc().getPadding();
+				int pd = 0;//2 * layer.getPreviousLayer().getLc().getPadding();
 				int r = -1;
 				for (int j = 0; j < (pfs.length + pd)/ckw; j++) {					
 					for (int j2 = 0; j2 < (pfs[j].length+ pd)/ckh; j2++) {	
@@ -230,7 +264,7 @@ public class BlasCNNFdVisitor implements ICNNLayerVisitor {
 			}
 		}
 		//copy preM
-		double [][] preM = layer.getPreM();
+		float [][] preM = layer.getPreM();
 		int [][][] preMIds = layer.getPreIds();
 		for (int i = 0; i < preM.length; i++) {
 			for (int j = 0; j < preM[i].length; j++) {
@@ -240,31 +274,41 @@ public class BlasCNNFdVisitor implements ICNNLayerVisitor {
 				if (r < 0 || c < 0) {
 					preM[i][j] = 0;
 				} else {
-					preM[i][j] = fmsInLastLayer[pt[2]].getFeatures()[r][c];		
+					preM[i][j] = (float) fmsInLastLayer[pt[2]].getFeatures()[r][c];		
 				}						
 			}
 		}
 		//copy ckm
-		double [][] ckm = layer.getCkM();
+		float[][] ckm = layer.getCkM();
 		int [][][] ckIds = layer.getCkIds();
 		for (int i = 0; i < ckm.length; i++) {
 			for (int j = 0; j < ckm[i].length; j++) {
-				SubSamplingKernal ck = (SubSamplingKernal)fms[j].getKernals()[ckIds[i][j][0]];
-				ckm[i][j] = ck.wW;
+				int pt = ckIds[i][j][0];
+				if (pt < 0) {
+					ckm[i][j] = 0;
+					continue;
+				}
+				SubSamplingKernal ck = (SubSamplingKernal)fms[j].getKernals()[pt];
+				ckm[i][j] = (float) ck.wW;
 			}
 		}
 				
 		//caculate outM 
 //		double [][] ckm = layer.getCkM();
-		layer.setOutM(MathUtil.multiple(preM, ckm));
-		
+//		layer.setOutM();		
+		MathUtil.multiple(preM, ckm, layer.getOutM());
 		//copy back2 fms;
 		int [][][] oIds = layer.getOutIds();
-		double [][] outM = layer.getOutM();
+		float[][] outM = layer.getOutM();
+		if (oIds.length != outM.length || oIds[0].length != outM[0].length) {
+			System.out.println("Issue occurs...");
+		}
 		for (int i = 0; i < outM.length; i++) {
 			for (int j = 0; j < outM[i].length; j++) {
 				double [][] pfs = fms[j].getzZs();
-				pfs[oIds[i][j][0]][oIds[i][j][1]] = outM[i][j];
+				int r = oIds[i][j][0];
+				int c = oIds[i][j][1];
+				pfs[r][c] = outM[i][j];
 			}
 		}
 		

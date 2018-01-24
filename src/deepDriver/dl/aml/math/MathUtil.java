@@ -116,6 +116,14 @@ public class MathUtil {
 		}
 	}
 	
+	public static float [][] allocateFloat(int r, int c) { 
+		float [][] m = new float[r][c];
+		for (int i = 0; i < m.length; i++) {
+			m[i] = new float[c];
+		}
+		return m;
+	}
+	
 	
 	public static double [][] allocate(int r, int c) { 
 		double [][] m = new double[r][c];
@@ -384,6 +392,18 @@ public class MathUtil {
 		plus(x, y, 1.0, r);
 	}
 	
+	public static void plus(float [][] x, float [][] y, float [][] r) {
+		plus(x, y, 1.0f, r);
+	}
+	
+	public static void plus(float [][] x, float [][] y, float yp, float [][] r) { 
+		mf.plus(x, y, yp, r);
+	}
+	
+	public static void plus(float [][] x, float xp, float [][] y, float yp, float [][] r) { 
+		mf.plus(x, xp, y, yp, r);		
+	}
+	
 	public static void plus(double [][] x, double xp, double [][] y, double yp, double [][] r) { 
 		mf.plus(x, xp, y, yp, r);		
 	}
@@ -415,6 +435,14 @@ public class MathUtil {
 		return mf.multipleV(x, y);
 	}
 	
+	public static float[][] multiple(float [][] x, float [][] y, float [][] r) {
+		return mf.multiple(x, y, r);
+	}
+	
+	public static double[][] multiple(double [][] x, double [][] y, double [][] r) {
+		return mf.multiple(x, y, r);
+	}
+	
 	public static double[][] multiple(double [][] x, double [][] y) {
 		return mf.multiple(x, y);
 	}
@@ -424,8 +452,17 @@ public class MathUtil {
 	 * 
 	 * ***/
 	public static double[][] difMultipleX(double [][] dr, double [][] y) {
-		//dr ith row, y jth row
 		return mf.difMultipleX(dr, y);
+	}
+	
+	public static float[][] difMultipleX(float [][] dr, float [][] y, float [][] dx) {
+		//dr ith row, y jth row
+		return mf.difMultipleX(dr, y, dx);
+	}
+	
+	public static double[][] difMultipleX(double [][] dr, double [][] y, double [][] dx) {
+		//dr ith row, y jth row
+		return mf.difMultipleX(dr, y, dx);
 	}
 	
 	public static double[][] difMultipleX(double [][] dr, double [] y) {
@@ -447,8 +484,18 @@ public class MathUtil {
 	}
 	
 	public static double[][] difMultipleY(double [][] dr, double [][] x) {
+		double [][] dy = new double[x[0].length][];
+		return difMultipleY(dr, x, dy);
+	}
+	
+	public static float[][] difMultipleY(float [][] dr, float [][] x, float [][] dy) {
 		//dr jth column, x ith column
-		return mf.difMultipleY(dr, x);
+		return mf.difMultipleY(dr, x, dy);
+	}
+	
+	public static double[][] difMultipleY(double [][] dr, double [][] x, double [][] dy) {
+		//dr jth column, x ith column
+		return mf.difMultipleY(dr, x, dy);
 	}
 		
 	public static boolean check(double [] ta, double [] tb) {

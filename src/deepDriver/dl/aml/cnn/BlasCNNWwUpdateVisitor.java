@@ -19,6 +19,17 @@ public class BlasCNNWwUpdateVisitor implements ICNNLayerVisitor {
 		}
 		if (layer.getCkM() != null) {
 			MathUtil.plus(layer.getCkM(), layer.getDckM(), layer.getCkM());
+			
+			float [][] ckm = layer.getCkM();
+			int [][][] ckid = layer.getCkIds();
+			for (int i = 0; i < ckm.length; i++) {
+				for (int j = 0; j < ckm[i].length; j++) {
+					int[] pt = ckid[i][j];
+					IConvolutionKernal [] cks1 = fms[j].getKernals();
+					ConvolutionKernal ck = (ConvolutionKernal)cks1[pt[0]];
+					ck.wWs[pt[1]][pt[2]] = ckm[i][j];
+				}
+			}
 		}		
 	}
 	

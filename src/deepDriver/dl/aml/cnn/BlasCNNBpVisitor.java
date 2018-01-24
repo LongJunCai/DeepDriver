@@ -12,7 +12,7 @@ public class BlasCNNBpVisitor implements ICNNLayerVisitor {
 	}
 
 	@Override
-	public void visitCNNLayer(CNNLayer layer) { 
+	public void visitCNNLayer(final CNNLayer layer) { 
 		IFeatureMap [] fms = layer.getFeatureMaps();
 		IFeatureMap [] fmsInLastLayer = layer.getPreviousLayer().getFeatureMaps();
 		for (int i = 0; i < fmsInLastLayer.length; i++) { 
@@ -29,18 +29,33 @@ public class BlasCNNBpVisitor implements ICNNLayerVisitor {
 		
 		// copy back2 fms;
 		int[][][] oIds = layer.getOutIds();
-		double[][] dom = layer.getDoutM();
+		final float[][] dom = layer.getDoutM();
 		for (int i = 0; i < dom.length; i++) {
 			for (int j = 0; j < dom[i].length; j++) {
 				double[][] pfs = fms[j].getDeltaZzs();
-				dom[i][j] = pfs[oIds[i][j][0]][oIds[i][j][1]];
+				dom[i][j] = (float) pfs[oIds[i][j][0]][oIds[i][j][1]];
 			}
 		}
-		double [][] ckm = layer.getCkM();
-		double [][] preM = layer.getPreM();
-		//X * Y = Z
-		double [][] dpreM = MathUtil.difMultipleX(dom, ckm);
-		double [][] dckm = MathUtil.difMultipleY(dom, preM);
+		final float[][] ckm = layer.getCkM();
+		float[][] preM = layer.getPreM();
+		
+		long t = System.currentTimeMillis();
+		//X * Y = Z//		
+//		Thread th = new Thread() { 
+//			public void run() { 
+//				MathUtil.difMultipleX(dom, ckm, layer.getDpreM());
+//			}			
+//		};
+//		th.start();
+		MathUtil.difMultipleX(dom, ckm, layer.getDpreM());
+		float [][] dckm = MathUtil.difMultipleY(dom, preM, layer.getDckM4Tmp());
+//		try {
+//			th.join();
+//		} catch (InterruptedException e) { 
+//			e.printStackTrace();
+//		}
+		float [][] dpreM = layer.getDpreM();
+//		System.out.println("bpMo.." +(System.currentTimeMillis() - t));
 		
 		int [][][] preMIds = layer.getPreIds();
 		for (int i = 0; i < dpreM.length; i++) {
@@ -57,7 +72,7 @@ public class BlasCNNBpVisitor implements ICNNLayerVisitor {
 			}
 		}
 		//we did not handle the non-shared global b cases.
-		MathUtil.plus(layer.getDckM(), bp.cfg.getM(), dckm, -bp.cfg.getL(), layer.getDckM());
+		MathUtil.plus(layer.getDckM(), (float)bp.cfg.getM(), dckm, (float)-bp.cfg.getL(), layer.getDckM());
 		
 	}
 
@@ -81,18 +96,18 @@ public class BlasCNNBpVisitor implements ICNNLayerVisitor {
 		
 		// copy back2 fms;
 		int[][][] oIds = layer.getOutIds();
-		double[][] dom = layer.getDoutM();
+		float[][] dom = layer.getDoutM();
 		for (int i = 0; i < dom.length; i++) {
 			for (int j = 0; j < dom[i].length; j++) {
 				double[][] pfs = fms[j].getDeltaZzs();
-				dom[i][j] = pfs[oIds[i][j][0]][oIds[i][j][1]];
+				dom[i][j] = (float) pfs[oIds[i][j][0]][oIds[i][j][1]];
 			}
 		}
-		double [][] ckm = layer.getCkM();
-		double [][] preM = layer.getPreM();
+		float [][] ckm = layer.getCkM();
+		float [][] preM = layer.getPreM();
 		//X * Y = Z
-		double [][] dpreM = MathUtil.difMultipleX(dom, ckm);
-		double [][] dckm = MathUtil.difMultipleY(dom, preM);
+		float[][] dpreM = MathUtil.difMultipleX(dom, ckm, layer.getDpreM());
+		float[][] dckm = MathUtil.difMultipleY(dom, preM, layer.getDckM4Tmp());
 		
 		int [][][] preMIds = layer.getPreIds();
 		for (int i = 0; i < dpreM.length; i++) {
@@ -112,7 +127,11 @@ public class BlasCNNBpVisitor implements ICNNLayerVisitor {
 		int[][][] ckIds = layer.getCkIds();
 		for (int i = 0; i < dckm.length; i++) {
 			for (int j = 0; j < dckm[i].length; j++) {
-				SubSamplingKernal ck = (SubSamplingKernal) fms[j].getKernals()[ckIds[i][j][0]];
+				int pt = ckIds[i][j][0];
+				if (pt < 0) {
+					continue;
+				}
+				SubSamplingKernal ck = (SubSamplingKernal) fms[j].getKernals()[pt];
 				if (!ck.initwW) {
 					ck.initwW = true;
 					ck.deltawW = bp.cfg.getM() * ck.deltawW 

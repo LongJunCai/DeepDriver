@@ -23,8 +23,18 @@ public class CNNConfigurator implements Serializable {
 	
 	public static int AVG_POOLING_TYPE = 1;
 	public static int MAX_POOLING_TYPE = 2;
-	int poolingType = AVG_POOLING_TYPE;	
+	int poolingType = AVG_POOLING_TYPE;
+	
+	boolean useblas = true;
 		
+	public boolean isUseblas() {
+		return useblas;
+	}
+
+	public void setUseblas(boolean useblas) {
+		this.useblas = useblas;
+	}
+
 	public boolean isWithFC() {
 		return withFC;
 	}
