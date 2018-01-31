@@ -191,6 +191,16 @@ public class MathUtilBase {
 		return dv1;
 	}
 	
+//	public static float multipleNative(float [] v1, float [] v2) {   
+//		FloatMatrix fm = new FloatMatrix(v1);
+//		FloatMatrix fm1 = new FloatMatrix(v2);
+////		float v = 0;
+////		for (int i = 0; i < v1.length; i++) {
+////			v = v + v1[i] * v2[i]; 
+////		}
+//		return fm.mul(fm1.transpose()).data[0];
+//	}
+	
 	public static float multiple(float [] v1, float [] v2) { 
 		float v = 0;
 		for (int i = 0; i < v1.length; i++) {

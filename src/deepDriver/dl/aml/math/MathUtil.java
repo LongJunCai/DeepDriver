@@ -9,6 +9,10 @@ public class MathUtil {
 	static int threadCnt = 4;
 	static IMathFunction mf = new MathUtil4MThreads();
 	
+	public static void registerMf(IMathFunction mf1) {
+		mf = mf1;
+	}
+	
 	public static int getThreadCnt() {
 		return threadCnt;
 	}

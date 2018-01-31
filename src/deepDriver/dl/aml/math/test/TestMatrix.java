@@ -97,7 +97,7 @@ public class TestMatrix {
 	
 	
 	public static void mt() {
-		int l = 300;
+		int l = 3000;
 		double [][] a = new double[l][];
 		for (int i = 0; i < a.length; i++) {
 			a[i] = new double[l];
@@ -114,7 +114,7 @@ public class TestMatrix {
 			}
 		}
 		double t = System.currentTimeMillis();
-		MathUtil.setThreadCnt(1);
+		MathUtil.setThreadCnt(4);
 		double [][] c = MathUtil.multiple(a, b);
 		System.out.println(System.currentTimeMillis() - t);
 		/**		
