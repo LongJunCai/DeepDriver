@@ -4,6 +4,7 @@ package deepDriver.dl.aml.cnn;
 import deepDriver.dl.aml.ann.IActivationFunction;
 import deepDriver.dl.aml.distribution.modelParallel.PartialCallback;
 import deepDriver.dl.aml.distribution.modelParallel.ThreadParallel;
+import deepDriver.dl.aml.math.BlasMathFunction;
 import deepDriver.dl.aml.math.MathUtil;
 
 public class CNNForwardVisitor implements ICNNLayerVisitor {
@@ -39,6 +40,7 @@ public class CNNForwardVisitor implements ICNNLayerVisitor {
 				if (this.blasFd == null) {
 					blasFd = new BlasCNNFdVisitor(bp);
 					MathUtil.setThreadCnt(bp.cfg.getThreadsNum());
+					MathUtil.registerMf(new BlasMathFunction());
 				}
 				blasFd.visitCNNLayer(layer);
 				return;
