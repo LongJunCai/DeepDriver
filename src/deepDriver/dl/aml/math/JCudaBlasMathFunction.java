@@ -3,7 +3,7 @@ package deepDriver.dl.aml.math;
 import org.jblas.DoubleMatrix;
 import org.jblas.FloatMatrix;
 
-public class BlasMathFunction implements IMathFunction {
+public class JCudaBlasMathFunction implements IMathFunction {
 
 	@Override
 	public int getThreadCnt() {

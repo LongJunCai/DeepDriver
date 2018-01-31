@@ -2,6 +2,8 @@ package deepDriver.dl.aml.math;
 
 import java.util.Random;
 
+import org.jblas.FloatMatrix;
+
 import deepDriver.dl.aml.random.RandomFactory;
 
 public class MathUtilBase {
@@ -198,10 +200,13 @@ public class MathUtilBase {
 ////		for (int i = 0; i < v1.length; i++) {
 ////			v = v + v1[i] * v2[i]; 
 ////		}
-//		return fm.mul(fm1.transpose()).data[0];
+//		return fm.mmul(fm1.transpose()).toArray2()[0][0];
 //	}
 	
 	public static float multiple(float [] v1, float [] v2) { 
+//		if (true) {
+//			return multipleNative(v1, v2);
+//		}
 		float v = 0;
 		for (int i = 0; i < v1.length; i++) {
 			v = v + v1[i] * v2[i]; 
