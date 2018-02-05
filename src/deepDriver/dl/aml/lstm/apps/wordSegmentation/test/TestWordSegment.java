@@ -19,14 +19,14 @@ public class TestWordSegment {
 	public static void main(String[] args) throws Exception {
 		
 		/*Run under**/
-		DistributionEnvCfg.getCfg().set(P2PServer.KEY_SRV_PORT, 8034);
-//		DistributionEnvCfg.getCfg().set(P2PServer.KEY_SRV_HOST, "127.0.0.1");
-		ResourceMaster rm = ResourceMaster.getInstance();
-		if (args != null && args.length > 2) {
-			rm.setup(Integer.parseInt(args[0]));
-		} else {
-			rm.setup(4);
-		}
+//		DistributionEnvCfg.getCfg().set(P2PServer.KEY_SRV_PORT, 8034);
+////		DistributionEnvCfg.getCfg().set(P2PServer.KEY_SRV_HOST, "127.0.0.1");
+//		ResourceMaster rm = ResourceMaster.getInstance();
+//		if (args != null && args.length > 2) {
+//			rm.setup(Integer.parseInt(args[0]));
+//		} else {
+//			rm.setup(4);
+//		}
 		
 		WordSegSet wss = new WordSegSet();
 		wss.loadWordSegSet("D:\\6.workspace\\p.NLP\\train.conll");
@@ -51,7 +51,7 @@ public class TestWordSegment {
 		qcfg.setUseRmsProp(false);
 		qcfg.setUseThinData(true);
 		qcfg.setUseBias(true);
-		qcfg.setThreadsNum(4);//?
+		qcfg.setThreadsNum(4);//? 
 		StepReductionLR slr = new StepReductionLR();
 		slr.setStepsCnt(800000);
 		slr.setReductionRate(0.5); 
@@ -74,7 +74,8 @@ public class TestWordSegment {
 		
 		NeuroNetworkArchitecture nna = new NeuroNetworkArchitecture();
 
-		nna.setNnArch(new int [] {128, 128});
+		nna.setNnArch(new int [] {50, 128, 128});
+		nna.setUseProjectionLayer(true);
 //		nna.setNnArch(new int [] {256, 256});
 		nna.setCostFunction(LSTMConfigurator.SOFT_MAX);
 		qcfg.buildArchitecture(qsi, nna);

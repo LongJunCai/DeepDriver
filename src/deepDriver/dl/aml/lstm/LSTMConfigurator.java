@@ -251,6 +251,9 @@ public class LSTMConfigurator implements Serializable {
 	static int ProjectionLayerID = 1;
 	
 	public IRNNLayer createProjectionLayer(int projectionLength, int maxT, int nextLayerNN, LayerCfg lc) { 
+		if (biDirection) {
+			return new BiProjectionLayer2(projectionLength, maxT, nextLayerNN, lc);
+		}
 		return new ProjectionLayer(projectionLength, maxT, nextLayerNN, lc);
 	}
 	

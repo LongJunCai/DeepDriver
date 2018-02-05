@@ -27,7 +27,8 @@ public class BiBPTT extends BPTT4MultThreads {
 					feature = sample[i];
 					cfg.layers[j].fTT(this);
 				}		
-				if (j ==0 || (j == cfg.layers.length - 1 && cfg.isRequireLastRNNLayer())) {
+				if (j ==0 || (j == cfg.layers.length - 1 && cfg.isRequireLastRNNLayer())
+						|| isProjectLayer(cfg.layers[j])) {
 					continue;//RNN Layer has no need to run the bi
 				}
 				for (int i = sample.length - 1; i >= 0 ; i--) {//reverse order
@@ -67,7 +68,8 @@ public class BiBPTT extends BPTT4MultThreads {
 				cfg.layers[j].bpTT(this);
 			}
 			
-			if ((j == cfg.layers.length - 1 && cfg.isRequireLastRNNLayer())) {
+			if ((j == cfg.layers.length - 1 && cfg.isRequireLastRNNLayer())
+					) {
 				continue;
 			}
 			
@@ -81,6 +83,17 @@ public class BiBPTT extends BPTT4MultThreads {
 		}
 		return error;
 	}
+	
+//	public void fTT4RNNLayer(ProjectionLayer layer) {
+//		if (layerPos == cfg.layers.length - 1) {
+//			BiLstmLayer prev = (BiLstmLayer)cfg.layers[layerPos - 1];
+//			prev.reverseOpposite(sample.length);
+//			super.fTT4RNNLayer(layer);
+//			prev.reverseBackOpposite();
+//		} else {
+//			super.fTT4RNNLayer(layer);
+//		}
+//	}
 
 
 	@Override
@@ -99,8 +112,9 @@ public class BiBPTT extends BPTT4MultThreads {
 	@Override
 	public void fTT4RNNLayer(LSTMLayer layer) {
 		BiLstmLayer biLayer = (BiLstmLayer) layer;
+		IRNNLayer pl = cfg.layers[layerPos - 1];
 		if (layerPos - 1 == 0) {
-			BiRNNLayer prev = (BiRNNLayer)cfg.layers[layerPos - 1];
+			BiRNNLayer prev = (BiRNNLayer)pl;
 			if (biDirection == NORMAL) {	
 //				feature = sample[t];
 				super.fTT4RNNLayer(biLayer.layer);
@@ -110,6 +124,17 @@ public class BiBPTT extends BPTT4MultThreads {
 				super.fTT4RNNLayer(biLayer.ilayer);
 				prev.reverseBack();
 			}			
+		} else if(isProjectLayer(pl)) {
+			BiProjectionLayer2 prev = (BiProjectionLayer2)pl;
+			if (biDirection == NORMAL) {	
+//				feature = sample[t];
+				super.fTT4RNNLayer(biLayer.layer);
+			} else {
+//				feature = sample[sample.length - 1 - t];
+				prev.reverse(sample.length);
+				super.fTT4RNNLayer(biLayer.ilayer);
+				prev.reverseBack();
+			}
 		} else {
 			BiLstmLayer prev = (BiLstmLayer)cfg.layers[layerPos - 1];
 			if (biDirection == NORMAL) {				
@@ -152,6 +177,34 @@ public class BiBPTT extends BPTT4MultThreads {
 		}		
 	}
 
+	public void bpTT4RNNLayer(ProjectionLayer layer) {
+		BiProjectionLayer2 cLayer = (BiProjectionLayer2) layer;
+		IRNNLayer nLayer = cfg.layers[layerPos + 1];		
+		if (biDirection == NORMAL) {	
+			if (nLayer instanceof BiLstmLayer) {
+				BiLstmLayer nbLayer = (BiLstmLayer) nLayer;
+				nLayer = nbLayer.layer;
+			}
+			bpttPartialFromNextLayer(nLayer, layer.getRNNNeuroVos(), layer, false, false);
+		} else {
+			cLayer.reverse(sample.length);
+			if (nLayer instanceof BiLstmLayer) {
+				BiLstmLayer nbLayer = (BiLstmLayer) nLayer;
+				nLayer = nbLayer.ilayer;
+			}
+			bpttPartialFromNextLayer(nLayer, layer.getRNNNeuroVos(), layer, false, true);
+			cLayer.reverseBack();
+		}
+//		bpttFromNextLayer(layer, false);		
+	}
+	
+	
+//	public void updateWw4RNNLayer(ProjectionLayer layer) { 
+//		BiProjectionLayer2 currentLayer = (BiProjectionLayer2) layer;
+//		super.updateWw4RNNLayer(currentLayer.layer);
+//		super.updateWw4RNNLayer(currentLayer.ilayer);
+//	}
+	
 
 	@Override
 	public void bpTT4RNNLayer(LSTMLayer layer) {//assume all the layers are 

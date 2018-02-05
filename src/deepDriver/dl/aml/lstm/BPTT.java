@@ -1382,6 +1382,11 @@ public class BPTT implements IBPTT,Serializable {
 		bpttFromNextLayer(layer, false);		
 	}
 
-	
+	public boolean isProjectLayer(IRNNLayer layer) {
+		if (layer instanceof ProjectionLayer) {
+			return true;
+		}
+		return false;
+	}
 
 }
