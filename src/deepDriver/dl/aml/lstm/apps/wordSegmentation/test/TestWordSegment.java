@@ -1,8 +1,5 @@
 package deepDriver.dl.aml.lstm.apps.wordSegmentation.test;
 
-import deepDriver.dl.aml.distribution.DistributionEnvCfg;
-import deepDriver.dl.aml.distribution.P2PServer;
-import deepDriver.dl.aml.distribution.ResourceMaster;
 import deepDriver.dl.aml.lrate.StepReductionLR;
 import deepDriver.dl.aml.lstm.LSTM;
 import deepDriver.dl.aml.lstm.LSTMConfigurator;
@@ -76,6 +73,8 @@ public class TestWordSegment {
 
 		nna.setNnArch(new int [] {50, 128, 128});
 		nna.setUseProjectionLayer(true);
+//		nna.setNnArch(new int [] {128, 128});
+
 //		nna.setNnArch(new int [] {256, 256});
 		nna.setCostFunction(LSTMConfigurator.SOFT_MAX);
 		qcfg.buildArchitecture(qsi, nna);

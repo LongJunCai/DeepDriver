@@ -1,7 +1,11 @@
 package deepDriver.dl.aml.math;
-
+ 
 import org.jblas.DoubleMatrix;
 import org.jblas.FloatMatrix;
+
+import jcuda.Pointer;
+import jcuda.Sizeof;
+import jcuda.jcublas.JCublas;
 
 public class JCudaBlasMathFunction implements IMathFunction {
 
@@ -18,6 +22,11 @@ public class JCudaBlasMathFunction implements IMathFunction {
 	@Override
 	public double[][] transpose(double[][] x) {
 		DoubleMatrix fx = new DoubleMatrix(x);
+		return fx.transpose().toArray2();
+	}
+	
+	public float [][] transpose(float [][] x) {
+		FloatMatrix fx = new FloatMatrix(x);
 		return fx.transpose().toArray2();
 	}
 
@@ -133,29 +142,130 @@ public class JCudaBlasMathFunction implements IMathFunction {
 
 	@Override
 	public double[][] multiple(double[][] x, double[][] y) {
-		DoubleMatrix fm = new DoubleMatrix(x);
-		DoubleMatrix fm1 = new DoubleMatrix(y);
-		DoubleMatrix fm2 = fm.mmul(fm1);  
-		return fm2.toArray2();
+		JCublas.cublasInit();
+		Pointer p_x = new Pointer();
+		Pointer p_y = new Pointer();
+		Pointer p_r = new Pointer();
+		double [] xd = matrix2Arr(x);
+		double [] yd = matrix2Arr(y);
+		double [] rd = new double[x.length * y[0].length];
+		JCublas.cublasAlloc(xd.length, Sizeof.DOUBLE, p_x);
+		JCublas.cublasAlloc(yd.length, Sizeof.DOUBLE, p_y);
+		JCublas.cublasAlloc(rd.length, Sizeof.DOUBLE, p_r);
+		
+		// Copy the memory from the host to the device
+        JCublas.cublasSetVector(xd.length, Sizeof.DOUBLE, Pointer.to(xd), 1, p_x, 1);
+        JCublas.cublasSetVector(yd.length, Sizeof.DOUBLE, Pointer.to(yd), 1, p_y, 1);
+        JCublas.cublasSetVector(rd.length, Sizeof.DOUBLE, Pointer.to(rd), 1, p_r, 1);
+        int pyRow = y[0].length;
+        int pxColumn = x.length;
+        int pyColumn = y.length; 
+        int pxRow = x[0].length;
+
+        // Execute sgemm
+        JCublas.cublasSgemm(
+            'n', 'n', pyRow, pxColumn, pyColumn, 1.0f, p_y, pyRow, p_x, pxRow, 1.0f, p_r, pyRow);
+
+        // Copy the result from the device to the host
+        JCublas.cublasGetVector(rd.length, Sizeof.DOUBLE, p_r, 1, Pointer.to(rd), 1);
+
+        // Clean up
+        JCublas.cublasFree(p_x);
+        JCublas.cublasFree(p_y);
+        JCublas.cublasFree(p_r);
+		
+		JCublas.cublasShutdown();
+		return arr2Matrix(x.length, y[0].length, rd);
+	}
+	
+	public double [] matrix2Arr(double[][] x) {
+		double [] a = new double[x.length * x[0].length];
+		int cnt = 0;
+		for (int i = 0; i < x[0].length; i++) {
+			for (int j = 0; j < x.length; j++) {
+				a[cnt ++] = x[j][i];
+			}
+		}
+		return a;
+	}
+	
+	public float [] matrix2Arr(float [][] x) {
+		float [] a = new float[x.length * x[0].length];
+		int cnt = 0;
+		for (int i = 0; i < x[0].length; i++) {
+			for (int j = 0; j < x.length; j++) {
+				a[cnt ++] = x[j][i];
+			}
+		}
+		return a;
+	}
+	
+	public float [][] arr2Matrix(int r, int c, float [] fx) {
+		float [][] x = new float[r][c];
+		int cnt = 0;
+		for (int i = 0; i < x[0].length; i++) {
+			for (int j = 0; j < x.length; j++) {
+				 x[j][i] = fx[cnt ++];
+			}
+		}
+		return x;
+	}
+	
+	public double [][] arr2Matrix(int r, int c, double [] fx) {
+		double [][] x = new double[r][c];
+		int cnt = 0;
+		for (int i = 0; i < x[0].length; i++) {
+			for (int j = 0; j < x.length; j++) {
+				 x[j][i] = fx[cnt ++];
+			}
+		}
+		return x;
 	}
 
 	@Override
 	public double[][] multiple(double[][] x, double[][] y, double[][] r) {
-		DoubleMatrix fm = new DoubleMatrix(x);
-		DoubleMatrix fm1 = new DoubleMatrix(y);
-		DoubleMatrix fm2 = fm.mmul(fm1); 
-		copy2(fm2.toArray2(), r);
+		double [][] rx = multiple(x, y);
+		copy2(rx, r);
 		return r;
 	}
 
 	@Override
 	public float[][] multiple(float[][] x, float[][] y, float[][] r) {
-		FloatMatrix fm = new FloatMatrix(x);
-		FloatMatrix fm1 = new FloatMatrix(y);
-		FloatMatrix fm2 = fm.mmul(fm1);
-//		FloatMatrix fm3 = new FloatMatrix(r);
-//		fm3.copy(fm2);
-		copy2(fm2.toArray2(), r);
+		JCublas.cublasInit();
+		Pointer p_x = new Pointer();
+		Pointer p_y = new Pointer();
+		Pointer p_r = new Pointer();
+		float [] xd = matrix2Arr(x);
+		float [] yd = matrix2Arr(y);
+		float [] rd = new float[x.length * y[0].length];
+		JCublas.cublasAlloc(xd.length, Sizeof.FLOAT, p_x);
+		JCublas.cublasAlloc(yd.length, Sizeof.FLOAT, p_y);
+		JCublas.cublasAlloc(rd.length, Sizeof.FLOAT, p_r);
+		
+		// Copy the memory from the host to the device
+        JCublas.cublasSetVector(xd.length, Sizeof.FLOAT, Pointer.to(xd), 1, p_x, 1);
+        JCublas.cublasSetVector(yd.length, Sizeof.FLOAT, Pointer.to(yd), 1, p_y, 1);
+        JCublas.cublasSetVector(rd.length, Sizeof.FLOAT, Pointer.to(rd), 1, p_r, 1);
+        int pyRow = y[0].length;
+        int pxColumn = x.length;
+        int pyColumn = y.length; 
+        int pxRow = x[0].length;
+
+        // Execute sgemm
+        JCublas.cublasSgemm(
+            'n', 'n', pyRow, pxColumn, pyColumn, 1.0f, p_y, pyRow, p_x, pxRow, 1.0f, p_r, pyRow);
+
+        // Copy the result from the device to the host
+        JCublas.cublasGetVector(rd.length, Sizeof.FLOAT, p_r, 1, Pointer.to(rd), 1);
+
+        // Clean up
+        JCublas.cublasFree(p_x);
+        JCublas.cublasFree(p_y);
+        JCublas.cublasFree(p_r);
+		
+		JCublas.cublasShutdown();
+		float [][] fx = arr2Matrix(x.length, y[0].length, rd); 
+		copy2(fx, r);
 		return r;
 	}
 
@@ -178,11 +288,11 @@ public class JCudaBlasMathFunction implements IMathFunction {
 
 	@Override
 	public float[][] difMultipleX(float[][] dr, float[][] y, float[][] dx) {
-		FloatMatrix fm = new FloatMatrix(dr);
-		FloatMatrix fm1 = new FloatMatrix(y);
-		FloatMatrix fm2 = fm.mmul(fm1.transpose());
-//		FloatMatrix fm3 = new FloatMatrix(dx);
-		copy2(fm2.toArray2(), dx);
+//		FloatMatrix fm = new FloatMatrix(dr);
+//		FloatMatrix fm1 = new FloatMatrix(y);
+//		FloatMatrix fm2 = fm.mmul(fm1.transpose());
+		multiple(dr, transpose(y), dx);
+//		FloatMatrix fm3 = new FloatMatrix(dx); 
 		return dx;
 	}
 
@@ -237,12 +347,13 @@ public class JCudaBlasMathFunction implements IMathFunction {
 
 	@Override
 	public float[][] difMultipleY(float[][] dr, float[][] x, float[][] dy) {
-		FloatMatrix fm = new FloatMatrix(dr);
-		FloatMatrix fm1 = new FloatMatrix(x);
-		FloatMatrix fm2 = fm1.transpose().mmul(fm);
+//		FloatMatrix fm = new FloatMatrix(dr);
+//		FloatMatrix fm1 = new FloatMatrix(x);
+//		FloatMatrix fm2 = fm1.transpose().mmul(fm);
 //		FloatMatrix fm3 = new FloatMatrix(dy);
 //		fm3.copy(fm2);
-		copy2(fm2.toArray2(), dy);
+		multiple(transpose(x), dr, dy);
+//		copy2(fm2.toArray2(), dy);
 		return dy;
 	}
 
