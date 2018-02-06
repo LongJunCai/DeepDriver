@@ -40,7 +40,7 @@ public class CNNForwardVisitor implements ICNNLayerVisitor {
 				if (this.blasFd == null) {
 					blasFd = new BlasCNNFdVisitor(bp);
 					MathUtil.setThreadCnt(bp.cfg.getThreadsNum());
-					MathUtil.registerMf(new BlasMathFunction());
+//					MathUtil.registerMf(new BlasMathFunction());
 				}
 				blasFd.visitCNNLayer(layer);
 				return;

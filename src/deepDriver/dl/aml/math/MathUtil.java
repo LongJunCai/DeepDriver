@@ -7,7 +7,8 @@ import deepDriver.dl.aml.random.RandomFactory;
 public class MathUtil {
 	
 	static int threadCnt = 4;
-	static IMathFunction mf = new MathUtil4MThreads();
+//	static IMathFunction mf = new MathUtil4MThreads();
+	static IMathFunction mf = new BlasMathFunction();
 	
 	public static void registerMf(IMathFunction mf1) {
 		mf = mf1;
